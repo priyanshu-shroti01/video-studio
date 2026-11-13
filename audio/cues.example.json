@@ -1,0 +1,12 @@
+{
+  "fps": 30,
+  "duration_s": 3.2,
+  "energy": "punchy",
+  "kit": "audio/kit",
+  "music": {"file": "audio/music/test-bed.wav", "start_s": 0, "loop": true, "fade_out_s": 1.0},
+  "voice": [{"file": "public/voiceover/test.mp3", "start_s": 0.3}],
+  "cues": [
+    {"id": "intro-swoosh", "frame": 4,  "sound": "whoosh", "weight": "support", "visual": "move"},
+    {"id": "logo-land",    "frame": 60, "sound": "chime",  "weight": "support", "visual": "land"}
+  ]
+}

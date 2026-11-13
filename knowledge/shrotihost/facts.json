@@ -1,0 +1,1681 @@
+{
+ "$comment": "Verified brand facts for Shroti Host. Each fact's excerpt was found verbatim (whitespace-normalised) in the page at source_url on fetched_at. Re-check with `python -m pipeline.intelligence facts --refresh`. Do NOT add claims that are not on the site.",
+ "brand": "shrotihost",
+ "brand_name": "Shroti Host",
+ "site": "https://shrotihost.in",
+ "fetched_at": "2026-11-13T14:11:15Z",
+ "pages": {
+  "home": "https://shrotihost.in/",
+  "hosting": "https://shrotihost.in/hosting",
+  "wordpress-hosting": "https://shrotihost.in/wordpress-hosting",
+  "offers": "https://shrotihost.in/offers"
+ },
+ "facts": [
+  {
+   "id": "shared.launch.price.monthly",
+   "category": "price",
+   "product": "shared",
+   "plan": "Launch",
+   "claim": "Launch shared hosting plan costs ₹49/month, billed monthly, excl. taxes",
+   "value": {
+    "amount": 49,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Launch Start something great. ₹49 Billed monthly · excl. taxes",
+   "volatile": false
+  },
+  {
+   "id": "shared.launch.storage",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Launch",
+   "claim": "Launch plan includes 10 GB NVMe storage",
+   "value": {
+    "storage_gb": 10,
+    "type": "NVMe"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Storage10 GB NVMe",
+   "volatile": false
+  },
+  {
+   "id": "shared.launch.websites",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Launch",
+   "claim": "Launch plan hosts 1 website",
+   "value": {
+    "websites": 1
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Websites1 Website",
+   "volatile": false
+  },
+  {
+   "id": "shared.launch.cpu_ram",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Launch",
+   "claim": "Launch plan has 1 Core CPU and 1.5 GB RAM",
+   "value": {
+    "cpu": "1 Core",
+    "ram": "1.5 GB"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "CPU1 Core RAM1.5 GB",
+   "volatile": false
+  },
+  {
+   "id": "shared.grow.price.monthly",
+   "category": "price",
+   "product": "shared",
+   "plan": "Grow",
+   "claim": "Grow shared hosting plan costs ₹79/month, billed monthly, excl. taxes",
+   "value": {
+    "amount": 79,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Grow Everything your growing website needs. ₹79 Billed monthly · excl. taxes",
+   "volatile": false
+  },
+  {
+   "id": "shared.grow.storage",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Grow",
+   "claim": "Grow plan includes 50 GB NVMe storage",
+   "value": {
+    "storage_gb": 50,
+    "type": "NVMe"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Storage50 GB NVMe",
+   "volatile": false
+  },
+  {
+   "id": "shared.grow.websites",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Grow",
+   "claim": "Grow plan hosts 5 websites",
+   "value": {
+    "websites": 5
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Websites5 Websites",
+   "volatile": false
+  },
+  {
+   "id": "shared.grow.cpu_ram",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Grow",
+   "claim": "Grow plan has 1.5 Cores CPU and 2 GB RAM",
+   "value": {
+    "cpu": "1.5 Cores",
+    "ram": "2 GB"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "CPU1.5 Cores RAM2 GB",
+   "volatile": false
+  },
+  {
+   "id": "shared.turbo.price.monthly",
+   "category": "price",
+   "product": "shared",
+   "plan": "Turbo",
+   "claim": "Turbo shared hosting plan costs ₹149/month, billed monthly, excl. taxes",
+   "value": {
+    "amount": 149,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Turbo More power for growing websites. ₹149 Billed monthly · excl. taxes",
+   "volatile": false
+  },
+  {
+   "id": "shared.turbo.storage",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Turbo",
+   "claim": "Turbo plan includes 100 GB NVMe storage",
+   "value": {
+    "storage_gb": 100,
+    "type": "NVMe"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Storage100 GB NVMe",
+   "volatile": false
+  },
+  {
+   "id": "shared.turbo.websites",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Turbo",
+   "claim": "Turbo plan hosts 10 websites",
+   "value": {
+    "websites": 10
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Websites10 Websites",
+   "volatile": false
+  },
+  {
+   "id": "shared.turbo.cpu_ram",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Turbo",
+   "claim": "Turbo plan has 2 Cores CPU and 3 GB RAM",
+   "value": {
+    "cpu": "2 Cores",
+    "ram": "3 GB"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "CPU2 Cores RAM3 GB",
+   "volatile": false
+  },
+  {
+   "id": "shared.infinity.price.monthly",
+   "category": "price",
+   "product": "shared",
+   "plan": "Infinity",
+   "claim": "Infinity shared hosting plan costs ₹249/month, billed monthly, excl. taxes",
+   "value": {
+    "amount": 249,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Infinity Maximum shared-hosting power. ₹249 Billed monthly · excl. taxes",
+   "volatile": false
+  },
+  {
+   "id": "shared.infinity.storage",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Infinity",
+   "claim": "Infinity plan includes 250 GB NVMe storage",
+   "value": {
+    "storage_gb": 250,
+    "type": "NVMe"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Storage250 GB NVMe",
+   "volatile": false
+  },
+  {
+   "id": "shared.infinity.websites",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Infinity",
+   "claim": "Infinity plan hosts 25 websites",
+   "value": {
+    "websites": 25
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Websites25 Websites",
+   "volatile": false
+  },
+  {
+   "id": "shared.infinity.cpu_ram",
+   "category": "spec",
+   "product": "shared",
+   "plan": "Infinity",
+   "claim": "Infinity plan has 3 Cores CPU and 4 GB RAM",
+   "value": {
+    "cpu": "3 Cores",
+    "ram": "4 GB"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "CPU3 Cores RAM4 GB",
+   "volatile": false
+  },
+  {
+   "id": "shared.tagline",
+   "category": "feature",
+   "product": "shared",
+   "plan": null,
+   "claim": "Shared hosting: fast shared hosting, priced honestly",
+   "value": {
+    "text": "Fast shared hosting, priced honestly."
+   },
+   "keywords": [
+    "fast",
+    "fast hosting",
+    "priced honestly"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Fast shared hosting, priced honestly.",
+   "volatile": false
+  },
+  {
+   "id": "shared.grow.most_popular",
+   "category": "plan",
+   "product": "shared",
+   "plan": "Grow",
+   "claim": "Grow is labelled the most popular shared plan",
+   "value": {
+    "badge": "Most popular"
+   },
+   "keywords": [
+    "most popular"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Most popular Grow Everything your growing website needs.",
+   "volatile": false
+  },
+  {
+   "id": "shared.from_price",
+   "category": "price",
+   "product": "shared",
+   "plan": "Launch",
+   "claim": "Shared (NVMe) hosting starts from ₹49/month",
+   "value": {
+    "amount": 49,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [
+    "starting at",
+    "starts at",
+    "from"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "NVMe hosting from ₹49/mo, same price on renewal.",
+   "volatile": false
+  },
+  {
+   "id": "shared.turbo.price.annual",
+   "category": "price",
+   "product": "shared",
+   "plan": "Turbo",
+   "claim": "Turbo costs ₹1,499 billed yearly, excl. taxes, with a free .in domain",
+   "value": {
+    "amount": 1499,
+    "currency": "INR",
+    "period": "year",
+    "billing": "annual",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/offers",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Turbo Free .in domain ₹1,499 Billed yearly · excl. taxes",
+   "volatile": true
+  },
+  {
+   "id": "shared.infinity.price.annual",
+   "category": "price",
+   "product": "shared",
+   "plan": "Infinity",
+   "claim": "Infinity costs ₹2,499 billed yearly, excl. taxes, with a free .com or .in domain",
+   "value": {
+    "amount": 2499,
+    "currency": "INR",
+    "period": "year",
+    "billing": "annual",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/offers",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Infinity Free .com or .in domain ₹2,499 Billed yearly · excl. taxes",
+   "volatile": true
+  },
+  {
+   "id": "wp.starter.price.monthly",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Starter",
+   "claim": "WP Starter WordPress hosting costs ₹69/month, billed monthly, excl. taxes",
+   "value": {
+    "amount": 69,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "WP Starter Start your WordPress journey. ₹69 Billed monthly · excl. taxes",
+   "volatile": false
+  },
+  {
+   "id": "wp.starter.price.cycles",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Starter",
+   "claim": "WP Starter costs ₹399 for 6 months or ₹699 per year (excl. taxes)",
+   "value": {
+    "amount": 69,
+    "currency": "INR",
+    "cycles": {
+     "monthly": 69,
+     "semiAnnual": 399,
+     "annual": 699
+    },
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "page-data",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "\"name\":\"WP Starter\",\"tagline\":\"Start your WordPress journey.\",\"monthlyPrice\":69,\"cyclePrices\":{\"monthly\":69,\"semiAnnual\":399,\"annual\":699}",
+   "volatile": false
+  },
+  {
+   "id": "wp.starter.storage",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Starter",
+   "claim": "WP Starter includes 10 GB NVMe storage",
+   "value": {
+    "storage_gb": 10,
+    "type": "NVMe"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Storage10 GB NVMe",
+   "volatile": false
+  },
+  {
+   "id": "wp.starter.websites",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Starter",
+   "claim": "WP Starter hosts 1 WordPress website",
+   "value": {
+    "websites": 1
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "1 WordPress Website",
+   "volatile": false
+  },
+  {
+   "id": "wp.starter.cpu_ram",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Starter",
+   "claim": "WP Starter has 1 Core CPU and 1.5 GB RAM",
+   "value": {
+    "cpu": "1 Core",
+    "ram": "1.5 GB"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "CPU1 Core RAM1.5 GB",
+   "volatile": false
+  },
+  {
+   "id": "wp.business.price.monthly",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Business",
+   "claim": "WP Business WordPress hosting costs ₹119/month, billed monthly, excl. taxes",
+   "value": {
+    "amount": 119,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "WP Business Everything your WordPress business needs. ₹119 Billed monthly · excl. taxes",
+   "volatile": false
+  },
+  {
+   "id": "wp.business.price.cycles",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Business",
+   "claim": "WP Business costs ₹679 for 6 months or ₹1,199 per year (excl. taxes)",
+   "value": {
+    "amount": 119,
+    "currency": "INR",
+    "cycles": {
+     "monthly": 119,
+     "semiAnnual": 679,
+     "annual": 1199
+    },
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "page-data",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "\"name\":\"WP Business\",\"tagline\":\"Everything your WordPress business needs.\",\"monthlyPrice\":119,\"cyclePrices\":{\"monthly\":119,\"semiAnnual\":679,\"annual\":1199}",
+   "volatile": false
+  },
+  {
+   "id": "wp.business.storage",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Business",
+   "claim": "WP Business includes 50 GB NVMe storage",
+   "value": {
+    "storage_gb": 50,
+    "type": "NVMe"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Storage50 GB NVMe",
+   "volatile": false
+  },
+  {
+   "id": "wp.business.websites",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Business",
+   "claim": "WP Business hosts 5 WordPress websites",
+   "value": {
+    "websites": 5
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "5 WordPress Websites",
+   "volatile": false
+  },
+  {
+   "id": "wp.business.cpu_ram",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Business",
+   "claim": "WP Business has 1.5 Cores CPU and 2 GB RAM",
+   "value": {
+    "cpu": "1.5 Cores",
+    "ram": "2 GB"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "CPU1.5 Cores RAM2 GB",
+   "volatile": false
+  },
+  {
+   "id": "wp.performance.price.monthly",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Performance",
+   "claim": "WP Performance WordPress hosting costs ₹229/month, billed monthly, excl. taxes",
+   "value": {
+    "amount": 229,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "WP Performance More power for demanding WordPress sites. ₹229 Billed monthly · excl. taxes",
+   "volatile": false
+  },
+  {
+   "id": "wp.performance.price.cycles",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Performance",
+   "claim": "WP Performance costs ₹1299 for 6 months or ₹2,299 per year (excl. taxes)",
+   "value": {
+    "amount": 229,
+    "currency": "INR",
+    "cycles": {
+     "monthly": 229,
+     "semiAnnual": 1299,
+     "annual": 2299
+    },
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "page-data",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "\"name\":\"WP Performance\",\"tagline\":\"More power for demanding WordPress sites.\",\"monthlyPrice\":229,\"cyclePrices\":{\"monthly\":229,\"semiAnnual\":1299,\"annual\":2299}",
+   "volatile": false
+  },
+  {
+   "id": "wp.performance.storage",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Performance",
+   "claim": "WP Performance includes 100 GB NVMe storage",
+   "value": {
+    "storage_gb": 100,
+    "type": "NVMe"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Storage100 GB NVMe",
+   "volatile": false
+  },
+  {
+   "id": "wp.performance.websites",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Performance",
+   "claim": "WP Performance hosts 10 WordPress websites",
+   "value": {
+    "websites": 10
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "10 WordPress Websites",
+   "volatile": false
+  },
+  {
+   "id": "wp.performance.cpu_ram",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Performance",
+   "claim": "WP Performance has 2 Cores CPU and 3 GB RAM",
+   "value": {
+    "cpu": "2 Cores",
+    "ram": "3 GB"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "CPU2 Cores RAM3 GB",
+   "volatile": false
+  },
+  {
+   "id": "wp.ultimate.price.monthly",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Ultimate",
+   "claim": "WP Ultimate WordPress hosting costs ₹379/month, billed monthly, excl. taxes",
+   "value": {
+    "amount": 379,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "WP Ultimate Maximum WordPress power. ₹379 Billed monthly · excl. taxes",
+   "volatile": false
+  },
+  {
+   "id": "wp.ultimate.price.cycles",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Ultimate",
+   "claim": "WP Ultimate costs ₹2159 for 6 months or ₹3,799 per year (excl. taxes)",
+   "value": {
+    "amount": 379,
+    "currency": "INR",
+    "cycles": {
+     "monthly": 379,
+     "semiAnnual": 2159,
+     "annual": 3799
+    },
+    "taxes": "excluded"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "page-data",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "\"name\":\"WP Ultimate\",\"tagline\":\"Maximum WordPress power.\",\"monthlyPrice\":379,\"cyclePrices\":{\"monthly\":379,\"semiAnnual\":2159,\"annual\":3799}",
+   "volatile": false
+  },
+  {
+   "id": "wp.ultimate.storage",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Ultimate",
+   "claim": "WP Ultimate includes 250 GB NVMe storage",
+   "value": {
+    "storage_gb": 250,
+    "type": "NVMe"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Storage250 GB NVMe",
+   "volatile": false
+  },
+  {
+   "id": "wp.ultimate.websites",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Ultimate",
+   "claim": "WP Ultimate hosts 25 WordPress websites",
+   "value": {
+    "websites": 25
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "25 WordPress Websites",
+   "volatile": false
+  },
+  {
+   "id": "wp.ultimate.cpu_ram",
+   "category": "spec",
+   "product": "wordpress",
+   "plan": "WP Ultimate",
+   "claim": "WP Ultimate has 3 Cores CPU and 4 GB RAM",
+   "value": {
+    "cpu": "3 Cores",
+    "ram": "4 GB"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "CPU3 Cores RAM4 GB",
+   "volatile": false
+  },
+  {
+   "id": "wp.from_price",
+   "category": "price",
+   "product": "wordpress",
+   "plan": "WP Starter",
+   "claim": "Managed WordPress hosting starts from ₹69/month",
+   "value": {
+    "amount": 69,
+    "currency": "INR",
+    "period": "month",
+    "billing": "monthly",
+    "taxes": "excluded"
+   },
+   "keywords": [
+    "managed wordpress hosting",
+    "managed wordpress"
+   ],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Managed WordPress Hosting in India from ₹69/mo",
+   "volatile": false
+  },
+  {
+   "id": "wp.business.most_popular",
+   "category": "plan",
+   "product": "wordpress",
+   "plan": "WP Business",
+   "claim": "WP Business is labelled the most popular WordPress plan",
+   "value": {
+    "badge": "Most popular"
+   },
+   "keywords": [
+    "most popular"
+   ],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Most popular WP Business Everything your WordPress business needs.",
+   "volatile": false
+  },
+  {
+   "id": "wp.tagline",
+   "category": "feature",
+   "product": "wordpress",
+   "plan": null,
+   "claim": "WordPress hosting is tuned to run WordPress fast",
+   "value": {
+    "text": "WordPress, tuned to run fast."
+   },
+   "keywords": [
+    "tuned",
+    "fast",
+    "faster",
+    "speed",
+    "run fast"
+   ],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "WordPress, tuned to run fast.",
+   "volatile": false
+  },
+  {
+   "id": "wp.one_click",
+   "category": "feature",
+   "product": "wordpress",
+   "plan": null,
+   "claim": "One-click WordPress install, LiteSpeed Cache and AccelerateWP are built specifically for WordPress",
+   "value": {
+    "features": [
+     "one-click install",
+     "LiteSpeed Cache",
+     "AccelerateWP"
+    ]
+   },
+   "keywords": [
+    "one-click",
+    "one click",
+    "1-click",
+    "litespeed cache",
+    "lscache",
+    "acceleratewp",
+    "install wordpress",
+    "installs wordpress",
+    "installing wordpress",
+    "built for wordpress",
+    "built specifically for wordpress"
+   ],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "One-click install, LiteSpeed Cache, and AccelerateWP, built specifically for WordPress, not bolted onto generic hosting.",
+   "volatile": false
+  },
+  {
+   "id": "wp.softaculous",
+   "category": "feature",
+   "product": "wordpress",
+   "plan": null,
+   "claim": "WordPress Manager by Softaculous and Softaculous 1-Click Installs on every WordPress plan",
+   "value": {
+    "features": [
+     "WordPress Manager by Softaculous",
+     "Softaculous 1-Click Installs"
+    ]
+   },
+   "keywords": [
+    "softaculous",
+    "wordpress manager"
+   ],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "WordPress Manager by Softaculous Softaculous 1-Click Installs AccelerateWP Optimization LiteSpeed + LiteSpeed Cache",
+   "volatile": false
+  },
+  {
+   "id": "wp.starter.features",
+   "category": "feature",
+   "product": "wordpress",
+   "plan": "WP Starter",
+   "claim": "WP Starter includes free SSL, daily backups, free WordPress migration, Imunify360 and is WooCommerce ready",
+   "value": {
+    "features": [
+     "Free SSL Certificate",
+     "Daily Backups",
+     "Free WordPress Migration",
+     "Imunify360 Security",
+     "WooCommerce Ready"
+    ]
+   },
+   "keywords": [
+    "woocommerce",
+    "imunify360",
+    "free wordpress migration"
+   ],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Free SSL Certificate Daily Backups Free WordPress Migration Imunify360 Security WooCommerce Ready Choose WP Starter",
+   "volatile": false
+  },
+  {
+   "id": "wp.setup_demo",
+   "category": "feature",
+   "product": "wordpress",
+   "plan": null,
+   "claim": "The WordPress page shows a setup sequence: installing WordPress, choosing a theme, installing plugins, configuring SSL, enabling LiteSpeed Cache",
+   "value": {
+    "steps": [
+     "Installing WordPress…",
+     "Choosing a theme…",
+     "Installing plugins…",
+     "Configuring SSL…",
+     "Enabling LiteSpeed Cache…"
+    ]
+   },
+   "keywords": [
+    "choose a theme",
+    "choosing a theme",
+    "plugins",
+    "wp-admin"
+   ],
+   "source_url": "https://shrotihost.in/wordpress-hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Setting up WordPress yourbrand.com/wp-admin Installing WordPress… Choosing a theme… Installing plugins… Configuring SSL… Enabling LiteSpeed Cache…",
+   "volatile": false
+  },
+  {
+   "id": "policy.same_renewal",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "Every plan renews at the listed price on every billing cycle; no increase later",
+   "value": {
+    "renewal": "same as listed price"
+   },
+   "keywords": [
+    "same price on renewal",
+    "same renewal price",
+    "renews at the same price",
+    "same price",
+    "no increase",
+    "no hidden hikes",
+    "no price hike",
+    "no price hikes",
+    "no renewal hikes",
+    "no hikes",
+    "without price hikes",
+    "no surprise hikes",
+    "renewal",
+    "renews",
+    "renew",
+    "no surprises",
+    "price stays",
+    "never goes up",
+    "honest pricing",
+    "priced honestly"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Every plan renews at the price listed here, on every billing cycle. No increase later.",
+   "volatile": false
+  },
+  {
+   "id": "policy.money_back",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "7-day money-back guarantee",
+   "value": {
+    "days": 7
+   },
+   "keywords": [
+    "7-day money-back guarantee",
+    "money-back guarantee",
+    "money back guarantee",
+    "money-back",
+    "money back",
+    "7-day",
+    "seven-day",
+    "refund"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "7-day money-back guarantee",
+   "volatile": false
+  },
+  {
+   "id": "policy.uptime_target",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "99.9% uptime TARGET (a target, not an SLA guarantee)",
+   "value": {
+    "uptime_pct": 99.9,
+    "kind": "target"
+   },
+   "keywords": [
+    "uptime"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "99.9% uptime target",
+   "volatile": false,
+   "note": "Say 'target', never 'guaranteed'."
+  },
+  {
+   "id": "policy.free_migration",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "Free migration, handled by the Shroti Host team",
+   "value": {
+    "free": true
+   },
+   "keywords": [
+    "free migration",
+    "migrate",
+    "migration",
+    "move your site",
+    "moves your site"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Free migration, handled for you",
+   "volatile": false
+  },
+  {
+   "id": "policy.instant_activation",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "Instant activation",
+   "value": {
+    "activation": "instant"
+   },
+   "keywords": [
+    "instant activation",
+    "instantly",
+    "instant"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Instant activation",
+   "volatile": false
+  },
+  {
+   "id": "policy.support_247",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "24/7 support",
+   "value": {
+    "support": "24/7"
+   },
+   "keywords": [
+    "24/7",
+    "support"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "24/7 Support",
+   "volatile": false
+  },
+  {
+   "id": "policy.taxes",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "Prices exclude applicable taxes, calculated at checkout",
+   "value": {
+    "taxes": "excluded"
+   },
+   "keywords": [
+    "excl. taxes",
+    "excluding taxes",
+    "plus taxes",
+    "+ taxes",
+    "excl taxes"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Prices exclude applicable taxes, calculated at checkout",
+   "volatile": false
+  },
+  {
+   "id": "policy.billing_cycles",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "Billing cycles: monthly, 6 months or yearly",
+   "value": {
+    "cycles": [
+     "monthly",
+     "6 months",
+     "yearly"
+    ]
+   },
+   "keywords": [
+    "monthly",
+    "yearly",
+    "6 months",
+    "billing cycle"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Monthly, 6 months or yearly: pick whichever fits, with the same renewal price shown upfront on every cycle.",
+   "volatile": false
+  },
+  {
+   "id": "policy.payments",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "Pay by UPI, card or net banking",
+   "value": {
+    "methods": [
+     "UPI",
+     "card",
+     "net banking"
+    ]
+   },
+   "keywords": [
+    "upi",
+    "net banking",
+    "card"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Pay by UPI, card or net banking.",
+   "volatile": false
+  },
+  {
+   "id": "policy.upgrade",
+   "category": "policy",
+   "product": "all",
+   "plan": null,
+   "claim": "You can move up a tier at any time without migrating to a new server",
+   "value": {
+    "upgrade": true
+   },
+   "keywords": [
+    "upgrade",
+    "move up a tier"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "You can move up a tier at any time without migrating your website to a new server",
+   "volatile": false
+  },
+  {
+   "id": "platform.nvme",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "All storage runs on NVMe SSDs with automatic daily backups",
+   "value": {
+    "storage": "NVMe SSD"
+   },
+   "keywords": [
+    "nvme",
+    "ssd",
+    "daily backups",
+    "daily backup",
+    "backups",
+    "automatic backups"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "All storage runs on NVMe SSDs with automatic daily backups.",
+   "volatile": false
+  },
+  {
+   "id": "platform.litespeed",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "LiteSpeed Web Server: event-driven request handling, far faster than Apache",
+   "value": {
+    "server": "LiteSpeed"
+   },
+   "keywords": [
+    "litespeed",
+    "litespeed servers",
+    "faster than apache"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "LiteSpeed Web Server Event-driven request handling, far faster than Apache.",
+   "volatile": false
+  },
+  {
+   "id": "platform.cloudlinux",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "CloudLinux isolation: one site's spike never slows another",
+   "value": {
+    "isolation": "CloudLinux"
+   },
+   "keywords": [
+    "cloudlinux",
+    "isolated",
+    "isolation"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Your account runs isolated, so one site's spike never slows another.",
+   "volatile": false
+  },
+  {
+   "id": "platform.free_ssl",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "Free SSL on every shared and WordPress plan",
+   "value": {
+    "ssl": "free"
+   },
+   "keywords": [
+    "free ssl",
+    "ssl",
+    "https",
+    "let's encrypt",
+    "padlock"
+   ],
+   "source_url": "https://shrotihost.in/offers",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Every shared and WordPress plan includes free SSL and daily backups, and renews at the listed price.",
+   "volatile": false
+  },
+  {
+   "id": "platform.security",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "Imunify360 + DDoS Shield and malware scanner on every plan",
+   "value": {
+    "security": [
+     "Imunify360",
+     "DDoS Shield",
+     "Malware Scanner"
+    ]
+   },
+   "keywords": [
+    "imunify360",
+    "ddos",
+    "malware",
+    "security",
+    "secure",
+    "protected"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Imunify360 + DDoS Shield Malware Scanner",
+   "volatile": false
+  },
+  {
+   "id": "platform.cloudflare",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "Servers are Cloudflare protected; Cloudflare CDN is optional and connected by the customer",
+   "value": {
+    "cloudflare": "servers protected; CDN optional"
+   },
+   "keywords": [
+    "cloudflare"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Our servers are Cloudflare protected either way.",
+   "volatile": false
+  },
+  {
+   "id": "platform.cpanel",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "cPanel + Softaculous on every plan",
+   "value": {
+    "panel": "cPanel"
+   },
+   "keywords": [
+    "cpanel"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "cPanel + Softaculous",
+   "volatile": false
+  },
+  {
+   "id": "platform.bandwidth",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "Unmetered bandwidth on every plan",
+   "value": {
+    "bandwidth": "unmetered"
+   },
+   "keywords": [
+    "unmetered",
+    "bandwidth"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Unmetered Bandwidth",
+   "volatile": false,
+   "note": "Unmetered, not 'unlimited'."
+  },
+  {
+   "id": "platform.managed_wordpress_all",
+   "category": "feature",
+   "product": "shared",
+   "plan": null,
+   "claim": "Every shared plan includes Managed WordPress + LiteSpeed Cache",
+   "value": {
+    "wordpress": "managed"
+   },
+   "keywords": [
+    "managed wordpress"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Managed WordPress + LiteSpeed Cache",
+   "volatile": false
+  },
+  {
+   "id": "platform.live_in_minutes",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "Domains, LiteSpeed hosting and infrastructure, live in minutes",
+   "value": {
+    "time_to_live": "minutes"
+   },
+   "keywords": [
+    "in minutes",
+    "live in minutes",
+    "minutes"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Domains, LiteSpeed hosting, and the infrastructure your project stands on, live in minutes.",
+   "volatile": false
+  },
+  {
+   "id": "platform.email",
+   "category": "feature",
+   "product": "all",
+   "plan": null,
+   "claim": "Email on your domain on every plan",
+   "value": {
+    "email": true
+   },
+   "keywords": [
+    "email on your domain",
+    "business email",
+    "email"
+   ],
+   "source_url": "https://shrotihost.in/hosting",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Email on Your Domain",
+   "volatile": false
+  },
+  {
+   "id": "offer.coupon_shrotihost",
+   "category": "offer",
+   "product": "all",
+   "plan": null,
+   "claim": "40% off with code SHROTIHOST on WP Starter, WP Business, WP Performance, Launch, Grow, Turbo and Unlimited plans: monthly cycle, first payment only (renewals at normal price), new customers, once per customer",
+   "value": {
+    "percent_off": 40,
+    "code": "SHROTIHOST",
+    "cycles": [
+     "monthly"
+    ],
+    "first_payment_only": true,
+    "new_customers_only": true,
+    "plans": [
+     "WP Starter",
+     "WP Business",
+     "WP Performance",
+     "Launch",
+     "Grow",
+     "Turbo",
+     "Unlimited Solo",
+     "Unlimited Trio",
+     "Unlimited Pro"
+    ]
+   },
+   "keywords": [
+    "40%",
+    "forty percent",
+    "coupon",
+    "promo code",
+    "code shrotihost",
+    "discount",
+    "% off"
+   ],
+   "source_url": "https://shrotihost.in/offers",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "40% off with code SHROTIHOST CodeSHROTIHOST Copy Works onWP Starter, WP Business, WP Performance, Launch, Grow, Turbo, Unlimited Solo, Unlimited Trio and Unlimited Pro Billing cyclesMonthly RenewalsFirst payment only, renewals at the normal price WhoNew customers only",
+   "volatile": true,
+   "note": "Volatile: re-check before publishing. A discounted price is NOT a list price and does not renew."
+  },
+  {
+   "id": "offer.free_domain_annual",
+   "category": "offer",
+   "product": "all",
+   "plan": null,
+   "claim": "Free domain for the first year with annual Turbo, Infinity, WP Performance or WP Ultimate",
+   "value": {
+    "plans": [
+     "Turbo",
+     "Infinity",
+     "WP Performance",
+     "WP Ultimate"
+    ],
+    "first_year_only": true
+   },
+   "keywords": [
+    "free domain",
+    "domain included"
+   ],
+   "source_url": "https://shrotihost.in/offers",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Free domain with annual hosting Pay for a year on one of these plans and the domain is included for the first year.",
+   "volatile": true
+  },
+  {
+   "id": "company.identity",
+   "category": "company",
+   "product": "company",
+   "plan": null,
+   "claim": "Shroti Host is an Indian web hosting and development company",
+   "value": {
+    "country": "India"
+   },
+   "keywords": [
+    "indian",
+    "india",
+    "made in india",
+    "hosting company"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Shroti Host is an Indian web hosting and development company",
+   "volatile": false
+  },
+  {
+   "id": "company.since",
+   "category": "company",
+   "product": "company",
+   "plan": null,
+   "claim": "Serving customers since 2023",
+   "value": {
+    "since": 2023
+   },
+   "keywords": [
+    "since 2023"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Serving customers since 2023",
+   "volatile": false
+  },
+  {
+   "id": "company.trustpilot",
+   "category": "social-proof",
+   "product": "company",
+   "plan": null,
+   "claim": "4.1/5 from 12 reviews on Trustpilot",
+   "value": {
+    "rating": 4.1,
+    "reviews": 12,
+    "platform": "Trustpilot"
+   },
+   "keywords": [
+    "trustpilot",
+    "rated",
+    "reviews",
+    "4.1"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "4.1/5 from 12 reviews on Trustpilot",
+   "volatile": true
+  },
+  {
+   "id": "company.audience",
+   "category": "company",
+   "product": "company",
+   "plan": null,
+   "claim": "Made for students, developers, and builders",
+   "value": {
+    "audience": [
+     "students",
+     "developers",
+     "builders"
+    ]
+   },
+   "keywords": [
+    "made for students, developers, and builders",
+    "made for students",
+    "students",
+    "developers",
+    "builders"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Made for students, developers, and builders.",
+   "volatile": false
+  },
+  {
+   "id": "company.url",
+   "category": "url",
+   "product": "company",
+   "plan": null,
+   "claim": "The brand website is shrotihost.in",
+   "value": {
+    "domain": "shrotihost.in"
+   },
+   "keywords": [
+    "shrotihost.in"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "page-data",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "https://shrotihost.in",
+   "volatile": false
+  },
+  {
+   "id": "company.support_email",
+   "category": "contact",
+   "product": "company",
+   "plan": null,
+   "claim": "Support email support@shrotihost.in",
+   "value": {
+    "email": "support@shrotihost.in"
+   },
+   "keywords": [
+    "support@shrotihost.in"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "support@shrotihost.in",
+   "volatile": false
+  },
+  {
+   "id": "company.whatsapp",
+   "category": "contact",
+   "product": "company",
+   "plan": null,
+   "claim": "Support on WhatsApp + tickets",
+   "value": {
+    "channels": [
+     "WhatsApp",
+     "tickets"
+    ]
+   },
+   "keywords": [
+    "whatsapp"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Support on WhatsApp + tickets",
+   "volatile": false
+  },
+  {
+   "id": "comparison.typical_renewal",
+   "category": "comparison",
+   "product": "all",
+   "plan": null,
+   "claim": "Compared with typical shared plans, whose renewal price 'often increases' (site comparison, Aug 2026)",
+   "value": {
+    "typical_host_renewal": "Often increases"
+   },
+   "keywords": [
+    "other hosts",
+    "most hosts",
+    "typical hosts",
+    "typical shared",
+    "often increases",
+    "price goes up",
+    "prices go up",
+    "raise the price",
+    "raise prices",
+    "hike the price",
+    "renewal hike",
+    "renewal hikes",
+    "renewal shock"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Same Renewal Price Included Often increases",
+   "volatile": false,
+   "note": "Only 'often increases' is supported; any multiplier (2x, 3x, triple) about other hosts is NOT."
+  },
+  {
+   "id": "comparison.typical_backups",
+   "category": "comparison",
+   "product": "all",
+   "plan": null,
+   "claim": "Free daily backups are 'often a paid add-on' at typical shared hosts",
+   "value": {
+    "typical_host_backups": "Often a paid add-on"
+   },
+   "keywords": [
+    "paid add-on",
+    "add-on"
+   ],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-13T14:11:15Z",
+   "excerpt": "Free daily backups Included Often a paid add-on",
+   "volatile": false
+  }
+ ],
+ "not_found": [
+  {
+   "claim": "WordPress Hosting at ₹39/month",
+   "origin": "user brief (2026-11-13)",
+   "checked_at": "2026-11-13T14:11:15Z",
+   "checked_urls": [
+    "https://shrotihost.in/wordpress-hosting",
+    "https://shrotihost.in/hosting",
+    "https://shrotihost.in/",
+    "https://shrotihost.in/offers"
+   ],
+   "finding": "No ₹39 price anywhere on these pages. WordPress plans start at WP Starter ₹69/mo (₹399 / 6 months, ₹699 / year, i.e. ~₹58/mo yearly). The 40% SHROTIHOST code on WP Starter monthly gives ₹41.40 for the first payment only (computed, not shown on the site).",
+   "closest_fact_ids": [
+    "wp.starter.price.monthly",
+    "wp.starter.price.cycles",
+    "offer.coupon_shrotihost",
+    "wp.from_price"
+   ],
+   "status": "NEEDS_REVIEW"
+  }
+ ]
+}

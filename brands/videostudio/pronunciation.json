@@ -1,0 +1,33 @@
+{
+ "$comment": "Video Studio pronunciations (display -> spoken). Confirm by ear.",
+ "entries": [
+  {
+   "display": "Remotion",
+   "spoken": "Ree-motion"
+  },
+  {
+   "display": "FFmpeg",
+   "spoken": "F F M peg"
+  },
+  {
+   "display": "Ollama",
+   "spoken": "Oh-lah-mah"
+  },
+  {
+   "display": "Kokoro",
+   "spoken": "Koh-koh-roh"
+  },
+  {
+   "display": "GitHub",
+   "spoken": "Git Hub"
+  },
+  {
+   "display": "github.com",
+   "spoken": "Git Hub dot com"
+  },
+  {
+   "display": "Qwen",
+   "spoken": "Kwen"
+  }
+ ]
+}

@@ -1,0 +1,89 @@
+{
+ "$comment": "Licence records for brand assets (used by the asset registry / job manifests).",
+ "assets": [
+  {
+   "path": "brands/shrotihost/logos/logo-on-dark.svg",
+   "source": "https://shrotihost.in/logo-on-dark.svg",
+   "license": "PROPRIETARY (Shroti Host trademark; owner's own brand)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/shrotihost/logos/logo-on-light.svg",
+   "source": "https://shrotihost.in/logo-on-light.svg",
+   "license": "PROPRIETARY (Shroti Host trademark; owner's own brand)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/shrotihost/logos/icon.svg",
+   "source": "https://shrotihost.in/icon.svg",
+   "license": "PROPRIETARY (Shroti Host trademark; owner's own brand)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/shrotihost/fonts/jakarta-latin.woff2",
+   "source": "https://shrotihost.in (Plus Jakarta Sans, Tokotype)",
+   "license": "OFL-1.1",
+   "attribution": "Plus Jakarta Sans \u00a9 The Plus Jakarta Sans Project Authors"
+  },
+  {
+   "path": "brands/shrotihost/fonts/jakarta-latin-ext.woff2",
+   "source": "https://shrotihost.in (Plus Jakarta Sans, Tokotype)",
+   "license": "OFL-1.1",
+   "attribution": "Plus Jakarta Sans \u00a9 The Plus Jakarta Sans Project Authors"
+  },
+  {
+   "path": "brands/shrotihost/fonts/geistmono-latin.woff2",
+   "source": "https://shrotihost.in (Geist Mono, Vercel)",
+   "license": "OFL-1.1",
+   "attribution": "Geist Mono \u00a9 Vercel"
+  },
+  {
+   "path": "brands/shrotihost/fonts/geistmono-latin-ext.woff2",
+   "source": "https://shrotihost.in (Geist Mono, Vercel)",
+   "license": "OFL-1.1",
+   "attribution": "Geist Mono \u00a9 Vercel"
+  },
+  {
+   "path": "brand/logo-on-dark.svg",
+   "source": "https://shrotihost.in/logo-on-dark.svg",
+   "license": "PROPRIETARY (Shroti Host trademark; owner's own brand)",
+   "attribution": ""
+  },
+  {
+   "path": "brand/logo-on-light.svg",
+   "source": "https://shrotihost.in/logo-on-light.svg",
+   "license": "PROPRIETARY (Shroti Host trademark; owner's own brand)",
+   "attribution": ""
+  },
+  {
+   "path": "brand/icon.svg",
+   "source": "https://shrotihost.in/icon.svg",
+   "license": "PROPRIETARY (Shroti Host trademark; owner's own brand)",
+   "attribution": ""
+  },
+  {
+   "path": "fonts/jakarta-latin.woff2",
+   "source": "https://shrotihost.in (Plus Jakarta Sans, Tokotype)",
+   "license": "OFL-1.1",
+   "attribution": "Plus Jakarta Sans \u00a9 The Plus Jakarta Sans Project Authors"
+  },
+  {
+   "path": "fonts/jakarta-latin-ext.woff2",
+   "source": "https://shrotihost.in (Plus Jakarta Sans, Tokotype)",
+   "license": "OFL-1.1",
+   "attribution": "Plus Jakarta Sans \u00a9 The Plus Jakarta Sans Project Authors"
+  },
+  {
+   "path": "fonts/geistmono-latin.woff2",
+   "source": "https://shrotihost.in (Geist Mono, Vercel)",
+   "license": "OFL-1.1",
+   "attribution": "Geist Mono \u00a9 Vercel"
+  },
+  {
+   "path": "fonts/geistmono-latin-ext.woff2",
+   "source": "https://shrotihost.in (Geist Mono, Vercel)",
+   "license": "OFL-1.1",
+   "attribution": "Geist Mono \u00a9 Vercel"
+  }
+ ]
+}

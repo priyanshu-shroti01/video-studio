@@ -1,0 +1,587 @@
+{
+ "contractVersion": 2,
+ "theme": {
+  "name": "Shroti Host",
+  "colors": {
+   "bg": "#0a0a0f",
+   "surface": "#131318",
+   "card": "#17171f",
+   "raised": "#191921",
+   "border": "rgba(255,255,255,0.14)",
+   "borderStrong": "rgba(255,255,255,0.22)",
+   "text": "#f5f5f7",
+   "text2": "#a1a1ab",
+   "muted": "#87878f",
+   "brand": "#a810c7",
+   "brandHover": "#c817ea",
+   "brandActive": "#8b0da3",
+   "brandText": "#cf6cf2",
+   "success": "#22c55e",
+   "danger": "#f0576b",
+   "warning": "#f5a524",
+   "info": "#3fa7ff",
+   "light": {
+    "card": "#ffffff",
+    "surface": "#f7f5fa",
+    "border": "#e6e1ec",
+    "text": "#15111c",
+    "text2": "#4b4655",
+    "muted": "#726c7d",
+    "success": "#15803d"
+   }
+  },
+  "fonts": {
+   "sans": {
+    "family": "Plus Jakarta Sans",
+    "files": [
+     {
+      "src": "fonts/jakarta-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+     },
+     {
+      "src": "fonts/jakarta-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+1E00-1EFF,U+20A0-20AB,U+20AD-20C4,U+2113"
+     }
+    ]
+   },
+   "mono": {
+    "family": "Geist Mono",
+    "files": [
+     {
+      "src": "fonts/geistmono-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212"
+     },
+     {
+      "src": "fonts/geistmono-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+20A0-20AB,U+20AD-20C4"
+     }
+    ]
+   }
+  },
+  "logo": {
+   "onDark": "brand/logo-on-dark.svg",
+   "onLight": "brand/logo-on-light.svg",
+   "mark": "brand/icon.svg",
+   "aspect": 5
+  },
+  "background": {
+   "style": "dots-glow",
+   "glowA": "#a810c7",
+   "glowB": "#3fa7ff"
+  },
+  "caption": {
+   "highlight": "#cf6cf2",
+   "box": "rgba(0,0,0,0.55)",
+   "text": "#f5f5f7",
+   "dim": "rgba(255,255,255,0.45)"
+  },
+  "radius": {
+   "card": 32,
+   "pill": 999
+  }
+ },
+ "brandBar": null,
+ "motion": "standard",
+ "watermark": {
+  "policy": "platform",
+  "opacity": 0.85
+ },
+ "format": "short",
+ "fps": 30,
+ "durationInFrames": 495,
+ "captions": {
+  "enabled": true,
+  "style": "word",
+  "maxWords": 4,
+  "fontSize": 66,
+  "bottomFrac": 0.27,
+  "maxWidthFrac": 0.8,
+  "pages": [
+   {
+    "start": 0.2,
+    "end": 1.298,
+    "wordIdx": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   {
+    "start": 1.356,
+    "end": 2.453,
+    "wordIdx": [
+     4,
+     5,
+     6,
+     7
+    ]
+   },
+   {
+    "start": 2.511,
+    "end": 3.609,
+    "wordIdx": [
+     8,
+     9,
+     10,
+     11
+    ]
+   },
+   {
+    "start": 3.667,
+    "end": 4.764,
+    "wordIdx": [
+     12,
+     13,
+     14,
+     15
+    ]
+   },
+   {
+    "start": 4.822,
+    "end": 5.342,
+    "wordIdx": [
+     16,
+     17
+    ]
+   },
+   {
+    "start": 6.2,
+    "end": 7.135,
+    "wordIdx": [
+     18,
+     19,
+     20,
+     21
+    ]
+   },
+   {
+    "start": 7.185,
+    "end": 8.12,
+    "wordIdx": [
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   {
+    "start": 8.169,
+    "end": 9.105,
+    "wordIdx": [
+     26,
+     27,
+     28,
+     29
+    ]
+   },
+   {
+    "start": 9.154,
+    "end": 9.351,
+    "wordIdx": [
+     30
+    ]
+   },
+   {
+    "start": 10.2,
+    "end": 11.298,
+    "wordIdx": [
+     31,
+     32,
+     33,
+     34
+    ]
+   },
+   {
+    "start": 11.356,
+    "end": 12.453,
+    "wordIdx": [
+     35,
+     36,
+     37,
+     38
+    ]
+   },
+   {
+    "start": 12.511,
+    "end": 13.609,
+    "wordIdx": [
+     39,
+     40,
+     41,
+     42
+    ]
+   },
+   {
+    "start": 13.667,
+    "end": 14.764,
+    "wordIdx": [
+     43,
+     44,
+     45,
+     46
+    ]
+   },
+   {
+    "start": 14.822,
+    "end": 15.342,
+    "wordIdx": [
+     47,
+     48
+    ]
+   }
+  ]
+ },
+ "words": [
+  {
+   "text": "Here",
+   "start": 0.2,
+   "end": 0.431
+  },
+  {
+   "text": "is",
+   "start": 0.489,
+   "end": 0.72
+  },
+  {
+   "text": "a",
+   "start": 0.778,
+   "end": 1.009
+  },
+  {
+   "text": "real",
+   "start": 1.067,
+   "end": 1.298
+  },
+  {
+   "text": "screen",
+   "start": 1.356,
+   "end": 1.587
+  },
+  {
+   "text": "recording",
+   "start": 1.644,
+   "end": 1.876
+  },
+  {
+   "text": "inside",
+   "start": 1.933,
+   "end": 2.164
+  },
+  {
+   "text": "a",
+   "start": 2.222,
+   "end": 2.453
+  },
+  {
+   "text": "browser",
+   "start": 2.511,
+   "end": 2.742
+  },
+  {
+   "text": "frame,",
+   "start": 2.8,
+   "end": 3.031
+  },
+  {
+   "text": "with",
+   "start": 3.089,
+   "end": 3.32
+  },
+  {
+   "text": "focus",
+   "start": 3.378,
+   "end": 3.609
+  },
+  {
+   "text": "zooms",
+   "start": 3.667,
+   "end": 3.898
+  },
+  {
+   "text": "that",
+   "start": 3.956,
+   "end": 4.187
+  },
+  {
+   "text": "keep",
+   "start": 4.244,
+   "end": 4.476
+  },
+  {
+   "text": "small",
+   "start": 4.533,
+   "end": 4.764
+  },
+  {
+   "text": "text",
+   "start": 4.822,
+   "end": 5.053
+  },
+  {
+   "text": "readable.",
+   "start": 5.111,
+   "end": 5.342
+  },
+  {
+   "text": "On",
+   "start": 6.2,
+   "end": 6.397
+  },
+  {
+   "text": "a",
+   "start": 6.446,
+   "end": 6.643
+  },
+  {
+   "text": "laptop",
+   "start": 6.692,
+   "end": 6.889
+  },
+  {
+   "text": "it",
+   "start": 6.938,
+   "end": 7.135
+  },
+  {
+   "text": "starts",
+   "start": 7.185,
+   "end": 7.382
+  },
+  {
+   "text": "one",
+   "start": 7.431,
+   "end": 7.628
+  },
+  {
+   "text": "second",
+   "start": 7.677,
+   "end": 7.874
+  },
+  {
+   "text": "in",
+   "start": 7.923,
+   "end": 8.12
+  },
+  {
+   "text": "and",
+   "start": 8.169,
+   "end": 8.366
+  },
+  {
+   "text": "plays",
+   "start": 8.415,
+   "end": 8.612
+  },
+  {
+   "text": "at",
+   "start": 8.662,
+   "end": 8.858
+  },
+  {
+   "text": "half",
+   "start": 8.908,
+   "end": 9.105
+  },
+  {
+   "text": "speed.",
+   "start": 9.154,
+   "end": 9.351
+  },
+  {
+   "text": "At",
+   "start": 10.2,
+   "end": 10.431
+  },
+  {
+   "text": "double",
+   "start": 10.489,
+   "end": 10.72
+  },
+  {
+   "text": "speed",
+   "start": 10.778,
+   "end": 11.009
+  },
+  {
+   "text": "the",
+   "start": 11.067,
+   "end": 11.298
+  },
+  {
+   "text": "clip",
+   "start": 11.356,
+   "end": 11.587
+  },
+  {
+   "text": "ends",
+   "start": 11.644,
+   "end": 11.876
+  },
+  {
+   "text": "early,",
+   "start": 11.933,
+   "end": 12.164
+  },
+  {
+   "text": "and",
+   "start": 12.222,
+   "end": 12.453
+  },
+  {
+   "text": "the",
+   "start": 12.511,
+   "end": 12.742
+  },
+  {
+   "text": "last",
+   "start": 12.8,
+   "end": 13.031
+  },
+  {
+   "text": "frame",
+   "start": 13.089,
+   "end": 13.32
+  },
+  {
+   "text": "simply",
+   "start": 13.378,
+   "end": 13.609
+  },
+  {
+   "text": "holds",
+   "start": 13.667,
+   "end": 13.898
+  },
+  {
+   "text": "until",
+   "start": 13.956,
+   "end": 14.187
+  },
+  {
+   "text": "the",
+   "start": 14.244,
+   "end": 14.476
+  },
+  {
+   "text": "scene",
+   "start": 14.533,
+   "end": 14.764
+  },
+  {
+   "text": "is",
+   "start": 14.822,
+   "end": 15.053
+  },
+  {
+   "text": "over.",
+   "start": 15.111,
+   "end": 15.342
+  }
+ ],
+ "scenes": [
+  {
+   "id": "browser-zoom",
+   "purpose": "custom",
+   "start": 0.0,
+   "end": 6.0,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "none",
+   "backdrop": "spotlight",
+   "blocks": [
+    {
+     "type": "footage",
+     "asset": "shared/fixtures/footage-sample.mp4",
+     "aspect": 1.6,
+     "duration": 4.0,
+     "frame": "browser",
+     "title": "Sample recording",
+     "at": 0.3,
+     "zooms": [
+      {
+       "at": 1.5,
+       "x": 0.08,
+       "y": 0.04,
+       "scale": 2.5
+      },
+      {
+       "at": 3.0,
+       "x": 0.6,
+       "y": 0.75,
+       "scale": 1.6
+      },
+      {
+       "at": 4.6,
+       "x": 0.5,
+       "y": 0.5,
+       "scale": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "laptop-slow",
+   "purpose": "custom",
+   "start": 6.0,
+   "end": 10.0,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "push-in",
+   "backdrop": "light",
+   "blocks": [
+    {
+     "type": "kinetic-text",
+     "size": "m",
+     "words": [
+      {
+       "text": "Half",
+       "at": 6.2
+      },
+      {
+       "text": "speed",
+       "at": 6.35,
+       "emphasis": true
+      }
+     ]
+    },
+    {
+     "type": "footage",
+     "asset": "shared/fixtures/footage-sample.mp4",
+     "aspect": 1.6,
+     "duration": 4.0,
+     "frame": "laptop",
+     "startFrom": 1.0,
+     "playbackRate": 0.5,
+     "at": 6.3
+    }
+   ]
+  },
+  {
+   "id": "phone-hold",
+   "purpose": "custom",
+   "start": 10.0,
+   "end": 16.0,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "drift",
+   "backdrop": "deep",
+   "blocks": [
+    {
+     "type": "footage",
+     "asset": "shared/fixtures/footage-sample.mp4",
+     "aspect": 1.6,
+     "duration": 4.0,
+     "frame": "phone",
+     "playbackRate": 2,
+     "at": 10.3,
+     "caption": "The last frame holds"
+    }
+   ]
+  }
+ ]
+}

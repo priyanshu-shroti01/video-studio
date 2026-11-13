@@ -1,0 +1,22 @@
+{
+ "$comment": "Fictional TEST brand (multi-brand isolation tests). hidden: not shown in the dashboard, Studio or `brand list`; usable by exact id only.",
+ "id": "acme-demo",
+ "name": "ACME Demo",
+ "assetRoots": [
+  "public/brands/acme-demo/"
+ ],
+ "watermark": {
+  "policy": "brand",
+  "variant": "mark",
+  "opacity": 0.8,
+  "position": "top-right",
+  "widthFrac": 0.06,
+  "marginFrac": 0.04
+ },
+ "publishing": {
+  "hashtags": [
+   "#acme"
+  ]
+ },
+ "hidden": true
+}

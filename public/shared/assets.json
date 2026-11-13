@@ -1,0 +1,58 @@
+{
+ "$comment": "Licence records for shared files usable by every brand (public/shared/**). Third-party product logos are trademarks of their owners: use them only to refer to that product (nominative use), unmodified, without implying endorsement.",
+ "assets": [
+  {
+   "path": "shared/logos/wordpress.svg",
+   "app": "WordPress",
+   "tileColor": "#21759B",
+   "source": "Simple Icons 16.37.0 (https://simpleicons.org, icons/wordpress.svg); fill set to white for use on the WordPress blue tile",
+   "license": "CC0-1.0",
+   "attribution": "",
+   "trademark": "WordPress® is a trademark of the WordPress Foundation; nominative use only (https://wordpressfoundation.org/trademark-policy)"
+  },
+  {
+   "path": "shared/logos/video-studio.svg",
+   "app": "Video Studio",
+   "tileColor": "#5b6cff",
+   "source": "self-made Video Studio app glyph (white, for app tiles)",
+   "license": "PROPRIETARY (Video Studio, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "shared/fonts/jakarta-latin.woff2",
+   "source": "Plus Jakarta Sans",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "shared/fonts/jakarta-latin-ext.woff2",
+   "source": "Plus Jakarta Sans",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "shared/fonts/geistmono-latin.woff2",
+   "source": "Geist Mono",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "shared/fonts/geistmono-latin-ext.woff2",
+   "source": "Geist Mono",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "shared/studio/icon.svg",
+   "source": "self-made Video Studio mark (same as brands/videostudio/logos/mark.svg)",
+   "license": "PROPRIETARY (Video Studio, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "shared/fixtures/footage-sample.mp4",
+   "source": "self-generated test clip: ffmpeg lavfi testsrc2 1280x800, 30 fps, 4 s, moving box + progress bar, H.264 (engine footage fixture)",
+   "license": "PUBLIC-DOMAIN (self-generated test clip)",
+   "attribution": ""
+  }
+ ]
+}

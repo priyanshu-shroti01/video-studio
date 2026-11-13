@@ -1,0 +1,26 @@
+{
+ "name": "shrotihost-landscape",
+ "preset": "landscape",
+ "formats": [
+  "landscape"
+ ],
+ "voice": {
+  "rate": "+5%"
+ },
+ "brand": "shrotihost",
+ "storyboard": "projects/shrotihost/shrotihost-short.storyboard.json",
+ "audio": {
+  "music": "audio/music/test-bed.wav"
+ },
+ "publishing": {
+  "title": "NVMe hosting from ₹49/mo — same price on renewal | Shroti Host",
+  "description": "Fast NVMe hosting on LiteSpeed with free SSL and daily backups. Every plan renews at the price you signed up for.\nhttps://shrotihost.in",
+  "hashtags": [
+   "#webhosting",
+   "#India",
+   "#NVMe",
+   "#WordPress",
+   "#ShrotiHost"
+  ]
+ }
+}

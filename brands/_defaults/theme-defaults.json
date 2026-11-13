@@ -1,0 +1,77 @@
+{
+ "$comment": "Defaults copied into every new brand by `brand init`: shared OFL fonts (unicode ranges) and the CC0 sound-effect conventions (audio/kit).",
+ "fonts": {
+  "sans": {
+   "family": "Plus Jakarta Sans",
+   "files": [
+    {
+     "src": "shared/fonts/jakarta-latin.woff2",
+     "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+    },
+    {
+     "src": "shared/fonts/jakarta-latin-ext.woff2",
+     "unicodeRange": "U+0100-02BA,U+1E00-1EFF,U+20A0-20AB,U+20AD-20C4,U+2113"
+    }
+   ]
+  },
+  "mono": {
+   "family": "Geist Mono",
+   "files": [
+    {
+     "src": "shared/fonts/geistmono-latin.woff2",
+     "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212"
+    },
+    {
+     "src": "shared/fonts/geistmono-latin-ext.woff2",
+     "unicodeRange": "U+0100-02BA,U+20A0-20AB,U+20AD-20C4"
+    }
+   ]
+  }
+ },
+ "sfx": {
+  "$comment": "Sound conventions: one sonic family (clean keys/clicks, air swooshes, glass dings). Ids from audio/kit (CC0).",
+  "transition": "transition/fs-444623-swoosh-10-wav-1",
+  "whoosh": [
+   "whoosh/fs-30241-swoop2g-flac-1",
+   "whoosh/fs-30240-swoop1-flac-1",
+   "swish/fs-14175-27-wav-2"
+  ],
+  "appear": [
+   "pop/fs-506546-pop-01-wav-1",
+   "pop/fs-506545-pop-02-wav-1",
+   "pop/fs-97978-pop-aif-1",
+   "pop/fs-97978-pop-aif-2",
+   "pop/fs-97978-pop-aif-3"
+  ],
+  "click": "click/fs-399443-mouse-clicks",
+  "keys": [
+   "key/fs-348239-mech-keyboard-01-wav-1",
+   "key/fs-348238-mech-keyboard-02-wav-1",
+   "key/fs-180974-key-1",
+   "key/fs-194799-keyboard5-wav-1",
+   "key/fs-442649-keyboard-click-mp3",
+   "key/fs-539146-keyboard-typing-001-wav-2",
+   "key/fs-539146-keyboard-typing-001-wav-3",
+   "key/fs-570755-keyboard-key-release-1"
+  ],
+  "success": [
+   "chime/fs-404104-glass-ding-1",
+   "chime/fs-404104-glass-ding-2",
+   "chime/fs-404104-glass-ding-3"
+  ],
+  "impact": "thump/fs-405537-thud-2-wav-1",
+  "tick": "tick/fs-386206-ratchet-stahlwille-tighten-1-3",
+  "shimmer": "shimmer/fs-388295-sparkles-and-percussion-1",
+  "gains": {
+   "transition": -11,
+   "whoosh": -13,
+   "appear": -14,
+   "click": -7,
+   "keys": -14,
+   "success": -14,
+   "impact": -9,
+   "tick": -20,
+   "shimmer": -12
+  }
+ }
+}

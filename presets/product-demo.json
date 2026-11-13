@@ -1,0 +1,87 @@
+{
+ "$comment": "Hook -> problem -> demo -> features -> pricing/benefit -> CTA. Both formats by default.",
+ "formats": [
+  "short",
+  "landscape"
+ ],
+ "structure": [
+  "hook",
+  "problem",
+  "journey",
+  "point",
+  "resolution",
+  "cta"
+ ],
+ "voice": {
+  "$comment": "Local Kokoro-82M voice (docs/LOCAL_TTS.md). Legacy online Edge TTS needs provider edge + allowOnline: true.",
+  "provider": "kokoro",
+  "voice": "am_michael",
+  "rate": "+5%",
+  "pitch": "+0Hz",
+  "maxPause": 0.35,
+  "pad": 0.25,
+  "sceneGap": 0.2,
+  "timeout": 90,
+  "attempts": 4
+ },
+ "audio": {
+  "music": null,
+  "musicDb": -16,
+  "voiceDb": 0,
+  "sfxDb": -12,
+  "lufs": -14,
+  "truePeak": -1.5,
+  "lra": 11,
+  "autoSfx": true,
+  "tail": 0.7,
+  "kit": "audio/kit",
+  "duck": {
+   "threshold": 0.03,
+   "ratio": 4,
+   "attackMs": 20,
+   "releaseMs": 400
+  }
+ },
+ "captions": {
+  "enabled": true,
+  "style": "word",
+  "maxWords": 4,
+  "maxChars": 28,
+  "fontSize": 66,
+  "bottomFrac": 0.27,
+  "maxWidthFrac": 0.8,
+  "maxCps": 25,
+  "hold": 0.6
+ },
+ "captionsByFormat": {
+  "landscape": {
+   "enabled": true,
+   "style": "word",
+   "maxWords": 7,
+   "maxChars": 46,
+   "fontSize": 52,
+   "bottomFrac": 0.07,
+   "maxWidthFrac": 0.7,
+   "maxCps": 25,
+   "hold": 0.6
+  }
+ },
+ "render": {
+  "encoder": "auto",
+  "bitrate": "40M",
+  "imageFormat": "png",
+  "chunkFrames": 300,
+  "concurrency": "auto",
+  "timeoutPerChunk": 900,
+  "stallTimeout": 120,
+  "retries": 2,
+  "minFreeGb": 2,
+  "maxJobs": 1
+ },
+ "qa": {
+  "lufsTolerance": 1.0,
+  "maxTruePeak": -1.0,
+  "freezeWarnS": 3.0,
+  "shortsOverlayFrac": 0.2
+ }
+}

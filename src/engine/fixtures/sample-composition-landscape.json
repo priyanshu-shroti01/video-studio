@@ -1,0 +1,5614 @@
+{
+ "contractVersion": 2,
+ "format": "landscape",
+ "fps": 30,
+ "durationInFrames": 2301,
+ "theme": {
+  "name": "Shroti Host",
+  "colors": {
+   "bg": "#0a0a0f",
+   "surface": "#131318",
+   "card": "#17171f",
+   "raised": "#191921",
+   "border": "rgba(255,255,255,0.14)",
+   "borderStrong": "rgba(255,255,255,0.22)",
+   "text": "#f5f5f7",
+   "text2": "#a1a1ab",
+   "muted": "#87878f",
+   "brand": "#a810c7",
+   "brandHover": "#c817ea",
+   "brandActive": "#8b0da3",
+   "brandText": "#cf6cf2",
+   "success": "#22c55e",
+   "danger": "#f0576b",
+   "warning": "#f5a524",
+   "info": "#3fa7ff",
+   "light": {
+    "card": "#ffffff",
+    "surface": "#f7f5fa",
+    "border": "#e6e1ec",
+    "text": "#15111c",
+    "text2": "#4b4655",
+    "muted": "#726c7d",
+    "success": "#15803d"
+   }
+  },
+  "fonts": {
+   "sans": {
+    "family": "Plus Jakarta Sans",
+    "files": [
+     {
+      "src": "brands/shrotihost/fonts/jakarta-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+     },
+     {
+      "src": "brands/shrotihost/fonts/jakarta-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+1E00-1EFF,U+20A0-20AB,U+20AD-20C4,U+2113"
+     }
+    ]
+   },
+   "mono": {
+    "family": "Geist Mono",
+    "files": [
+     {
+      "src": "brands/shrotihost/fonts/geistmono-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212"
+     },
+     {
+      "src": "brands/shrotihost/fonts/geistmono-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+20A0-20AB,U+20AD-20C4"
+     }
+    ]
+   }
+  },
+  "logo": {
+   "onDark": "brands/shrotihost/logos/logo-on-dark.svg",
+   "onLight": "brands/shrotihost/logos/logo-on-light.svg",
+   "mark": "brands/shrotihost/logos/icon.svg",
+   "aspect": 5
+  },
+  "background": {
+   "style": "dots-glow",
+   "glowA": "#a810c7",
+   "glowB": "#3fa7ff"
+  },
+  "caption": {
+   "highlight": "#cf6cf2",
+   "box": "rgba(0,0,0,0.55)",
+   "text": "#f5f5f7",
+   "dim": "rgba(255,255,255,0.45)"
+  },
+  "radius": {
+   "card": 32,
+   "pill": 999
+  }
+ },
+ "captions": {
+  "enabled": true,
+  "style": "word",
+  "maxWords": 7,
+  "fontSize": 52,
+  "bottomFrac": 0.07,
+  "maxWidthFrac": 0.7,
+  "pages": [
+   {
+    "start": 0.0,
+    "end": 3.459,
+    "wordIdx": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   {
+    "start": 3.459,
+    "end": 6.448,
+    "wordIdx": [
+     6,
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "start": 6.448,
+    "end": 7.308,
+    "wordIdx": [
+     11
+    ]
+   },
+   {
+    "start": 7.308,
+    "end": 10.767,
+    "wordIdx": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17
+    ]
+   },
+   {
+    "start": 10.767,
+    "end": 13.756,
+    "wordIdx": [
+     18,
+     19,
+     20,
+     21,
+     22
+    ]
+   },
+   {
+    "start": 13.756,
+    "end": 14.616,
+    "wordIdx": [
+     23
+    ]
+   },
+   {
+    "start": 14.616,
+    "end": 18.075,
+    "wordIdx": [
+     24,
+     25,
+     26,
+     27,
+     28,
+     29
+    ]
+   },
+   {
+    "start": 18.075,
+    "end": 21.064,
+    "wordIdx": [
+     30,
+     31,
+     32,
+     33,
+     34
+    ]
+   },
+   {
+    "start": 21.064,
+    "end": 21.924,
+    "wordIdx": [
+     35
+    ]
+   },
+   {
+    "start": 21.924,
+    "end": 25.383,
+    "wordIdx": [
+     36,
+     37,
+     38,
+     39,
+     40,
+     41
+    ]
+   },
+   {
+    "start": 25.383,
+    "end": 28.372,
+    "wordIdx": [
+     42,
+     43,
+     44,
+     45,
+     46
+    ]
+   },
+   {
+    "start": 28.372,
+    "end": 29.232,
+    "wordIdx": [
+     47
+    ]
+   },
+   {
+    "start": 29.232,
+    "end": 31.66,
+    "wordIdx": [
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54
+    ]
+   },
+   {
+    "start": 31.66,
+    "end": 33.161,
+    "wordIdx": [
+     55,
+     56,
+     57
+    ]
+   },
+   {
+    "start": 33.161,
+    "end": 35.567,
+    "wordIdx": [
+     58,
+     59,
+     60,
+     61
+    ]
+   },
+   {
+    "start": 35.567,
+    "end": 37.995,
+    "wordIdx": [
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68
+    ]
+   },
+   {
+    "start": 37.995,
+    "end": 39.496,
+    "wordIdx": [
+     69,
+     70,
+     71
+    ]
+   },
+   {
+    "start": 39.496,
+    "end": 41.902,
+    "wordIdx": [
+     72,
+     73,
+     74,
+     75
+    ]
+   },
+   {
+    "start": 41.902,
+    "end": 44.188,
+    "wordIdx": [
+     76,
+     77,
+     78,
+     79
+    ]
+   },
+   {
+    "start": 44.188,
+    "end": 44.963,
+    "wordIdx": [
+     80,
+     81
+    ]
+   },
+   {
+    "start": 44.963,
+    "end": 47.747,
+    "wordIdx": [
+     82,
+     83,
+     84,
+     85,
+     86
+    ]
+   },
+   {
+    "start": 47.747,
+    "end": 48.875,
+    "wordIdx": [
+     87,
+     88
+    ]
+   },
+   {
+    "start": 48.875,
+    "end": 51.161,
+    "wordIdx": [
+     89,
+     90,
+     91,
+     92
+    ]
+   },
+   {
+    "start": 51.161,
+    "end": 51.936,
+    "wordIdx": [
+     93,
+     94
+    ]
+   },
+   {
+    "start": 51.936,
+    "end": 54.72,
+    "wordIdx": [
+     95,
+     96,
+     97,
+     98,
+     99
+    ]
+   },
+   {
+    "start": 54.72,
+    "end": 55.848,
+    "wordIdx": [
+     100,
+     101
+    ]
+   },
+   {
+    "start": 55.848,
+    "end": 58.134,
+    "wordIdx": [
+     102,
+     103,
+     104,
+     105
+    ]
+   },
+   {
+    "start": 58.134,
+    "end": 58.909,
+    "wordIdx": [
+     106,
+     107
+    ]
+   },
+   {
+    "start": 58.909,
+    "end": 61.693,
+    "wordIdx": [
+     108,
+     109,
+     110,
+     111,
+     112
+    ]
+   },
+   {
+    "start": 61.693,
+    "end": 62.821,
+    "wordIdx": [
+     113,
+     114
+    ]
+   },
+   {
+    "start": 62.821,
+    "end": 65.162,
+    "wordIdx": [
+     115,
+     116,
+     117,
+     118,
+     119,
+     120
+    ]
+   },
+   {
+    "start": 65.162,
+    "end": 66.335,
+    "wordIdx": [
+     121,
+     122
+    ]
+   },
+   {
+    "start": 66.335,
+    "end": 67.59,
+    "wordIdx": [
+     123,
+     124
+    ]
+   },
+   {
+    "start": 67.59,
+    "end": 69.646,
+    "wordIdx": [
+     125,
+     126,
+     127
+    ]
+   },
+   {
+    "start": 69.646,
+    "end": 70.586,
+    "wordIdx": [
+     128,
+     129
+    ]
+   },
+   {
+    "start": 70.586,
+    "end": 72.97,
+    "wordIdx": [
+     130,
+     131,
+     132,
+     133,
+     134,
+     135,
+     136
+    ]
+   },
+   {
+    "start": 72.97,
+    "end": 74.045,
+    "wordIdx": [
+     137
+    ]
+   },
+   {
+    "start": 74.045,
+    "end": 76.006,
+    "wordIdx": [
+     138,
+     139,
+     140,
+     141
+    ]
+   }
+  ]
+ },
+ "words": [
+  {
+   "text": "Underneath:",
+   "start": 0.0,
+   "end": 0.908
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 0.988,
+   "end": 1.731
+  },
+  {
+   "text": "servers",
+   "start": 1.751,
+   "end": 2.328
+  },
+  {
+   "text": "and",
+   "start": 2.348,
+   "end": 2.596
+  },
+  {
+   "text": "NVMe",
+   "start": 2.616,
+   "end": 2.946
+  },
+  {
+   "text": "SSDs,",
+   "start": 2.966,
+   "end": 3.379
+  },
+  {
+   "text": "Imunify360",
+   "start": 3.459,
+   "end": 4.284
+  },
+  {
+   "text": "security",
+   "start": 4.304,
+   "end": 4.965
+  },
+  {
+   "text": "and",
+   "start": 4.985,
+   "end": 5.232
+  },
+  {
+   "text": "automatic",
+   "start": 5.252,
+   "end": 5.995
+  },
+  {
+   "text": "daily",
+   "start": 6.015,
+   "end": 6.428
+  },
+  {
+   "text": "backups.",
+   "start": 6.448,
+   "end": 7.108
+  },
+  {
+   "text": "Underneath:",
+   "start": 7.308,
+   "end": 8.216
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 8.296,
+   "end": 9.039
+  },
+  {
+   "text": "servers",
+   "start": 9.059,
+   "end": 9.636
+  },
+  {
+   "text": "and",
+   "start": 9.656,
+   "end": 9.904
+  },
+  {
+   "text": "NVMe",
+   "start": 9.924,
+   "end": 10.254
+  },
+  {
+   "text": "SSDs,",
+   "start": 10.274,
+   "end": 10.687
+  },
+  {
+   "text": "Imunify360",
+   "start": 10.767,
+   "end": 11.592
+  },
+  {
+   "text": "security",
+   "start": 11.612,
+   "end": 12.273
+  },
+  {
+   "text": "and",
+   "start": 12.293,
+   "end": 12.54
+  },
+  {
+   "text": "automatic",
+   "start": 12.56,
+   "end": 13.303
+  },
+  {
+   "text": "daily",
+   "start": 13.323,
+   "end": 13.736
+  },
+  {
+   "text": "backups.",
+   "start": 13.756,
+   "end": 14.416
+  },
+  {
+   "text": "Underneath:",
+   "start": 14.616,
+   "end": 15.524
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 15.604,
+   "end": 16.347
+  },
+  {
+   "text": "servers",
+   "start": 16.367,
+   "end": 16.944
+  },
+  {
+   "text": "and",
+   "start": 16.964,
+   "end": 17.212
+  },
+  {
+   "text": "NVMe",
+   "start": 17.232,
+   "end": 17.562
+  },
+  {
+   "text": "SSDs,",
+   "start": 17.582,
+   "end": 17.995
+  },
+  {
+   "text": "Imunify360",
+   "start": 18.075,
+   "end": 18.9
+  },
+  {
+   "text": "security",
+   "start": 18.92,
+   "end": 19.581
+  },
+  {
+   "text": "and",
+   "start": 19.601,
+   "end": 19.848
+  },
+  {
+   "text": "automatic",
+   "start": 19.868,
+   "end": 20.611
+  },
+  {
+   "text": "daily",
+   "start": 20.631,
+   "end": 21.044
+  },
+  {
+   "text": "backups.",
+   "start": 21.064,
+   "end": 21.724
+  },
+  {
+   "text": "Underneath:",
+   "start": 21.924,
+   "end": 22.832
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 22.912,
+   "end": 23.655
+  },
+  {
+   "text": "servers",
+   "start": 23.675,
+   "end": 24.252
+  },
+  {
+   "text": "and",
+   "start": 24.272,
+   "end": 24.52
+  },
+  {
+   "text": "NVMe",
+   "start": 24.54,
+   "end": 24.87
+  },
+  {
+   "text": "SSDs,",
+   "start": 24.89,
+   "end": 25.303
+  },
+  {
+   "text": "Imunify360",
+   "start": 25.383,
+   "end": 26.208
+  },
+  {
+   "text": "security",
+   "start": 26.228,
+   "end": 26.889
+  },
+  {
+   "text": "and",
+   "start": 26.909,
+   "end": 27.156
+  },
+  {
+   "text": "automatic",
+   "start": 27.176,
+   "end": 27.919
+  },
+  {
+   "text": "daily",
+   "start": 27.939,
+   "end": 28.352
+  },
+  {
+   "text": "backups.",
+   "start": 28.372,
+   "end": 29.032
+  },
+  {
+   "text": "WP",
+   "start": 29.232,
+   "end": 29.412
+  },
+  {
+   "text": "Starter",
+   "start": 29.432,
+   "end": 30.01
+  },
+  {
+   "text": "includes",
+   "start": 30.03,
+   "end": 30.69
+  },
+  {
+   "text": "10",
+   "start": 30.71,
+   "end": 30.89
+  },
+  {
+   "text": "GB",
+   "start": 30.91,
+   "end": 31.09
+  },
+  {
+   "text": "of",
+   "start": 31.11,
+   "end": 31.29
+  },
+  {
+   "text": "NVMe",
+   "start": 31.31,
+   "end": 31.64
+  },
+  {
+   "text": "storage,",
+   "start": 31.66,
+   "end": 32.32
+  },
+  {
+   "text": "free",
+   "start": 32.4,
+   "end": 32.731
+  },
+  {
+   "text": "SSL,",
+   "start": 32.751,
+   "end": 33.081
+  },
+  {
+   "text": "daily",
+   "start": 33.161,
+   "end": 33.573
+  },
+  {
+   "text": "backups",
+   "start": 33.593,
+   "end": 34.171
+  },
+  {
+   "text": "and",
+   "start": 34.191,
+   "end": 34.439
+  },
+  {
+   "text": "Imunify360.",
+   "start": 34.459,
+   "end": 35.367
+  },
+  {
+   "text": "WP",
+   "start": 35.567,
+   "end": 35.747
+  },
+  {
+   "text": "Starter",
+   "start": 35.767,
+   "end": 36.345
+  },
+  {
+   "text": "includes",
+   "start": 36.365,
+   "end": 37.025
+  },
+  {
+   "text": "10",
+   "start": 37.045,
+   "end": 37.225
+  },
+  {
+   "text": "GB",
+   "start": 37.245,
+   "end": 37.425
+  },
+  {
+   "text": "of",
+   "start": 37.445,
+   "end": 37.625
+  },
+  {
+   "text": "NVMe",
+   "start": 37.645,
+   "end": 37.975
+  },
+  {
+   "text": "storage,",
+   "start": 37.995,
+   "end": 38.655
+  },
+  {
+   "text": "free",
+   "start": 38.735,
+   "end": 39.066
+  },
+  {
+   "text": "SSL,",
+   "start": 39.086,
+   "end": 39.416
+  },
+  {
+   "text": "daily",
+   "start": 39.496,
+   "end": 39.908
+  },
+  {
+   "text": "backups",
+   "start": 39.928,
+   "end": 40.506
+  },
+  {
+   "text": "and",
+   "start": 40.526,
+   "end": 40.774
+  },
+  {
+   "text": "Imunify360.",
+   "start": 40.794,
+   "end": 41.702
+  },
+  {
+   "text": "One",
+   "start": 41.902,
+   "end": 42.15
+  },
+  {
+   "text": "click",
+   "start": 42.17,
+   "end": 42.582
+  },
+  {
+   "text": "installs",
+   "start": 42.602,
+   "end": 43.263
+  },
+  {
+   "text": "WordPress,",
+   "start": 43.283,
+   "end": 44.108
+  },
+  {
+   "text": "a",
+   "start": 44.188,
+   "end": 44.368
+  },
+  {
+   "text": "theme,",
+   "start": 44.388,
+   "end": 44.883
+  },
+  {
+   "text": "plugins,",
+   "start": 44.963,
+   "end": 45.623
+  },
+  {
+   "text": "SSL",
+   "start": 45.703,
+   "end": 45.951
+  },
+  {
+   "text": "and",
+   "start": 45.971,
+   "end": 46.219
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 46.239,
+   "end": 46.981
+  },
+  {
+   "text": "Cache.",
+   "start": 47.001,
+   "end": 47.497
+  },
+  {
+   "text": "You're",
+   "start": 47.747,
+   "end": 48.242
+  },
+  {
+   "text": "live.",
+   "start": 48.262,
+   "end": 48.675
+  },
+  {
+   "text": "One",
+   "start": 48.875,
+   "end": 49.123
+  },
+  {
+   "text": "click",
+   "start": 49.143,
+   "end": 49.555
+  },
+  {
+   "text": "installs",
+   "start": 49.575,
+   "end": 50.236
+  },
+  {
+   "text": "WordPress,",
+   "start": 50.256,
+   "end": 51.081
+  },
+  {
+   "text": "a",
+   "start": 51.161,
+   "end": 51.341
+  },
+  {
+   "text": "theme,",
+   "start": 51.361,
+   "end": 51.856
+  },
+  {
+   "text": "plugins,",
+   "start": 51.936,
+   "end": 52.596
+  },
+  {
+   "text": "SSL",
+   "start": 52.676,
+   "end": 52.924
+  },
+  {
+   "text": "and",
+   "start": 52.944,
+   "end": 53.192
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 53.212,
+   "end": 53.954
+  },
+  {
+   "text": "Cache.",
+   "start": 53.974,
+   "end": 54.47
+  },
+  {
+   "text": "You're",
+   "start": 54.72,
+   "end": 55.215
+  },
+  {
+   "text": "live.",
+   "start": 55.235,
+   "end": 55.648
+  },
+  {
+   "text": "One",
+   "start": 55.848,
+   "end": 56.096
+  },
+  {
+   "text": "click",
+   "start": 56.116,
+   "end": 56.528
+  },
+  {
+   "text": "installs",
+   "start": 56.548,
+   "end": 57.209
+  },
+  {
+   "text": "WordPress,",
+   "start": 57.229,
+   "end": 58.054
+  },
+  {
+   "text": "a",
+   "start": 58.134,
+   "end": 58.314
+  },
+  {
+   "text": "theme,",
+   "start": 58.334,
+   "end": 58.829
+  },
+  {
+   "text": "plugins,",
+   "start": 58.909,
+   "end": 59.569
+  },
+  {
+   "text": "SSL",
+   "start": 59.649,
+   "end": 59.897
+  },
+  {
+   "text": "and",
+   "start": 59.917,
+   "end": 60.165
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 60.185,
+   "end": 60.927
+  },
+  {
+   "text": "Cache.",
+   "start": 60.947,
+   "end": 61.443
+  },
+  {
+   "text": "You're",
+   "start": 61.693,
+   "end": 62.188
+  },
+  {
+   "text": "live.",
+   "start": 62.208,
+   "end": 62.621
+  },
+  {
+   "text": "WP",
+   "start": 62.821,
+   "end": 63.001
+  },
+  {
+   "text": "Starter",
+   "start": 63.021,
+   "end": 63.599
+  },
+  {
+   "text": "comes",
+   "start": 63.619,
+   "end": 64.031
+  },
+  {
+   "text": "with",
+   "start": 64.051,
+   "end": 64.382
+  },
+  {
+   "text": "free",
+   "start": 64.402,
+   "end": 64.732
+  },
+  {
+   "text": "SSL,",
+   "start": 64.752,
+   "end": 65.082
+  },
+  {
+   "text": "daily",
+   "start": 65.162,
+   "end": 65.575
+  },
+  {
+   "text": "backups,",
+   "start": 65.595,
+   "end": 66.255
+  },
+  {
+   "text": "free",
+   "start": 66.335,
+   "end": 66.665
+  },
+  {
+   "text": "migration,",
+   "start": 66.685,
+   "end": 67.51
+  },
+  {
+   "text": "and",
+   "start": 67.59,
+   "end": 67.838
+  },
+  {
+   "text": "Imunify360",
+   "start": 67.858,
+   "end": 68.683
+  },
+  {
+   "text": "security.",
+   "start": 68.703,
+   "end": 69.446
+  },
+  {
+   "text": "At",
+   "start": 69.646,
+   "end": 69.826
+  },
+  {
+   "text": "renewal,",
+   "start": 69.846,
+   "end": 70.506
+  },
+  {
+   "text": "the",
+   "start": 70.586,
+   "end": 70.834
+  },
+  {
+   "text": "price",
+   "start": 70.854,
+   "end": 71.267
+  },
+  {
+   "text": "you",
+   "start": 71.287,
+   "end": 71.534
+  },
+  {
+   "text": "signed",
+   "start": 71.554,
+   "end": 72.049
+  },
+  {
+   "text": "up",
+   "start": 72.069,
+   "end": 72.249
+  },
+  {
+   "text": "for",
+   "start": 72.269,
+   "end": 72.517
+  },
+  {
+   "text": "often",
+   "start": 72.537,
+   "end": 72.95
+  },
+  {
+   "text": "increases.",
+   "start": 72.97,
+   "end": 73.795
+  },
+  {
+   "text": "Backups",
+   "start": 74.045,
+   "end": 74.623
+  },
+  {
+   "text": "cost",
+   "start": 74.643,
+   "end": 74.973
+  },
+  {
+   "text": "extra",
+   "start": 74.993,
+   "end": 75.406
+  },
+  {
+   "text": "too.",
+   "start": 75.426,
+   "end": 75.756
+  }
+ ],
+ "scenes": [
+  {
+   "id": "s1-orbit",
+   "purpose": "point",
+   "start": 0.0,
+   "end": 7.158,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 0.0,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "k0",
+       "kind": "connector",
+       "fromId": "hub",
+       "toId": "n0",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 0.688,
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k1",
+       "kind": "connector",
+       "fromId": "hub",
+       "toId": "n1",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 2.316,
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k2",
+       "kind": "connector",
+       "fromId": "hub",
+       "toId": "n2",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 3.159,
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k3",
+       "kind": "connector",
+       "fromId": "hub",
+       "toId": "n3",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 4.952,
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "draw-on"
+      },
+      {
+       "id": "status-card",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.15,
+        0.9021,
+        0.7,
+        0.0979
+       ],
+       "at": 6.002,
+       "fill": "surface",
+       "stroke": "success",
+       "strokeW": 3,
+       "motion": "scale-in",
+       "wide": [
+        0.15,
+        0.8835,
+        0.7,
+        0.1165
+       ]
+      },
+      {
+       "id": "hub",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.3517,
+        0.2879,
+        0.2966,
+        0.2966
+       ],
+       "at": 0.0,
+       "fill": "surface",
+       "stroke": "brand",
+       "strokeW": 6,
+       "motion": "scale-in",
+       "wide": [
+        0.4107,
+        0.2544,
+        0.1785,
+        0.3392
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.7376,
+        0.4703,
+        0.0809,
+        0.0809
+       ],
+       "at": 0.838,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.6111,
+        0.2182,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.3851,
+        0.6738,
+        0.0809,
+        0.0809
+       ],
+       "at": 2.466,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.5523,
+        0.6352,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.1815,
+        0.3212,
+        0.0809,
+        0.0809
+       ],
+       "at": 3.309,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.3329,
+        0.5234,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.5341,
+        0.1177,
+        0.0809,
+        0.0809
+       ],
+       "at": 5.102,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.3917,
+        0.1064,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "status-icon",
+       "kind": "icon",
+       "icon": "check",
+       "box": [
+        0.1755,
+        0.9255,
+        0.0511,
+        0.0511
+       ],
+       "at": 6.002,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.166,
+        0.9113,
+        0.032,
+        0.0608
+       ]
+      },
+      {
+       "id": "i0",
+       "kind": "icon",
+       "icon": "zap",
+       "box": [
+        0.7579,
+        0.4905,
+        0.0404,
+        0.0404
+       ],
+       "at": 0.888,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.6251,
+        0.2448,
+        0.028,
+        0.0532
+       ]
+      },
+      {
+       "id": "i1",
+       "kind": "icon",
+       "icon": "disk",
+       "box": [
+        0.4053,
+        0.694,
+        0.0404,
+        0.0404
+       ],
+       "at": 2.516,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.5663,
+        0.6618,
+        0.028,
+        0.0532
+       ]
+      },
+      {
+       "id": "i2",
+       "kind": "icon",
+       "icon": "shield",
+       "box": [
+        0.2017,
+        0.3415,
+        0.0404,
+        0.0404
+       ],
+       "at": 3.359,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.3469,
+        0.55,
+        0.028,
+        0.0532
+       ]
+      },
+      {
+       "id": "i3",
+       "kind": "icon",
+       "icon": "cloud",
+       "box": [
+        0.5543,
+        0.1379,
+        0.0404,
+        0.0404
+       ],
+       "at": 5.152,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.4057,
+        0.133,
+        0.028,
+        0.0532
+       ]
+      },
+      {
+       "id": "status",
+       "kind": "text",
+       "text": "99.9% uptime target",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.2436,
+        0.9106,
+        0.5809,
+        0.0809
+       ],
+       "at": 6.002,
+       "motion": "fade-up",
+       "wide": [
+        0.2087,
+        0.8936,
+        0.6253,
+        0.0963
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "Under the hood",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.3873,
+        0.3472,
+        0.2254,
+        0.178
+       ],
+       "at": 0.0,
+       "motion": "fade-up",
+       "wide": [
+        0.4322,
+        0.3222,
+        0.1357,
+        0.2035
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "LiteSpeed Web Server",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.6079,
+        0.5575,
+        0.3404,
+        0.1021
+       ],
+       "at": 0.938,
+       "motion": "fade-up",
+       "wide": [
+        0.6778,
+        0.203,
+        0.2501,
+        0.1368
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "NVMe SSD storage",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.2553,
+        0.761,
+        0.3404,
+        0.1021
+       ],
+       "at": 2.566,
+       "motion": "fade-up",
+       "wide": [
+        0.619,
+        0.62,
+        0.2501,
+        0.1368
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Imunify360 security",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.0517,
+        0.4085,
+        0.3404,
+        0.1021
+       ],
+       "at": 3.409,
+       "motion": "fade-up",
+       "wide": [
+        0.0721,
+        0.5082,
+        0.2501,
+        0.1368
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Daily backups",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.4043,
+        0.0092,
+        0.3404,
+        0.1021
+       ],
+       "at": 5.202,
+       "motion": "fade-up",
+       "wide": [
+        0.1309,
+        0.0912,
+        0.2501,
+        0.1368
+       ]
+      }
+     ],
+     "design": {
+      "structure": "orbit",
+      "variant": "spokes",
+      "motion": "cascade",
+      "signature": "orbit/spokes/cascade",
+      "source": "generated"
+     }
+    },
+    {
+     "type": "pill",
+     "text": "Cloudflare protected",
+     "tone": "brand",
+     "icon": "shield",
+     "at": 6.452
+    }
+   ],
+   "camera": "pan-left",
+   "motion": "standard",
+   "backdrop": "grid"
+  },
+  {
+   "id": "s2-network",
+   "purpose": "point",
+   "start": 7.158,
+   "end": 14.466,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 7.308,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "k0",
+       "kind": "connector",
+       "fromId": "hub",
+       "toId": "n0",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 7.896,
+       "stroke": "brand",
+       "strokeW": 4,
+       "curve": -0.254,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k1",
+       "kind": "connector",
+       "fromId": "hub",
+       "toId": "n1",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 9.524,
+       "stroke": "brand",
+       "strokeW": 4,
+       "curve": 0.254,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k2",
+       "kind": "connector",
+       "fromId": "hub",
+       "toId": "n2",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 10.367,
+       "stroke": "brand",
+       "strokeW": 4,
+       "curve": -0.254,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k3",
+       "kind": "connector",
+       "fromId": "hub",
+       "toId": "n3",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 12.16,
+       "stroke": "brand",
+       "strokeW": 4,
+       "curve": 0.254,
+       "motion": "draw-on"
+      },
+      {
+       "id": "m2",
+       "kind": "connector",
+       "fromId": "n0",
+       "toId": "n2",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 10.467,
+       "stroke": "border",
+       "strokeW": 3,
+       "motion": "draw-on"
+      },
+      {
+       "id": "m3",
+       "kind": "connector",
+       "fromId": "n1",
+       "toId": "n3",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 12.26,
+       "stroke": "border",
+       "strokeW": 3,
+       "motion": "draw-on"
+      },
+      {
+       "id": "status-card",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.15,
+        0.9021,
+        0.7,
+        0.0979
+       ],
+       "at": 13.31,
+       "fill": "surface",
+       "stroke": "success",
+       "strokeW": 3,
+       "motion": "fade",
+       "wide": [
+        0.15,
+        0.8835,
+        0.7,
+        0.1165
+       ]
+      },
+      {
+       "id": "hub",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.39,
+        0.3262,
+        0.22,
+        0.22
+       ],
+       "at": 7.308,
+       "fill": "surface",
+       "stroke": "brand",
+       "strokeW": 6,
+       "motion": "fade",
+       "wide": [
+        0.4331,
+        0.2968,
+        0.1339,
+        0.2544
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.1949,
+        0.36,
+        0.1021
+       ],
+       "at": 8.146,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "fade",
+       "wide": [
+        0.0,
+        0.1764,
+        0.28,
+        0.1216
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.64,
+        0.1256,
+        0.36,
+        0.1021
+       ],
+       "at": 9.774,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "fade",
+       "wide": [
+        0.72,
+        0.1137,
+        0.28,
+        0.1216
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.6276,
+        0.36,
+        0.1021
+       ],
+       "at": 10.617,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "fade",
+       "wide": [
+        0.0,
+        0.5973,
+        0.28,
+        0.1216
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.64,
+        0.6372,
+        0.36,
+        0.1021
+       ],
+       "at": 12.41,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "fade",
+       "wide": [
+        0.72,
+        0.606,
+        0.28,
+        0.1216
+       ]
+      },
+      {
+       "id": "status-icon",
+       "kind": "icon",
+       "icon": "check",
+       "box": [
+        0.1755,
+        0.9255,
+        0.0511,
+        0.0511
+       ],
+       "at": 13.31,
+       "color": "success",
+       "motion": "scale-in",
+       "wide": [
+        0.166,
+        0.9113,
+        0.032,
+        0.0608
+       ]
+      },
+      {
+       "id": "i0",
+       "kind": "icon",
+       "icon": "zap",
+       "box": [
+        0.0191,
+        0.2225,
+        0.0468,
+        0.0468
+       ],
+       "at": 8.196,
+       "color": "brandText",
+       "motion": "scale-in",
+       "wide": [
+        0.012,
+        0.2093,
+        0.0293,
+        0.0557
+       ]
+      },
+      {
+       "id": "i1",
+       "kind": "icon",
+       "icon": "disk",
+       "box": [
+        0.6591,
+        0.1533,
+        0.0468,
+        0.0468
+       ],
+       "at": 9.824,
+       "color": "brandText",
+       "motion": "scale-in",
+       "wide": [
+        0.732,
+        0.1466,
+        0.0293,
+        0.0557
+       ]
+      },
+      {
+       "id": "i2",
+       "kind": "icon",
+       "icon": "shield",
+       "box": [
+        0.0191,
+        0.6553,
+        0.0468,
+        0.0468
+       ],
+       "at": 10.667,
+       "color": "brandText",
+       "motion": "scale-in",
+       "wide": [
+        0.012,
+        0.6302,
+        0.0293,
+        0.0557
+       ]
+      },
+      {
+       "id": "i3",
+       "kind": "icon",
+       "icon": "cloud",
+       "box": [
+        0.6591,
+        0.6649,
+        0.0468,
+        0.0468
+       ],
+       "at": 12.46,
+       "color": "brandText",
+       "motion": "scale-in",
+       "wide": [
+        0.732,
+        0.639,
+        0.0293,
+        0.0557
+       ]
+      },
+      {
+       "id": "status",
+       "kind": "text",
+       "text": "99.9% uptime target",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.2436,
+        0.9106,
+        0.5809,
+        0.0809
+       ],
+       "at": 13.31,
+       "motion": "fade",
+       "wide": [
+        0.2087,
+        0.8936,
+        0.6253,
+        0.0963
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "Under the hood",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.4164,
+        0.3702,
+        0.1672,
+        0.132
+       ],
+       "at": 7.308,
+       "motion": "fade",
+       "wide": [
+        0.4491,
+        0.3477,
+        0.1018,
+        0.1526
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "LiteSpeed Web Server",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0787,
+        0.2034,
+        0.2621,
+        0.0851
+       ],
+       "at": 8.246,
+       "motion": "fade",
+       "wide": [
+        0.0493,
+        0.1865,
+        0.2187,
+        0.1013
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "NVMe SSD storage",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.7187,
+        0.1341,
+        0.2621,
+        0.0851
+       ],
+       "at": 9.874,
+       "motion": "fade",
+       "wide": [
+        0.7693,
+        0.1238,
+        0.2187,
+        0.1013
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Imunify360 security",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0787,
+        0.6361,
+        0.2621,
+        0.0851
+       ],
+       "at": 10.717,
+       "motion": "fade",
+       "wide": [
+        0.0493,
+        0.6074,
+        0.2187,
+        0.1013
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Daily backups",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.7187,
+        0.6457,
+        0.2621,
+        0.0851
+       ],
+       "at": 12.51,
+       "motion": "fade",
+       "wide": [
+        0.7693,
+        0.6162,
+        0.2187,
+        0.1013
+       ]
+      }
+     ],
+     "design": {
+      "structure": "network",
+      "variant": "mesh",
+      "motion": "draw",
+      "signature": "network/mesh/draw",
+      "source": "generated"
+     }
+    },
+    {
+     "type": "pill",
+     "text": "Cloudflare protected",
+     "tone": "brand",
+     "icon": "shield",
+     "at": 13.76
+    }
+   ],
+   "camera": "pan-left",
+   "motion": "standard",
+   "backdrop": "deep"
+  },
+  {
+   "id": "s3-layers",
+   "purpose": "point",
+   "start": 14.466,
+   "end": 21.774,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 14.616,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "status-card",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.9021,
+        1.0,
+        0.0979
+       ],
+       "at": 20.618,
+       "fill": "surface",
+       "stroke": "success",
+       "strokeW": 3,
+       "motion": "scale-in",
+       "wide": [
+        0.0,
+        0.8835,
+        1.0,
+        0.1165
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.1511,
+        1.0,
+        0.1596
+       ],
+       "at": 15.454,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "pulseAt": 15.804,
+       "wide": [
+        0.1045,
+        0.1419,
+        0.791,
+        0.1613
+       ]
+      },
+      {
+       "id": "a0",
+       "kind": "shape",
+       "shape": "rect",
+       "box": [
+        0.0,
+        0.1617,
+        0.0085,
+        0.1383
+       ],
+       "at": 15.504,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.1045,
+        0.1545,
+        0.0053,
+        0.136
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.3277,
+        1.0,
+        0.1596
+       ],
+       "at": 17.082,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "pulseAt": 17.432,
+       "wide": [
+        0.1045,
+        0.3235,
+        0.791,
+        0.1613
+       ]
+      },
+      {
+       "id": "a1",
+       "kind": "shape",
+       "shape": "rect",
+       "box": [
+        0.0,
+        0.3383,
+        0.0085,
+        0.1383
+       ],
+       "at": 17.132,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.1045,
+        0.3361,
+        0.0053,
+        0.136
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.5043,
+        1.0,
+        0.1596
+       ],
+       "at": 17.925,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "pulseAt": 18.275,
+       "wide": [
+        0.1045,
+        0.5051,
+        0.791,
+        0.1613
+       ]
+      },
+      {
+       "id": "a2",
+       "kind": "shape",
+       "shape": "rect",
+       "box": [
+        0.0,
+        0.5149,
+        0.0085,
+        0.1383
+       ],
+       "at": 17.975,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.1045,
+        0.5177,
+        0.0053,
+        0.136
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.6809,
+        1.0,
+        0.1596
+       ],
+       "at": 19.718,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "pulseAt": 20.068,
+       "wide": [
+        0.1045,
+        0.6867,
+        0.791,
+        0.1613
+       ]
+      },
+      {
+       "id": "a3",
+       "kind": "shape",
+       "shape": "rect",
+       "box": [
+        0.0,
+        0.6915,
+        0.0085,
+        0.1383
+       ],
+       "at": 19.768,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.1045,
+        0.6993,
+        0.0053,
+        0.136
+       ]
+      },
+      {
+       "id": "status-icon",
+       "kind": "icon",
+       "icon": "check",
+       "box": [
+        0.0255,
+        0.9255,
+        0.0511,
+        0.0511
+       ],
+       "at": 20.618,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.016,
+        0.9113,
+        0.032,
+        0.0608
+       ]
+      },
+      {
+       "id": "i0",
+       "kind": "icon",
+       "icon": "zap",
+       "box": [
+        0.0362,
+        0.1989,
+        0.0638,
+        0.0638
+       ],
+       "at": 15.504,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.1272,
+        0.1845,
+        0.04,
+        0.076
+       ]
+      },
+      {
+       "id": "i1",
+       "kind": "icon",
+       "icon": "disk",
+       "box": [
+        0.0362,
+        0.3755,
+        0.0638,
+        0.0638
+       ],
+       "at": 17.132,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.1272,
+        0.3661,
+        0.04,
+        0.076
+       ]
+      },
+      {
+       "id": "i2",
+       "kind": "icon",
+       "icon": "shield",
+       "box": [
+        0.0362,
+        0.5521,
+        0.0638,
+        0.0638
+       ],
+       "at": 17.975,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.1272,
+        0.5477,
+        0.04,
+        0.076
+       ]
+      },
+      {
+       "id": "i3",
+       "kind": "icon",
+       "icon": "cloud",
+       "box": [
+        0.0362,
+        0.7287,
+        0.0638,
+        0.0638
+       ],
+       "at": 19.768,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.1272,
+        0.7293,
+        0.04,
+        0.076
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "Under the hood",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.0,
+        0.0,
+        1.0,
+        0.0894
+       ],
+       "at": 14.616,
+       "motion": "fade-up",
+       "wide": [
+        0.0,
+        0.0,
+        1.0,
+        0.1064
+       ]
+      },
+      {
+       "id": "status",
+       "kind": "text",
+       "text": "99.9% uptime target",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0936,
+        0.9106,
+        0.8809,
+        0.0809
+       ],
+       "at": 20.618,
+       "motion": "fade-up",
+       "wide": [
+        0.0587,
+        0.8936,
+        0.9253,
+        0.0963
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "LiteSpeed Web Server",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1234,
+        0.1596,
+        0.8489,
+        0.1426
+       ],
+       "at": 15.554,
+       "motion": "fade-up",
+       "wide": [
+        0.1818,
+        0.152,
+        0.6963,
+        0.1411
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "NVMe SSD storage",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1234,
+        0.3362,
+        0.8489,
+        0.1426
+       ],
+       "at": 17.182,
+       "motion": "fade-up",
+       "wide": [
+        0.1818,
+        0.3336,
+        0.6963,
+        0.1411
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Imunify360 security",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1234,
+        0.5128,
+        0.8489,
+        0.1426
+       ],
+       "at": 18.025,
+       "motion": "fade-up",
+       "wide": [
+        0.1818,
+        0.5152,
+        0.6963,
+        0.1411
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Daily backups",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1234,
+        0.6894,
+        0.8489,
+        0.1426
+       ],
+       "at": 19.818,
+       "motion": "fade-up",
+       "wide": [
+        0.1818,
+        0.6968,
+        0.6963,
+        0.1411
+       ]
+      }
+     ],
+     "design": {
+      "structure": "layers",
+      "variant": "bars",
+      "motion": "focus",
+      "signature": "layers/bars/focus",
+      "source": "generated"
+     }
+    },
+    {
+     "type": "pill",
+     "text": "Cloudflare protected",
+     "tone": "brand",
+     "icon": "shield",
+     "at": 21.068
+    }
+   ],
+   "camera": "pan-left",
+   "motion": "standard",
+   "backdrop": "light"
+  },
+  {
+   "id": "s4-grid",
+   "purpose": "point",
+   "start": 21.774,
+   "end": 29.082,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 21.924,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "status-card",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.9021,
+        1.0,
+        0.0979
+       ],
+       "at": 27.926,
+       "fill": "surface",
+       "stroke": "success",
+       "strokeW": 3,
+       "motion": "pop",
+       "wide": [
+        0.0,
+        0.8835,
+        1.0,
+        0.1165
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.2102,
+        0.4851,
+        0.2706
+       ],
+       "at": 22.762,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "pop",
+       "wide": [
+        0.0,
+        0.3338,
+        0.236,
+        0.3222
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.5149,
+        0.2102,
+        0.4851,
+        0.2706
+       ],
+       "at": 24.39,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "pop",
+       "wide": [
+        0.2547,
+        0.3338,
+        0.236,
+        0.3222
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.5106,
+        0.4851,
+        0.2706
+       ],
+       "at": 25.233,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "pop",
+       "wide": [
+        0.5093,
+        0.3338,
+        0.236,
+        0.3222
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.5149,
+        0.5106,
+        0.4851,
+        0.2706
+       ],
+       "at": 27.026,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "pop",
+       "wide": [
+        0.764,
+        0.3338,
+        0.236,
+        0.3222
+       ]
+      },
+      {
+       "id": "status-icon",
+       "kind": "icon",
+       "icon": "check",
+       "box": [
+        0.0255,
+        0.9255,
+        0.0511,
+        0.0511
+       ],
+       "at": 27.926,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.016,
+        0.9113,
+        0.032,
+        0.0608
+       ]
+      },
+      {
+       "id": "i0",
+       "kind": "icon",
+       "icon": "zap",
+       "box": [
+        0.2043,
+        0.2427,
+        0.0766,
+        0.0766
+       ],
+       "at": 22.812,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.094,
+        0.3725,
+        0.048,
+        0.0912
+       ]
+      },
+      {
+       "id": "i1",
+       "kind": "icon",
+       "icon": "disk",
+       "box": [
+        0.7191,
+        0.2427,
+        0.0766,
+        0.0766
+       ],
+       "at": 24.44,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.3487,
+        0.3725,
+        0.048,
+        0.0912
+       ]
+      },
+      {
+       "id": "i2",
+       "kind": "icon",
+       "icon": "shield",
+       "box": [
+        0.2043,
+        0.5431,
+        0.0766,
+        0.0766
+       ],
+       "at": 25.283,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.6033,
+        0.3725,
+        0.048,
+        0.0912
+       ]
+      },
+      {
+       "id": "i3",
+       "kind": "icon",
+       "icon": "cloud",
+       "box": [
+        0.7191,
+        0.5431,
+        0.0766,
+        0.0766
+       ],
+       "at": 27.076,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.858,
+        0.3725,
+        0.048,
+        0.0912
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "Under the hood",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.0,
+        0.0,
+        1.0,
+        0.0894
+       ],
+       "at": 21.924,
+       "motion": "fade",
+       "wide": [
+        0.0,
+        0.0,
+        1.0,
+        0.1064
+       ]
+      },
+      {
+       "id": "status",
+       "kind": "text",
+       "text": "99.9% uptime target",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0936,
+        0.9106,
+        0.8809,
+        0.0809
+       ],
+       "at": 27.926,
+       "motion": "fade",
+       "wide": [
+        0.0587,
+        0.8936,
+        0.9253,
+        0.0963
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "LiteSpeed Web Server",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.0191,
+        0.3321,
+        0.4468,
+        0.1339
+       ],
+       "at": 22.862,
+       "motion": "fade",
+       "wide": [
+        0.012,
+        0.4789,
+        0.212,
+        0.1594
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "NVMe SSD storage",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.534,
+        0.3321,
+        0.4468,
+        0.1339
+       ],
+       "at": 24.49,
+       "motion": "fade",
+       "wide": [
+        0.2667,
+        0.4789,
+        0.212,
+        0.1594
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Imunify360 security",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.0191,
+        0.6325,
+        0.4468,
+        0.1339
+       ],
+       "at": 25.333,
+       "motion": "fade",
+       "wide": [
+        0.5213,
+        0.4789,
+        0.212,
+        0.1594
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Daily backups",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.534,
+        0.6325,
+        0.4468,
+        0.1339
+       ],
+       "at": 27.126,
+       "motion": "fade",
+       "wide": [
+        0.776,
+        0.4789,
+        0.212,
+        0.1594
+       ]
+      }
+     ],
+     "design": {
+      "structure": "grid",
+      "variant": "tiles",
+      "motion": "pop",
+      "signature": "grid/tiles/pop",
+      "source": "generated"
+     }
+    },
+    {
+     "type": "pill",
+     "text": "Cloudflare protected",
+     "tone": "brand",
+     "icon": "shield",
+     "at": 28.376
+    }
+   ],
+   "camera": "pan-left",
+   "motion": "standard",
+   "backdrop": "spotlight"
+  },
+  {
+   "id": "s5-hero-number",
+   "purpose": "point",
+   "start": 29.082,
+   "end": 35.417,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 30.66,
+     "canvas": {
+      "tall": 0.9,
+      "wide": 1.7
+     },
+     "elements": [
+      {
+       "id": "track",
+       "kind": "shape",
+       "shape": "ring",
+       "box": [
+        0.236,
+        0.1072,
+        0.528,
+        0.4752
+       ],
+       "at": 30.66,
+       "stroke": "border",
+       "strokeW": 10,
+       "motion": "draw-on",
+       "wide": [
+        0.04,
+        0.2065,
+        0.42,
+        0.714
+       ]
+      },
+      {
+       "id": "arc",
+       "kind": "shape",
+       "shape": "arc",
+       "box": [
+        0.236,
+        0.1072,
+        0.528,
+        0.4752
+       ],
+       "at": 30.66,
+       "stroke": "brand",
+       "strokeW": 14,
+       "sweep": 300,
+       "start": 210,
+       "motion": "draw-on",
+       "wide": [
+        0.04,
+        0.2065,
+        0.42,
+        0.714
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.615,
+        1.0,
+        0.0862
+       ],
+       "at": 32.601,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "wide": [
+        0.5067,
+        0.2983,
+        0.4933,
+        0.1224
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.7127,
+        1.0,
+        0.0862
+       ],
+       "at": 33.011,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "wide": [
+        0.5067,
+        0.4343,
+        0.4933,
+        0.1224
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.8104,
+        1.0,
+        0.0862
+       ],
+       "at": 33.461,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "wide": [
+        0.5067,
+        0.5703,
+        0.4933,
+        0.1224
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.9081,
+        1.0,
+        0.0862
+       ],
+       "at": 34.309,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "wide": [
+        0.5067,
+        0.7063,
+        0.4933,
+        0.1224
+       ]
+      },
+      {
+       "id": "i0",
+       "kind": "icon",
+       "icon": "lock",
+       "box": [
+        0.0234,
+        0.637,
+        0.0468,
+        0.0421
+       ],
+       "at": 32.651,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.5213,
+        0.3345,
+        0.0293,
+        0.0499
+       ]
+      },
+      {
+       "id": "i1",
+       "kind": "icon",
+       "icon": "cloud",
+       "box": [
+        0.0234,
+        0.7347,
+        0.0468,
+        0.0421
+       ],
+       "at": 33.061,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.5213,
+        0.4705,
+        0.0293,
+        0.0499
+       ]
+      },
+      {
+       "id": "i2",
+       "kind": "icon",
+       "icon": "arrowRight",
+       "box": [
+        0.0234,
+        0.8324,
+        0.0468,
+        0.0421
+       ],
+       "at": 33.511,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.5213,
+        0.6065,
+        0.0293,
+        0.0499
+       ]
+      },
+      {
+       "id": "i3",
+       "kind": "icon",
+       "icon": "shield",
+       "box": [
+        0.0234,
+        0.9301,
+        0.0468,
+        0.0421
+       ],
+       "at": 34.359,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.5213,
+        0.7425,
+        0.0293,
+        0.0499
+       ]
+      },
+      {
+       "id": "num",
+       "kind": "number",
+       "box": [
+        0.2994,
+        0.2498,
+        0.4013,
+        0.1901
+       ],
+       "color": "text",
+       "to": 10,
+       "from": 0,
+       "suffix": " GB",
+       "at": 30.66,
+       "countEnd": 31.41,
+       "motion": "fade-up",
+       "wide": [
+        0.0904,
+        0.4207,
+        0.3192,
+        0.2856
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "NVMe storage · WP Starter",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.0,
+        0.0,
+        1.0,
+        0.0804
+       ],
+       "at": 30.66,
+       "motion": "fade-up",
+       "wide": [
+        0.0,
+        0.0,
+        1.0,
+        0.0952
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "Free SSL",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0894,
+        0.6207,
+        0.8894,
+        0.0747
+       ],
+       "at": 32.701,
+       "motion": "fade-up",
+       "wide": [
+        0.5627,
+        0.3051,
+        0.424,
+        0.1088
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "Daily backups",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0894,
+        0.7184,
+        0.8894,
+        0.0747
+       ],
+       "at": 33.111,
+       "motion": "fade-up",
+       "wide": [
+        0.5627,
+        0.4411,
+        0.424,
+        0.1088
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Free migration",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0894,
+        0.8161,
+        0.8894,
+        0.0747
+       ],
+       "at": 33.561,
+       "motion": "fade-up",
+       "wide": [
+        0.5627,
+        0.5771,
+        0.424,
+        0.1088
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Imunify360 security",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0894,
+        0.9138,
+        0.8894,
+        0.0747
+       ],
+       "at": 34.409,
+       "motion": "fade-up",
+       "wide": [
+        0.5627,
+        0.7131,
+        0.424,
+        0.1088
+       ]
+      }
+     ],
+     "design": {
+      "structure": "hero-number",
+      "variant": "arc",
+      "motion": "cascade",
+      "signature": "hero-number/arc/cascade",
+      "source": "generated"
+     }
+    }
+   ],
+   "camera": "push-in",
+   "motion": "energetic",
+   "backdrop": "glow"
+  },
+  {
+   "id": "s6-orbit",
+   "purpose": "point",
+   "start": 35.417,
+   "end": 41.752,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 36.995,
+     "canvas": {
+      "tall": 0.9,
+      "wide": 1.7
+     },
+     "elements": [
+      {
+       "id": "hub",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.3314,
+        0.4018,
+        0.3373,
+        0.3035
+       ],
+       "at": 36.995,
+       "fill": "surface",
+       "stroke": "brand",
+       "strokeW": 6,
+       "motion": "scale-in",
+       "wide": [
+        0.3973,
+        0.3889,
+        0.2054,
+        0.3492
+       ]
+      },
+      {
+       "id": "ring",
+       "kind": "shape",
+       "shape": "ring",
+       "box": [
+        0.1727,
+        0.259,
+        0.6547,
+        0.5892
+       ],
+       "at": 36.995,
+       "stroke": "border",
+       "strokeW": 4,
+       "motion": "draw-on",
+       "wide": [
+        0.3151,
+        0.2492,
+        0.3698,
+        0.6286
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.7869,
+        0.5172,
+        0.0809,
+        0.0728
+       ],
+       "at": 38.936,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "pulseAt": 39.286,
+       "wide": [
+        0.6027,
+        0.2936,
+        0.056,
+        0.0952
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.4596,
+        0.8118,
+        0.0809,
+        0.0728
+       ],
+       "at": 39.346,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "pulseAt": 39.696,
+       "wide": [
+        0.6027,
+        0.7381,
+        0.056,
+        0.0952
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.1322,
+        0.5172,
+        0.0809,
+        0.0728
+       ],
+       "at": 39.796,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "pulseAt": 40.146,
+       "wide": [
+        0.3413,
+        0.7381,
+        0.056,
+        0.0952
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.4596,
+        0.2226,
+        0.0809,
+        0.0728
+       ],
+       "at": 40.644,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "pulseAt": 40.994,
+       "wide": [
+        0.3413,
+        0.2936,
+        0.056,
+        0.0952
+       ]
+      },
+      {
+       "id": "i0",
+       "kind": "icon",
+       "icon": "lock",
+       "box": [
+        0.8071,
+        0.5354,
+        0.0404,
+        0.0364
+       ],
+       "at": 38.986,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.6167,
+        0.3174,
+        0.028,
+        0.0476
+       ]
+      },
+      {
+       "id": "i1",
+       "kind": "icon",
+       "icon": "cloud",
+       "box": [
+        0.4798,
+        0.83,
+        0.0404,
+        0.0364
+       ],
+       "at": 39.396,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.6167,
+        0.7619,
+        0.028,
+        0.0476
+       ]
+      },
+      {
+       "id": "i2",
+       "kind": "icon",
+       "icon": "arrowRight",
+       "box": [
+        0.1524,
+        0.5354,
+        0.0404,
+        0.0364
+       ],
+       "at": 39.846,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.3553,
+        0.7619,
+        0.028,
+        0.0476
+       ]
+      },
+      {
+       "id": "i3",
+       "kind": "icon",
+       "icon": "shield",
+       "box": [
+        0.4798,
+        0.2408,
+        0.0404,
+        0.0364
+       ],
+       "at": 40.694,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.3553,
+        0.3174,
+        0.028,
+        0.0476
+       ]
+      },
+      {
+       "id": "num",
+       "kind": "number",
+       "box": [
+        0.3583,
+        0.4929,
+        0.2833,
+        0.1214
+       ],
+       "color": "text",
+       "to": 10,
+       "from": 0,
+       "suffix": " GB",
+       "at": 36.995,
+       "countEnd": 37.745,
+       "motion": "fade-up",
+       "wide": [
+        0.4137,
+        0.4936,
+        0.1726,
+        0.1397
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "NVMe storage · WP Starter",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.0,
+        0.0,
+        1.0,
+        0.0804
+       ],
+       "at": 36.995,
+       "motion": "fade-up",
+       "wide": [
+        0.0,
+        0.0,
+        1.0,
+        0.0952
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "Free SSL",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.6571,
+        0.5957,
+        0.3404,
+        0.0919
+       ],
+       "at": 39.036,
+       "motion": "fade-up",
+       "wide": [
+        0.6694,
+        0.28,
+        0.2124,
+        0.1224
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "Daily backups",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.3298,
+        0.8904,
+        0.3404,
+        0.0919
+       ],
+       "at": 39.446,
+       "motion": "fade-up",
+       "wide": [
+        0.6694,
+        0.7245,
+        0.2124,
+        0.1224
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Free migration",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.0024,
+        0.5957,
+        0.3404,
+        0.0919
+       ],
+       "at": 39.896,
+       "motion": "fade-up",
+       "wide": [
+        0.1182,
+        0.7245,
+        0.2124,
+        0.1224
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Imunify360 security",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.3298,
+        0.125,
+        0.3404,
+        0.0919
+       ],
+       "at": 40.744,
+       "motion": "fade-up",
+       "wide": [
+        0.1182,
+        0.28,
+        0.2124,
+        0.1224
+       ]
+      }
+     ],
+     "design": {
+      "structure": "orbit",
+      "variant": "ring",
+      "motion": "focus",
+      "signature": "orbit/ring/focus",
+      "source": "generated"
+     }
+    }
+   ],
+   "camera": "push-in",
+   "motion": "energetic",
+   "backdrop": "split"
+  },
+  {
+   "id": "s7-ladder",
+   "purpose": "journey",
+   "start": 41.752,
+   "end": 48.725,
+   "transition": "slide-up",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 41.802,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "status-card",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.9021,
+        1.0,
+        0.0979
+       ],
+       "at": 48.262,
+       "fill": "surface",
+       "stroke": "success",
+       "strokeW": 3,
+       "motion": "fade",
+       "wide": [
+        0.0,
+        0.8835,
+        1.0,
+        0.1165
+       ]
+      },
+      {
+       "id": "rail",
+       "kind": "shape",
+       "shape": "line",
+       "box": [
+        0.0528,
+        0.1945,
+        0.0064,
+        0.6026
+       ],
+       "at": 41.802,
+       "stroke": "brand",
+       "strokeW": 6,
+       "motion": "draw-on",
+       "wide": [
+        0.1,
+        0.4015,
+        0.8,
+        0.0076
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0064,
+        0.1448,
+        0.0993,
+        0.0993
+       ],
+       "at": 42.552,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "fade",
+       "wide": [
+        0.0653,
+        0.3394,
+        0.0693,
+        0.1317
+       ]
+      },
+      {
+       "id": "d0",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0411,
+        0.1796,
+        0.0298,
+        0.0298
+       ],
+       "at": 42.602,
+       "fill": "brand",
+       "motion": "fade",
+       "wide": [
+        0.0896,
+        0.3855,
+        0.0208,
+        0.0395
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0064,
+        0.2955,
+        0.0993,
+        0.0993
+       ],
+       "at": 44.338,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "fade",
+       "wide": [
+        0.2653,
+        0.3394,
+        0.0693,
+        0.1317
+       ]
+      },
+      {
+       "id": "d1",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0411,
+        0.3302,
+        0.0298,
+        0.0298
+       ],
+       "at": 44.388,
+       "fill": "brand",
+       "motion": "fade",
+       "wide": [
+        0.2896,
+        0.3855,
+        0.0208,
+        0.0395
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0064,
+        0.4461,
+        0.0993,
+        0.0993
+       ],
+       "at": 44.913,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "fade",
+       "wide": [
+        0.4653,
+        0.3394,
+        0.0693,
+        0.1317
+       ]
+      },
+      {
+       "id": "d2",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0411,
+        0.4809,
+        0.0298,
+        0.0298
+       ],
+       "at": 44.963,
+       "fill": "brand",
+       "motion": "fade",
+       "wide": [
+        0.4896,
+        0.3855,
+        0.0208,
+        0.0395
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0064,
+        0.5967,
+        0.0993,
+        0.0993
+       ],
+       "at": 45.653,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "fade",
+       "wide": [
+        0.6653,
+        0.3394,
+        0.0693,
+        0.1317
+       ]
+      },
+      {
+       "id": "d3",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0411,
+        0.6315,
+        0.0298,
+        0.0298
+       ],
+       "at": 45.703,
+       "fill": "brand",
+       "motion": "fade",
+       "wide": [
+        0.6896,
+        0.3855,
+        0.0208,
+        0.0395
+       ]
+      },
+      {
+       "id": "n4",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0064,
+        0.7474,
+        0.0993,
+        0.0993
+       ],
+       "at": 46.189,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "fade",
+       "wide": [
+        0.8653,
+        0.3394,
+        0.0693,
+        0.1317
+       ]
+      },
+      {
+       "id": "d4",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.0411,
+        0.7821,
+        0.0298,
+        0.0298
+       ],
+       "at": 46.239,
+       "fill": "brand",
+       "motion": "fade",
+       "wide": [
+        0.8896,
+        0.3855,
+        0.0208,
+        0.0395
+       ]
+      },
+      {
+       "id": "status-icon",
+       "kind": "icon",
+       "icon": "check",
+       "box": [
+        0.0255,
+        0.9255,
+        0.0511,
+        0.0511
+       ],
+       "at": 48.262,
+       "color": "success",
+       "motion": "scale-in",
+       "wide": [
+        0.016,
+        0.9113,
+        0.032,
+        0.0608
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "One-click install",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.0,
+        0.0,
+        1.0,
+        0.0894
+       ],
+       "at": 41.802,
+       "motion": "fade",
+       "wide": [
+        0.0,
+        0.0,
+        1.0,
+        0.1064
+       ]
+      },
+      {
+       "id": "status",
+       "kind": "text",
+       "text": "Your site is live",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0936,
+        0.9106,
+        0.8809,
+        0.0809
+       ],
+       "at": 48.262,
+       "motion": "fade",
+       "wide": [
+        0.0587,
+        0.8936,
+        0.9253,
+        0.0963
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "Installing WordPress…",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1376,
+        0.137,
+        0.8624,
+        0.1149
+       ],
+       "at": 42.652,
+       "motion": "fade",
+       "wide": [
+        0.006,
+        0.499,
+        0.188,
+        0.1368
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "Choosing a theme…",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1376,
+        0.2877,
+        0.8624,
+        0.1149
+       ],
+       "at": 44.438,
+       "motion": "fade",
+       "wide": [
+        0.206,
+        0.499,
+        0.188,
+        0.1368
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Installing plugins…",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1376,
+        0.4383,
+        0.8624,
+        0.1149
+       ],
+       "at": 45.013,
+       "motion": "fade",
+       "wide": [
+        0.406,
+        0.499,
+        0.188,
+        0.1368
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Configuring SSL…",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1376,
+        0.5889,
+        0.8624,
+        0.1149
+       ],
+       "at": 45.753,
+       "motion": "fade",
+       "wide": [
+        0.606,
+        0.499,
+        0.188,
+        0.1368
+       ]
+      },
+      {
+       "id": "l4",
+       "kind": "text",
+       "text": "Enabling LiteSpeed Cache…",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1376,
+        0.7396,
+        0.8624,
+        0.1149
+       ],
+       "at": 46.289,
+       "motion": "fade",
+       "wide": [
+        0.806,
+        0.499,
+        0.188,
+        0.1368
+       ]
+      }
+     ],
+     "design": {
+      "structure": "ladder",
+      "variant": "rail",
+      "motion": "draw",
+      "signature": "ladder/rail/draw",
+      "source": "generated"
+     }
+    },
+    {
+     "type": "pill",
+     "text": "Softaculous 1-Click Installs",
+     "tone": "brand",
+     "icon": "download",
+     "at": 41.902
+    }
+   ],
+   "camera": "push-in",
+   "motion": "standard",
+   "backdrop": "grid"
+  },
+  {
+   "id": "s8-path",
+   "purpose": "journey",
+   "start": 48.725,
+   "end": 55.698,
+   "transition": "slide-up",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 48.775,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "k1",
+       "kind": "connector",
+       "fromId": "n0",
+       "toId": "n1",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 51.111,
+       "stroke": "brand",
+       "strokeW": 4,
+       "curve": 0.245,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k2",
+       "kind": "connector",
+       "fromId": "n1",
+       "toId": "n2",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 51.686,
+       "stroke": "brand",
+       "strokeW": 4,
+       "curve": -0.245,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k3",
+       "kind": "connector",
+       "fromId": "n2",
+       "toId": "n3",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 52.426,
+       "stroke": "brand",
+       "strokeW": 4,
+       "curve": 0.245,
+       "motion": "draw-on"
+      },
+      {
+       "id": "k4",
+       "kind": "connector",
+       "fromId": "n3",
+       "toId": "n4",
+       "box": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "at": 52.962,
+       "stroke": "brand",
+       "strokeW": 4,
+       "curve": -0.245,
+       "motion": "draw-on"
+      },
+      {
+       "id": "status-card",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.9021,
+        1.0,
+        0.0979
+       ],
+       "at": 55.235,
+       "fill": "surface",
+       "stroke": "success",
+       "strokeW": 3,
+       "motion": "scale-in",
+       "wide": [
+        0.0,
+        0.8835,
+        1.0,
+        0.1165
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.12,
+        0.1498,
+        0.0894,
+        0.0894
+       ],
+       "at": 49.525,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.072,
+        0.3245,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "d0",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.1513,
+        0.1811,
+        0.0268,
+        0.0268
+       ],
+       "at": 49.575,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.0916,
+        0.3618,
+        0.0168,
+        0.0319
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.7906,
+        0.3004,
+        0.0894,
+        0.0894
+       ],
+       "at": 51.311,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.272,
+        0.559,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "d1",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.8219,
+        0.3317,
+        0.0268,
+        0.0268
+       ],
+       "at": 51.361,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.2916,
+        0.5962,
+        0.0168,
+        0.0319
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.12,
+        0.4511,
+        0.0894,
+        0.0894
+       ],
+       "at": 51.886,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.472,
+        0.3245,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "d2",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.1513,
+        0.4823,
+        0.0268,
+        0.0268
+       ],
+       "at": 51.936,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.4916,
+        0.3618,
+        0.0168,
+        0.0319
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.7906,
+        0.6017,
+        0.0894,
+        0.0894
+       ],
+       "at": 52.626,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.672,
+        0.559,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "d3",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.8219,
+        0.633,
+        0.0268,
+        0.0268
+       ],
+       "at": 52.676,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.6916,
+        0.5962,
+        0.0168,
+        0.0319
+       ]
+      },
+      {
+       "id": "n4",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.12,
+        0.7523,
+        0.0894,
+        0.0894
+       ],
+       "at": 53.162,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.872,
+        0.3245,
+        0.056,
+        0.1064
+       ]
+      },
+      {
+       "id": "d4",
+       "kind": "shape",
+       "shape": "circle",
+       "box": [
+        0.1513,
+        0.7836,
+        0.0268,
+        0.0268
+       ],
+       "at": 53.212,
+       "fill": "brand",
+       "motion": "scale-in",
+       "wide": [
+        0.8916,
+        0.3618,
+        0.0168,
+        0.0319
+       ]
+      },
+      {
+       "id": "status-icon",
+       "kind": "icon",
+       "icon": "check",
+       "box": [
+        0.0255,
+        0.9255,
+        0.0511,
+        0.0511
+       ],
+       "at": 55.235,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.016,
+        0.9113,
+        0.032,
+        0.0608
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "One-click install",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.0,
+        0.0,
+        1.0,
+        0.0894
+       ],
+       "at": 48.775,
+       "motion": "fade-up",
+       "wide": [
+        0.0,
+        0.0,
+        1.0,
+        0.1064
+       ]
+      },
+      {
+       "id": "status",
+       "kind": "text",
+       "text": "Your site is live",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0936,
+        0.9106,
+        0.8809,
+        0.0809
+       ],
+       "at": 55.235,
+       "motion": "fade-up",
+       "wide": [
+        0.0587,
+        0.8936,
+        0.9253,
+        0.0963
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "Installing WordPress…",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.2349,
+        0.137,
+        0.7651,
+        0.1149
+       ],
+       "at": 49.625,
+       "motion": "fade-up",
+       "wide": [
+        0.004,
+        0.4461,
+        0.192,
+        0.1368
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "Choosing a theme…",
+       "role": "label",
+       "align": "right",
+       "box": [
+        0.0,
+        0.2877,
+        0.7651,
+        0.1149
+       ],
+       "at": 51.411,
+       "motion": "fade-up",
+       "wide": [
+        0.204,
+        0.407,
+        0.192,
+        0.1368
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Installing plugins…",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.2349,
+        0.4383,
+        0.7651,
+        0.1149
+       ],
+       "at": 51.986,
+       "motion": "fade-up",
+       "wide": [
+        0.404,
+        0.4461,
+        0.192,
+        0.1368
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Configuring SSL…",
+       "role": "label",
+       "align": "right",
+       "box": [
+        0.0,
+        0.5889,
+        0.7651,
+        0.1149
+       ],
+       "at": 52.726,
+       "motion": "fade-up",
+       "wide": [
+        0.604,
+        0.407,
+        0.192,
+        0.1368
+       ]
+      },
+      {
+       "id": "l4",
+       "kind": "text",
+       "text": "Enabling LiteSpeed Cache…",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.2349,
+        0.7396,
+        0.7651,
+        0.1149
+       ],
+       "at": 53.262,
+       "motion": "fade-up",
+       "wide": [
+        0.804,
+        0.4461,
+        0.192,
+        0.1368
+       ]
+      }
+     ],
+     "design": {
+      "structure": "path",
+      "variant": "snake",
+      "motion": "cascade",
+      "signature": "path/snake/cascade",
+      "source": "generated"
+     }
+    },
+    {
+     "type": "pill",
+     "text": "Softaculous 1-Click Installs",
+     "tone": "brand",
+     "icon": "download",
+     "at": 48.875
+    }
+   ],
+   "camera": "push-in",
+   "motion": "standard",
+   "backdrop": "deep"
+  },
+  {
+   "id": "s9-funnel",
+   "purpose": "journey",
+   "start": 55.698,
+   "end": 62.671,
+   "transition": "slide-up",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 55.748,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "status-card",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.9021,
+        1.0,
+        0.0979
+       ],
+       "at": 62.208,
+       "fill": "surface",
+       "stroke": "success",
+       "strokeW": 3,
+       "motion": "pop",
+       "wide": [
+        0.0,
+        0.8835,
+        1.0,
+        0.1165
+       ]
+      },
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.1191,
+        1.0,
+        0.1387
+       ],
+       "at": 56.498,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "pop",
+       "wide": [
+        0.0,
+        0.1419,
+        0.1904,
+        0.7061
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0431,
+        0.2728,
+        0.9138,
+        0.1387
+       ],
+       "at": 58.284,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "pop",
+       "wide": [
+        0.2024,
+        0.1723,
+        0.1904,
+        0.6452
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0862,
+        0.4264,
+        0.8275,
+        0.1387
+       ],
+       "at": 58.859,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "pop",
+       "wide": [
+        0.4048,
+        0.2028,
+        0.1904,
+        0.5843
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.1294,
+        0.58,
+        0.7412,
+        0.1387
+       ],
+       "at": 59.599,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "pop",
+       "wide": [
+        0.6072,
+        0.2332,
+        0.1904,
+        0.5234
+       ]
+      },
+      {
+       "id": "n4",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.1725,
+        0.7336,
+        0.655,
+        0.1387
+       ],
+       "at": 60.135,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 3,
+       "motion": "pop",
+       "wide": [
+        0.8096,
+        0.2637,
+        0.1904,
+        0.4625
+       ]
+      },
+      {
+       "id": "status-icon",
+       "kind": "icon",
+       "icon": "check",
+       "box": [
+        0.0255,
+        0.9255,
+        0.0511,
+        0.0511
+       ],
+       "at": 62.208,
+       "color": "success",
+       "motion": "pop",
+       "wide": [
+        0.016,
+        0.9113,
+        0.032,
+        0.0608
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "One-click install",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.0,
+        0.0,
+        1.0,
+        0.0894
+       ],
+       "at": 55.748,
+       "motion": "fade",
+       "wide": [
+        0.0,
+        0.0,
+        1.0,
+        0.1064
+       ]
+      },
+      {
+       "id": "status",
+       "kind": "text",
+       "text": "Your site is live",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0936,
+        0.9106,
+        0.8809,
+        0.0809
+       ],
+       "at": 62.208,
+       "motion": "fade",
+       "wide": [
+        0.0587,
+        0.8936,
+        0.9253,
+        0.0963
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "Installing WordPress…",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.0255,
+        0.1255,
+        0.9489,
+        0.126
+       ],
+       "at": 56.598,
+       "motion": "fade",
+       "wide": [
+        0.0107,
+        0.4265,
+        0.1691,
+        0.1368
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "Choosing a theme…",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.0687,
+        0.2791,
+        0.8627,
+        0.126
+       ],
+       "at": 58.384,
+       "motion": "fade",
+       "wide": [
+        0.2131,
+        0.4265,
+        0.1691,
+        0.1368
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Installing plugins…",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.1118,
+        0.4328,
+        0.7764,
+        0.126
+       ],
+       "at": 58.959,
+       "motion": "fade",
+       "wide": [
+        0.4155,
+        0.4265,
+        0.1691,
+        0.1368
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Configuring SSL…",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.1549,
+        0.5864,
+        0.6902,
+        0.126
+       ],
+       "at": 59.699,
+       "motion": "fade",
+       "wide": [
+        0.6179,
+        0.4265,
+        0.1691,
+        0.1368
+       ]
+      },
+      {
+       "id": "l4",
+       "kind": "text",
+       "text": "Enabling LiteSpeed Cache…",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.198,
+        0.74,
+        0.6039,
+        0.126
+       ],
+       "at": 60.235,
+       "motion": "fade",
+       "wide": [
+        0.8203,
+        0.4265,
+        0.1691,
+        0.1368
+       ]
+      }
+     ],
+     "design": {
+      "structure": "funnel",
+      "variant": "narrowing",
+      "motion": "pop",
+      "signature": "funnel/narrowing/pop",
+      "source": "generated"
+     }
+    },
+    {
+     "type": "pill",
+     "text": "Softaculous 1-Click Installs",
+     "tone": "brand",
+     "icon": "download",
+     "at": 55.848
+    }
+   ],
+   "camera": "push-in",
+   "motion": "standard",
+   "backdrop": "light"
+  },
+  {
+   "id": "s10-stacked",
+   "purpose": "point",
+   "start": 62.671,
+   "end": 69.496,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "composition",
+     "at": 64.652,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "n0",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0,
+        0.0,
+        0.8,
+        0.2021
+       ],
+       "at": 64.602,
+       "fill": "raised",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "pulseAt": 64.952,
+       "wide": [
+        0.0,
+        0.0,
+        0.329,
+        0.86
+       ]
+      },
+      {
+       "id": "n1",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.0667,
+        0.266,
+        0.8,
+        0.2021
+       ],
+       "at": 65.012,
+       "fill": "raised",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "pulseAt": 65.362,
+       "wide": [
+        0.2237,
+        0.0467,
+        0.329,
+        0.86
+       ]
+      },
+      {
+       "id": "n2",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.1333,
+        0.5319,
+        0.8,
+        0.2021
+       ],
+       "at": 66.535,
+       "fill": "raised",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "pulseAt": 66.885,
+       "wide": [
+        0.4473,
+        0.0933,
+        0.329,
+        0.86
+       ]
+      },
+      {
+       "id": "n3",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.2,
+        0.7979,
+        0.8,
+        0.2021
+       ],
+       "at": 67.708,
+       "fill": "raised",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "pulseAt": 68.058,
+       "wide": [
+        0.671,
+        0.14,
+        0.329,
+        0.86
+       ]
+      },
+      {
+       "id": "i0",
+       "kind": "icon",
+       "icon": "lock",
+       "box": [
+        0.0255,
+        0.0734,
+        0.0553,
+        0.0553
+       ],
+       "at": 64.652,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.0147,
+        0.0304,
+        0.0373,
+        0.0709
+       ]
+      },
+      {
+       "id": "i1",
+       "kind": "icon",
+       "icon": "cloud",
+       "box": [
+        0.0922,
+        0.3394,
+        0.0553,
+        0.0553
+       ],
+       "at": 65.062,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.2383,
+        0.0771,
+        0.0373,
+        0.0709
+       ]
+      },
+      {
+       "id": "i2",
+       "kind": "icon",
+       "icon": "arrowRight",
+       "box": [
+        0.1589,
+        0.6053,
+        0.0553,
+        0.0553
+       ],
+       "at": 66.585,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.462,
+        0.1237,
+        0.0373,
+        0.0709
+       ]
+      },
+      {
+       "id": "i3",
+       "kind": "icon",
+       "icon": "shield",
+       "box": [
+        0.2255,
+        0.8713,
+        0.0553,
+        0.0553
+       ],
+       "at": 67.758,
+       "color": "brandText",
+       "motion": "pop",
+       "wide": [
+        0.6857,
+        0.1704,
+        0.0373,
+        0.0709
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "Free SSL",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1,
+        0.0064,
+        0.6745,
+        0.1894
+       ],
+       "at": 64.702,
+       "motion": "fade-up",
+       "wide": [
+        0.0147,
+        0.1216,
+        0.2077,
+        0.1915
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "Daily backups",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.1667,
+        0.2723,
+        0.6745,
+        0.1894
+       ],
+       "at": 65.112,
+       "motion": "fade-up",
+       "wide": [
+        0.2383,
+        0.1683,
+        0.2077,
+        0.1915
+       ]
+      },
+      {
+       "id": "l2",
+       "kind": "text",
+       "text": "Free migration",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.2333,
+        0.5383,
+        0.6745,
+        0.1894
+       ],
+       "at": 66.635,
+       "motion": "fade-up",
+       "wide": [
+        0.462,
+        0.2149,
+        0.2077,
+        0.1915
+       ]
+      },
+      {
+       "id": "l3",
+       "kind": "text",
+       "text": "Imunify360 security",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.3,
+        0.8043,
+        0.6745,
+        0.1894
+       ],
+       "at": 67.808,
+       "motion": "fade-up",
+       "wide": [
+        0.6857,
+        0.2616,
+        0.2077,
+        0.1915
+       ]
+      }
+     ],
+     "design": {
+      "structure": "stacked",
+      "variant": "cascade",
+      "motion": "focus",
+      "signature": "stacked/cascade/focus",
+      "source": "generated"
+     }
+    },
+    {
+     "type": "pill",
+     "text": "Instant activation",
+     "tone": "success",
+     "icon": "rocket",
+     "at": 68.208
+    }
+   ],
+   "camera": "push-in",
+   "motion": "standard",
+   "backdrop": "spotlight"
+  },
+  {
+   "id": "s11-compare",
+   "purpose": "problem",
+   "start": 69.496,
+   "end": 76.7,
+   "transition": "mask-wipe",
+   "layout": "stack",
+   "mood": "danger",
+   "blocks": [
+    {
+     "type": "kinetic-text",
+     "words": [
+      {
+       "text": "the",
+       "at": 70.536
+      },
+      {
+       "text": "price",
+       "at": 70.794
+      },
+      {
+       "text": "you",
+       "at": 71.227
+      },
+      {
+       "text": "signed",
+       "at": 71.494
+      },
+      {
+       "text": "up",
+       "at": 72.009
+      },
+      {
+       "text": "for",
+       "at": 72.209
+      },
+      {
+       "text": "often",
+       "at": 72.477
+      },
+      {
+       "text": "increases.",
+       "at": 72.91,
+       "emphasis": true
+      }
+     ],
+     "size": "m",
+     "align": "center",
+     "at": 70.536
+    },
+    {
+     "type": "composition",
+     "at": 69.746,
+     "canvas": {
+      "tall": 1.0,
+      "wide": 1.9
+     },
+     "elements": [
+      {
+       "id": "col0",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.4085,
+        0.1191,
+        0.283,
+        0.8809
+       ],
+       "at": 69.746,
+       "fill": "card",
+       "stroke": "border",
+       "strokeW": 2,
+       "motion": "scale-in",
+       "wide": [
+        0.4653,
+        0.1419,
+        0.2593,
+        0.8581
+       ]
+      },
+      {
+       "id": "col1",
+       "kind": "shape",
+       "shape": "roundrect",
+       "box": [
+        0.7085,
+        0.1191,
+        0.283,
+        0.8809
+       ],
+       "at": 69.746,
+       "fill": "raised",
+       "stroke": "brand",
+       "strokeW": 4,
+       "motion": "scale-in",
+       "wide": [
+        0.7353,
+        0.1419,
+        0.2593,
+        0.8581
+       ]
+      },
+      {
+       "id": "title",
+       "kind": "text",
+       "text": "At renewal",
+       "role": "title",
+       "align": "center",
+       "box": [
+        0.0,
+        0.0,
+        1.0,
+        0.0894
+       ],
+       "at": 69.746,
+       "motion": "fade-up",
+       "wide": [
+        0.0,
+        0.0,
+        1.0,
+        0.1064
+       ]
+      },
+      {
+       "id": "h0",
+       "kind": "text",
+       "text": "Typical host",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.417,
+        0.1277,
+        0.266,
+        0.0681
+       ],
+       "at": 69.746,
+       "motion": "fade-up",
+       "wide": [
+        0.4707,
+        0.152,
+        0.2487,
+        0.0811
+       ]
+      },
+      {
+       "id": "h1",
+       "kind": "text",
+       "text": "Shroti Host",
+       "role": "label",
+       "align": "center",
+       "box": [
+        0.717,
+        0.1277,
+        0.266,
+        0.0681
+       ],
+       "at": 69.746,
+       "motion": "fade-up",
+       "wide": [
+        0.7407,
+        0.152,
+        0.2487,
+        0.0811
+       ]
+      },
+      {
+       "id": "l0",
+       "kind": "text",
+       "text": "Renewal price",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0,
+        0.2106,
+        0.3787,
+        0.3809
+       ],
+       "at": 69.796,
+       "motion": "fade-up",
+       "wide": [
+        0.0,
+        0.2508,
+        0.4467,
+        0.3581
+       ]
+      },
+      {
+       "id": "v0-0",
+       "kind": "text",
+       "text": "Often increases",
+       "role": "value",
+       "align": "center",
+       "box": [
+        0.417,
+        0.2106,
+        0.266,
+        0.3809
+       ],
+       "at": 69.846,
+       "motion": "fade-up",
+       "wide": [
+        0.4707,
+        0.2508,
+        0.2487,
+        0.3581
+       ]
+      },
+      {
+       "id": "v0-1",
+       "kind": "text",
+       "text": "Same price",
+       "role": "value",
+       "align": "center",
+       "box": [
+        0.717,
+        0.2106,
+        0.266,
+        0.3809
+       ],
+       "at": 69.846,
+       "motion": "fade-up",
+       "wide": [
+        0.7407,
+        0.2508,
+        0.2487,
+        0.3581
+       ]
+      },
+      {
+       "id": "l1",
+       "kind": "text",
+       "text": "Daily backups",
+       "role": "label",
+       "align": "left",
+       "box": [
+        0.0,
+        0.6043,
+        0.3787,
+        0.3809
+       ],
+       "at": 73.995,
+       "motion": "fade-up",
+       "wide": [
+        0.0,
+        0.6241,
+        0.4467,
+        0.3581
+       ]
+      },
+      {
+       "id": "v1-0",
+       "kind": "text",
+       "text": "Often a paid add-on",
+       "role": "value",
+       "align": "center",
+       "box": [
+        0.417,
+        0.6043,
+        0.266,
+        0.3809
+       ],
+       "at": 74.045,
+       "motion": "fade-up",
+       "wide": [
+        0.4707,
+        0.6241,
+        0.2487,
+        0.3581
+       ]
+      },
+      {
+       "id": "v1-1",
+       "kind": "text",
+       "text": "Included",
+       "role": "value",
+       "align": "center",
+       "box": [
+        0.717,
+        0.6043,
+        0.266,
+        0.3809
+       ],
+       "at": 74.045,
+       "motion": "fade-up",
+       "wide": [
+        0.7407,
+        0.6241,
+        0.2487,
+        0.3581
+       ]
+      }
+     ],
+     "design": {
+      "structure": "compare",
+      "variant": "cards",
+      "motion": "cascade",
+      "signature": "compare/cards/cascade",
+      "source": "generated"
+     }
+    }
+   ],
+   "camera": "none",
+   "motion": "standard",
+   "backdrop": "glow"
+  }
+ ],
+ "brandBar": null,
+ "watermark": null
+}

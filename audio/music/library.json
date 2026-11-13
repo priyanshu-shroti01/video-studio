@@ -1,0 +1,297 @@
+{
+ "tracks": [
+  {
+   "id": "technology-commercial-music-i-guess",
+   "file": "technology-commercial-music-i-guess.mp3",
+   "title": "Commercial Music I Guess",
+   "creator": "Seth_Makes_Sounds",
+   "source": "freesound",
+   "source_id": "2bdcdd1a-d29f-40e8-aa92-f4a1c929e1a7",
+   "landing_url": "https://freesound.org/people/Seth_Makes_Sounds/sounds/655513",
+   "download_url": "https://cdn.freesound.org/previews/655/655513_13228046-hq.mp3",
+   "license": "CC0-1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "license_verified": [
+    "openverse:cc0",
+    "landing-page:cc0"
+   ],
+   "attribution_required": false,
+   "attribution": "\"Commercial Music I Guess\" by Seth_Makes_Sounds (freesound), CC0",
+   "moods": [
+    "technology",
+    "energetic"
+   ],
+   "search_query": "electronic ambient loop",
+   "tags": [
+    "130-bpm",
+    "ambient",
+    "atmosphere",
+    "background",
+    "commercial",
+    "dance",
+    "drum-loop",
+    "electronic",
+    "garbage",
+    "groovy",
+    "loop",
+    "music",
+    "percs",
+    "percussion-loop",
+    "quantized"
+   ],
+   "genres": [],
+   "duration_s": 146.0,
+   "sha256": "db80aa4ad47506e219517b10549afecfa9faa09242af9395e2cbd1aff5b89376",
+   "fetched_at": "2026-11-13T19:52:18+0530",
+   "publishable": true,
+   "usage_restrictions": "none (CC0); do not claim authorship of the recording",
+   "brandSafe": true,
+   "moodSource": "search query + tags, reviewed by title/tags (not by listening)"
+  },
+  {
+   "id": "cinematic-horror-atmosphere-background-flac",
+   "file": "cinematic-horror-atmosphere-background-flac.mp3",
+   "title": "horror_atmosphere_background.flac",
+   "creator": "Trebblofang",
+   "source": "freesound",
+   "source_id": "250b865c-0c3e-4d9d-84ca-24febeebf033",
+   "landing_url": "https://freesound.org/people/Trebblofang/sounds/177830",
+   "download_url": "https://cdn.freesound.org/previews/177/177830_925943-hq.mp3",
+   "license": "CC0-1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "license_verified": [
+    "openverse:cc0",
+    "landing-page:cc0"
+   ],
+   "attribution_required": false,
+   "attribution": "\"horror_atmosphere_background.flac\" by Trebblofang (freesound), CC0",
+   "moods": [
+    "dark"
+   ],
+   "search_query": "cinematic background",
+   "tags": [
+    "atmosphere",
+    "background",
+    "cinematic",
+    "horror",
+    "scary",
+    "spooky"
+   ],
+   "genres": [],
+   "duration_s": 120.0,
+   "sha256": "26adf59ef92f804c1b7c901ea64e7a575cf78535542051e71ad99077a0e7f2cb",
+   "fetched_at": "2026-11-13T19:53:15+0530",
+   "publishable": true,
+   "usage_restrictions": "none (CC0); do not claim authorship of the recording",
+   "brandSafe": false,
+   "moodSource": "search query + tags, reviewed by title/tags (not by listening)",
+   "notes": "horror/scary tags: unsuitable for brand videos"
+  },
+  {
+   "id": "energetic-wah-wah-wah-wah",
+   "file": "energetic-wah-wah-wah-wah.mp3",
+   "title": "Wah Wah Wah Wah",
+   "creator": "percypersimmon",
+   "source": "freesound",
+   "source_id": "0acdc016-3db7-44ab-a5fd-15ccc0dc9fff",
+   "landing_url": "https://freesound.org/people/percypersimmon/sounds/156592",
+   "download_url": "https://cdn.freesound.org/previews/156/156592_2138623-hq.mp3",
+   "license": "CC0-1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "license_verified": [
+    "openverse:cc0",
+    "landing-page:cc0"
+   ],
+   "attribution_required": false,
+   "attribution": "\"Wah Wah Wah Wah\" by percypersimmon (freesound), CC0",
+   "moods": [
+    "energetic",
+    "promotional"
+   ],
+   "search_query": "upbeat electronic loop",
+   "tags": [
+    "beat",
+    "electronic",
+    "happy",
+    "loop",
+    "music"
+   ],
+   "genres": [],
+   "duration_s": 32.04,
+   "sha256": "f45a53b3b5c77bbbfe0773145ed25f34e46f25c442352c5122d15f09c76f2572",
+   "fetched_at": "2026-11-13T19:53:36+0530",
+   "publishable": true,
+   "usage_restrictions": "none (CC0); do not claim authorship of the recording",
+   "brandSafe": true,
+   "moodSource": "search query + tags, reviewed by title/tags (not by listening)"
+  },
+  {
+   "id": "minimal-space-ambient-music-fragment-wav",
+   "file": "minimal-space-ambient-music-fragment-wav.mp3",
+   "title": "Space ambient music fragment.Wav",
+   "creator": "Clacksberg",
+   "source": "freesound",
+   "source_id": "c53ffc69-39fa-48a8-95c4-3518373a24fd",
+   "landing_url": "https://freesound.org/people/Clacksberg/sounds/491288",
+   "download_url": "https://cdn.freesound.org/previews/491/491288_10147508-hq.mp3",
+   "license": "CC0-1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "license_verified": [
+    "openverse:cc0",
+    "landing-page:cc0"
+   ],
+   "attribution_required": false,
+   "attribution": "\"Space ambient music fragment.Wav\" by Clacksberg (freesound), CC0",
+   "moods": [
+    "minimal",
+    "technology"
+   ],
+   "search_query": "minimal ambient music",
+   "tags": [
+    "ambient",
+    "cosmic",
+    "electronic",
+    "experimental",
+    "fragment",
+    "music"
+   ],
+   "genres": [],
+   "duration_s": 65.96,
+   "sha256": "11c0aff398fcce4ce8b9280dae0762485cc3a70f31995b81e9f0a691c4eab4f6",
+   "fetched_at": "2026-11-13T19:54:18+0530",
+   "publishable": true,
+   "usage_restrictions": "none (CC0); do not claim authorship of the recording",
+   "brandSafe": true,
+   "moodSource": "search query + tags, reviewed by title/tags (not by listening)"
+  },
+  {
+   "id": "calm-soft-piano-wav",
+   "file": "calm-soft-piano-wav.mp3",
+   "title": "Soft piano.wav",
+   "creator": "Johnnie_Holiday",
+   "source": "freesound",
+   "source_id": "b401850e-83c4-4352-96b5-f29daf90120f",
+   "landing_url": "https://freesound.org/people/Johnnie_Holiday/sounds/554602",
+   "download_url": "https://cdn.freesound.org/previews/554/554602_4819210-hq.mp3",
+   "license": "CC0-1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "license_verified": [
+    "openverse:cc0",
+    "landing-page:cc0"
+   ],
+   "attribution_required": false,
+   "attribution": "\"Soft piano.wav\" by Johnnie_Holiday (freesound), CC0",
+   "moods": [
+    "calm",
+    "cinematic",
+    "educational"
+   ],
+   "search_query": "calm ambient music",
+   "tags": [
+    "Background",
+    "Relaxing",
+    "Keys",
+    "Cinematic",
+    "Soothing",
+    "Calm",
+    "Meditative",
+    "Ambient",
+    "Piano",
+    "Sad",
+    "Film"
+   ],
+   "genres": [],
+   "duration_s": 58.92,
+   "sha256": "cbd3dea73ed2316053700dce0ce76756fdff76643d63334a7c79b59bea4a9b52",
+   "fetched_at": "2026-11-13T19:55:00+0530",
+   "publishable": true,
+   "usage_restrictions": "none (CC0); do not claim authorship of the recording",
+   "brandSafe": true,
+   "moodSource": "search query + tags, reviewed by title/tags (not by listening)"
+  },
+  {
+   "id": "promotional-tropicorp-advertisement",
+   "file": "promotional-tropicorp-advertisement.mp3",
+   "title": "Tropicorp Advertisement",
+   "creator": "code_box",
+   "source": "freesound",
+   "source_id": "efc86ebe-f8bf-40bd-8dfa-0e4fb686d8f8",
+   "landing_url": "https://freesound.org/people/code_box/sounds/561190",
+   "download_url": "https://cdn.freesound.org/previews/561/561190_10962806-hq.mp3",
+   "license": "CC0-1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "license_verified": [
+    "openverse:cc0",
+    "landing-page:cc0"
+   ],
+   "attribution_required": false,
+   "attribution": "\"Tropicorp Advertisement\" by code_box (freesound), CC0",
+   "moods": [
+    "promotional",
+    "corporate"
+   ],
+   "search_query": "upbeat background music",
+   "tags": [
+    "ad",
+    "advertisement",
+    "background",
+    "bass",
+    "clap",
+    "corporate",
+    "fake",
+    "flute",
+    "generic",
+    "guitar",
+    "happy",
+    "innovative",
+    "light",
+    "loop",
+    "music"
+   ],
+   "genres": [],
+   "duration_s": 37.65,
+   "sha256": "b21b159b0788d886b05ea8056e6d1cc54b7cd97a6cdd891dd8658811ad718c90",
+   "fetched_at": "2026-11-13T19:55:32+0530",
+   "publishable": true,
+   "usage_restrictions": "none (CC0); do not claim authorship of the recording",
+   "brandSafe": true,
+   "moodSource": "search query + tags, reviewed by title/tags (not by listening)"
+  },
+  {
+   "id": "educational-elsi-melody",
+   "file": "educational-elsi-melody.mp3",
+   "title": "eLsi (Melody)",
+   "creator": "Skawy",
+   "source": "freesound",
+   "source_id": "87d00a2a-b12c-484a-93a5-84701f653f96",
+   "landing_url": "https://freesound.org/people/Skawy/sounds/495075",
+   "download_url": "https://cdn.freesound.org/previews/495/495075_8222376-hq.mp3",
+   "license": "CC0-1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "license_verified": [
+    "openverse:cc0",
+    "landing-page:cc0"
+   ],
+   "attribution_required": false,
+   "attribution": "\"eLsi (Melody)\" by Skawy (freesound), CC0",
+   "moods": [
+    "educational",
+    "calm"
+   ],
+   "search_query": "light background music",
+   "tags": [
+    "background",
+    "melody",
+    "music"
+   ],
+   "genres": [],
+   "duration_s": 80.05,
+   "sha256": "367a27b02bf37f0fcc19fe97415ac57844cd2f2604f6292a647db19f38237935",
+   "fetched_at": "2026-11-13T19:56:14+0530",
+   "publishable": true,
+   "usage_restrictions": "none (CC0); do not claim authorship of the recording",
+   "brandSafe": true,
+   "moodSource": "search query + tags, reviewed by title/tags (not by listening)"
+  }
+ ]
+}

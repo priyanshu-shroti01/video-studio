@@ -1,0 +1,38 @@
+{
+  "name": "video-studio",
+  "version": "0.3.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Zero-cost local video workspace: Remotion + edge-tts + FFmpeg + CC0 sound layer",
+  "scripts": {
+    "studio": "remotion studio",
+    "typecheck": "tsc --noEmit",
+    "vo": "python3 scripts/legacy/voiceover.py",
+    "mix": "python3 scripts/legacy/mix_audio.py",
+    "render:short": "bash scripts/legacy/render.sh Short",
+    "render:landscape": "bash scripts/legacy/render.sh Landscape",
+    "verify": "bash scripts/verify.sh",
+    "test": "vitest run",
+    "lint": "eslint src",
+    "postinstall": "node scripts/patch-remotion-loopback.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.540",
+    "@remotion/media-utils": "4.0.540",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "remotion": "4.0.540"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.19.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "esbuild": "0.28.1",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "4.1.12"
+  }
+}

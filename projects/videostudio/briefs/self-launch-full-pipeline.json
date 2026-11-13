@@ -1,0 +1,17 @@
+{
+ "brand": "Video Studio",
+ "product": "Video Studio",
+ "audience": "Developers, creators and product teams",
+ "goal": "launch",
+ "tone": "confident, precise, unhurried",
+ "cta": "Explore the code",
+ "request": "Video Studio's own launch film, made with Video Studio: how it is built, and every stage of the real pipeline in the real app, from brief to concepts, storyboard, preview gate, render, QA, approval and publishing.",
+ "format": "short",
+ "duration_seconds": 110,
+ "duration_flexible": true,
+ "formats": [
+  "short",
+  "landscape"
+ ],
+ "voice": "am_fenrir"
+}

@@ -1,0 +1,378 @@
+{
+ "text": "Building a website in India? Stop overpaying for slow hosting. Most hosts hook you with cheap intros, then triple the price on renewal. Meet Shroti Host. Fast NVMe hosting starting at just 49 rupees a month—with the exact same price on renewal. Pick the Grow plan at 79 rupees, type your domain, and launch in minutes with LiteSpeed servers, free SSL, and daily backups. No hidden hikes. Launch your site today at shrotihost.in.",
+ "voice": "en-IN-PrabhatNeural",
+ "rate": "+5%",
+ "pitch": "+0Hz",
+ "audio": "voiceover/shrotihost.mp3",
+ "duration": 33.294,
+ "speechEnd": 32.994,
+ "fps": 30,
+ "durationInFrames": 999,
+ "words": [
+  {
+   "text": "Building a",
+   "start": 0.098,
+   "end": 0.574
+  },
+  {
+   "text": "website",
+   "start": 0.574,
+   "end": 1.145
+  },
+  {
+   "text": "in",
+   "start": 1.205,
+   "end": 1.348
+  },
+  {
+   "text": "India?",
+   "start": 1.431,
+   "end": 1.848
+  },
+  {
+   "text": "Stop",
+   "start": 2.198,
+   "end": 2.555
+  },
+  {
+   "text": "overpaying",
+   "start": 2.614,
+   "end": 3.257
+  },
+  {
+   "text": "for",
+   "start": 3.257,
+   "end": 3.519
+  },
+  {
+   "text": "slow",
+   "start": 3.519,
+   "end": 3.84
+  },
+  {
+   "text": "hosting.",
+   "start": 3.84,
+   "end": 4.388
+  },
+  {
+   "text": "Most",
+   "start": 4.738,
+   "end": 5.036
+  },
+  {
+   "text": "hosts",
+   "start": 5.036,
+   "end": 5.524
+  },
+  {
+   "text": "hook",
+   "start": 5.524,
+   "end": 5.75
+  },
+  {
+   "text": "you",
+   "start": 5.762,
+   "end": 5.917
+  },
+  {
+   "text": "with",
+   "start": 5.917,
+   "end": 6.143
+  },
+  {
+   "text": "cheap",
+   "start": 6.202,
+   "end": 6.512
+  },
+  {
+   "text": "intros,",
+   "start": 6.583,
+   "end": 7.107
+  },
+  {
+   "text": "then",
+   "start": 7.393,
+   "end": 7.667
+  },
+  {
+   "text": "triple",
+   "start": 7.667,
+   "end": 8.071
+  },
+  {
+   "text": "the",
+   "start": 8.072,
+   "end": 8.191
+  },
+  {
+   "text": "price",
+   "start": 8.191,
+   "end": 8.595
+  },
+  {
+   "text": "on",
+   "start": 8.667,
+   "end": 8.869
+  },
+  {
+   "text": "renewal.",
+   "start": 8.869,
+   "end": 9.381
+  },
+  {
+   "text": "Meet",
+   "start": 9.731,
+   "end": 9.993
+  },
+  {
+   "text": "Shroti",
+   "start": 10.028,
+   "end": 10.457
+  },
+  {
+   "text": "Host.",
+   "start": 10.457,
+   "end": 10.862
+  },
+  {
+   "text": "Fast",
+   "start": 11.212,
+   "end": 11.569
+  },
+  {
+   "text": "NVMe",
+   "start": 11.64,
+   "end": 12.164
+  },
+  {
+   "text": "hosting",
+   "start": 12.164,
+   "end": 12.64
+  },
+  {
+   "text": "starting",
+   "start": 12.64,
+   "end": 13.164
+  },
+  {
+   "text": "at",
+   "start": 13.224,
+   "end": 13.45
+  },
+  {
+   "text": "just",
+   "start": 13.45,
+   "end": 13.807
+  },
+  {
+   "text": "49",
+   "start": 13.831,
+   "end": 14.521
+  },
+  {
+   "text": "rupees",
+   "start": 14.521,
+   "end": 14.986
+  },
+  {
+   "text": "a",
+   "start": 15.045,
+   "end": 15.128
+  },
+  {
+   "text": "month—",
+   "start": 15.128,
+   "end": 15.521
+  },
+  {
+   "text": "with",
+   "start": 15.831,
+   "end": 16.057
+  },
+  {
+   "text": "the",
+   "start": 16.057,
+   "end": 16.2
+  },
+  {
+   "text": "exact",
+   "start": 16.212,
+   "end": 16.664
+  },
+  {
+   "text": "same",
+   "start": 16.664,
+   "end": 17.033
+  },
+  {
+   "text": "price",
+   "start": 17.033,
+   "end": 17.402
+  },
+  {
+   "text": "on",
+   "start": 17.474,
+   "end": 17.676
+  },
+  {
+   "text": "renewal.",
+   "start": 17.676,
+   "end": 18.2
+  },
+  {
+   "text": "Pick",
+   "start": 18.55,
+   "end": 18.717
+  },
+  {
+   "text": "the",
+   "start": 18.741,
+   "end": 18.884
+  },
+  {
+   "text": "Grow",
+   "start": 18.884,
+   "end": 19.122
+  },
+  {
+   "text": "plan",
+   "start": 19.134,
+   "end": 19.503
+  },
+  {
+   "text": "at",
+   "start": 19.574,
+   "end": 19.824
+  },
+  {
+   "text": "79",
+   "start": 19.824,
+   "end": 20.562
+  },
+  {
+   "text": "rupees,",
+   "start": 20.562,
+   "end": 21.05
+  },
+  {
+   "text": "type",
+   "start": 21.4,
+   "end": 21.65
+  },
+  {
+   "text": "your",
+   "start": 21.662,
+   "end": 21.924
+  },
+  {
+   "text": "domain,",
+   "start": 21.924,
+   "end": 22.448
+  },
+  {
+   "text": "and",
+   "start": 22.769,
+   "end": 23.007
+  },
+  {
+   "text": "launch",
+   "start": 23.007,
+   "end": 23.436
+  },
+  {
+   "text": "in",
+   "start": 23.507,
+   "end": 23.638
+  },
+  {
+   "text": "minutes",
+   "start": 23.674,
+   "end": 24.103
+  },
+  {
+   "text": "with",
+   "start": 24.186,
+   "end": 24.424
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 24.472,
+   "end": 25.103
+  },
+  {
+   "text": "servers,",
+   "start": 25.103,
+   "end": 25.674
+  },
+  {
+   "text": "free",
+   "start": 25.936,
+   "end": 26.198
+  },
+  {
+   "text": "SSL,",
+   "start": 26.269,
+   "end": 26.912
+  },
+  {
+   "text": "and",
+   "start": 27.079,
+   "end": 27.281
+  },
+  {
+   "text": "daily",
+   "start": 27.281,
+   "end": 27.65
+  },
+  {
+   "text": "backups.",
+   "start": 27.65,
+   "end": 28.234
+  },
+  {
+   "text": "No",
+   "start": 28.584,
+   "end": 28.762
+  },
+  {
+   "text": "hidden",
+   "start": 28.798,
+   "end": 29.179
+  },
+  {
+   "text": "hikes.",
+   "start": 29.179,
+   "end": 29.632
+  },
+  {
+   "text": "Launch",
+   "start": 29.982,
+   "end": 30.351
+  },
+  {
+   "text": "your",
+   "start": 30.351,
+   "end": 30.601
+  },
+  {
+   "text": "site",
+   "start": 30.601,
+   "end": 30.958
+  },
+  {
+   "text": "today",
+   "start": 31.018,
+   "end": 31.375
+  },
+  {
+   "text": "at",
+   "start": 31.446,
+   "end": 31.696
+  },
+  {
+   "text": "shrotihost.in.",
+   "start": 31.696,
+   "end": 32.994
+  }
+ ]
+}

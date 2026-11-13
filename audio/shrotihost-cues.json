@@ -1,0 +1,445 @@
+{
+ "fps": 30,
+ "duration_s": 33.994,
+ "energy": "punchy",
+ "kit": "audio/kit",
+ "music": {
+  "file": "audio/music/test-bed.wav",
+  "gain_db": -16,
+  "start_s": 0,
+  "loop": true,
+  "fade_out_s": 1.5
+ },
+ "voice": [
+  {
+   "file": "public/voiceover/shrotihost.mp3",
+   "start_s": 0.0
+  }
+ ],
+ "cues": [
+  {
+   "id": "intro",
+   "t": 0.12,
+   "sound": "swish/fs-14175-27-wav-2",
+   "gain_db": -12,
+   "visual": "move",
+   "align": "peak"
+  },
+  {
+   "id": "stop-swap",
+   "t": 2.148,
+   "sound": "transition/fs-444623-swoosh-10-wav-1",
+   "gain_db": -11,
+   "visual": "cut",
+   "align": "peak"
+  },
+  {
+   "id": "stop-stamp",
+   "t": 2.278,
+   "sound": "thump/fs-405537-thud-2-wav-1",
+   "gain_db": -9,
+   "visual": "land",
+   "align": "peak"
+  },
+  {
+   "id": "overpay-tag",
+   "t": 2.664,
+   "sound": "pop/fs-506546-pop-01-wav-1",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "to-problem",
+   "t": 4.688,
+   "sound": "transition/fs-444623-swoosh-10-wav-1",
+   "gain_db": -11,
+   "visual": "cut",
+   "align": "peak"
+  },
+  {
+   "id": "hook-tag",
+   "t": 5.574,
+   "sound": "swish/fs-14175-27-wav-2",
+   "gain_db": -12,
+   "visual": "move",
+   "align": "peak"
+  },
+  {
+   "id": "intro-bar",
+   "t": 6.252,
+   "sound": "pop/fs-506545-pop-02-wav-1",
+   "gain_db": -14,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "renewal-bar",
+   "t": 8.117,
+   "sound": "whoosh/fs-30241-swoop2g-flac-1",
+   "gain_db": -13,
+   "visual": "move",
+   "align": "peak"
+  },
+  {
+   "id": "3x-badge",
+   "t": 8.267,
+   "sound": "thump/fs-405537-thud-2-wav-1",
+   "gain_db": -9,
+   "visual": "land",
+   "align": "peak"
+  },
+  {
+   "id": "logo-build",
+   "t": 10.028,
+   "sound": "reverse/fs-503803-reverse-fx-13-wav-1",
+   "gain_db": -14,
+   "visual": "land",
+   "align": "end"
+  },
+  {
+   "id": "logo-land",
+   "t": 10.028,
+   "sound": "thump/fs-405537-thud-2-wav-1",
+   "gain_db": -8,
+   "visual": "land",
+   "align": "peak"
+  },
+  {
+   "id": "logo-ding",
+   "t": 10.048,
+   "sound": "chime/fs-404104-glass-ding-3",
+   "gain_db": -13,
+   "visual": "land",
+   "align": "peak"
+  },
+  {
+   "id": "logo-move",
+   "t": 11.4,
+   "sound": "whoosh/fs-30240-swoop1-flac-1",
+   "gain_db": -15,
+   "visual": "move",
+   "align": "peak"
+  },
+  {
+   "id": "nvme-chip",
+   "t": 11.64,
+   "sound": "pop/fs-97978-pop-aif-1",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "count-0",
+   "t": 13.831,
+   "sound": "tick/fs-386206-ratchet-stahlwille-tighten-1-3",
+   "gain_db": -20,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "count-1",
+   "t": 13.931,
+   "sound": "tick/fs-386206-ratchet-stahlwille-tighten-1-3",
+   "gain_db": -20,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "count-2",
+   "t": 14.031,
+   "sound": "tick/fs-386206-ratchet-stahlwille-tighten-1-3",
+   "gain_db": -20,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "count-3",
+   "t": 14.131,
+   "sound": "tick/fs-386206-ratchet-stahlwille-tighten-1-3",
+   "gain_db": -20,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "count-4",
+   "t": 14.231,
+   "sound": "tick/fs-386206-ratchet-stahlwille-tighten-1-3",
+   "gain_db": -20,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "price-land",
+   "t": 14.333,
+   "sound": "pop/fs-97978-pop-aif-2",
+   "gain_db": -12,
+   "visual": "land",
+   "align": "peak"
+  },
+  {
+   "id": "row-today",
+   "t": 15.831,
+   "sound": "pop/fs-97978-pop-aif-3",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "row-renewal",
+   "t": 16.664,
+   "sound": "chime/fs-404104-glass-ding-1",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "same-price",
+   "t": 17.726,
+   "sound": "chime/fs-404104-glass-ding-2",
+   "gain_db": -14,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "to-journey",
+   "t": 18.5,
+   "sound": "transition/fs-444623-swoosh-10-wav-1",
+   "gain_db": -11,
+   "visual": "cut",
+   "align": "peak"
+  },
+  {
+   "id": "plan-0",
+   "t": 18.68,
+   "sound": "pop/fs-506546-pop-01-wav-1",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "plan-1",
+   "t": 18.78,
+   "sound": "pop/fs-506545-pop-02-wav-1",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "plan-2",
+   "t": 18.88,
+   "sound": "pop/fs-97978-pop-aif-1",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "grow-click",
+   "t": 19.333,
+   "sound": "click/fs-399443-mouse-clicks",
+   "gain_db": -7,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "plans-out",
+   "t": 21.32,
+   "sound": "swish/fs-14175-27-wav-2",
+   "gain_db": -14,
+   "visual": "move",
+   "align": "peak"
+  },
+  {
+   "id": "key-0",
+   "t": 21.5,
+   "sound": "key/fs-348239-mech-keyboard-01-wav-1",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-1",
+   "t": 21.567,
+   "sound": "key/fs-348238-mech-keyboard-02-wav-1",
+   "gain_db": -14,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-2",
+   "t": 21.633,
+   "sound": "key/fs-180974-key-1",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-3",
+   "t": 21.733,
+   "sound": "key/fs-194799-keyboard5-wav-1",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-4",
+   "t": 21.8,
+   "sound": "key/fs-442649-keyboard-click-mp3",
+   "gain_db": -14,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-5",
+   "t": 21.867,
+   "sound": "key/fs-539146-keyboard-typing-001-wav-2",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-6",
+   "t": 21.933,
+   "sound": "key/fs-539146-keyboard-typing-001-wav-3",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-7",
+   "t": 22.033,
+   "sound": "key/fs-570755-keyboard-key-release-1",
+   "gain_db": -14,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-8",
+   "t": 22.1,
+   "sound": "key/fs-348239-mech-keyboard-01-wav-1",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-9",
+   "t": 22.167,
+   "sound": "key/fs-348238-mech-keyboard-02-wav-1",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-10",
+   "t": 22.267,
+   "sound": "key/fs-180974-key-1",
+   "gain_db": -14,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "key-11",
+   "t": 22.333,
+   "sound": "key/fs-194799-keyboard5-wav-1",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "available",
+   "t": 22.567,
+   "sound": "chime/fs-404104-glass-ding-1",
+   "gain_db": -15,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "launch-click",
+   "t": 23.0,
+   "sound": "click/fs-399443-mouse-clicks",
+   "gain_db": -7,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "live",
+   "t": 23.867,
+   "sound": "chime/fs-404104-glass-ding-3",
+   "gain_db": -12,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "feat-litespeed",
+   "t": 24.472,
+   "sound": "pop/fs-506546-pop-01-wav-1",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "feat-ssl",
+   "t": 25.936,
+   "sound": "pop/fs-506545-pop-02-wav-1",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "feat-backups",
+   "t": 27.281,
+   "sound": "pop/fs-97978-pop-aif-1",
+   "gain_db": -13,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "to-resolution",
+   "t": 28.534,
+   "sound": "transition/fs-444623-swoosh-10-wav-1",
+   "gain_db": -11,
+   "visual": "cut",
+   "align": "peak"
+  },
+  {
+   "id": "hikes-strike",
+   "t": 29.329,
+   "sound": "swish/fs-14175-27-wav-2",
+   "gain_db": -13,
+   "visual": "move",
+   "align": "peak"
+  },
+  {
+   "id": "flat-line",
+   "t": 29.529,
+   "sound": "chime/fs-404104-glass-ding-2",
+   "gain_db": -16,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "cta-in",
+   "t": 29.932,
+   "sound": "whoosh/fs-30241-swoop2g-flac-1",
+   "gain_db": -14,
+   "visual": "move",
+   "align": "peak"
+  },
+  {
+   "id": "cta-url",
+   "t": 31.696,
+   "sound": "shimmer/fs-388295-sparkles-and-percussion-1",
+   "gain_db": -12,
+   "visual": "appear",
+   "align": "peak"
+  },
+  {
+   "id": "cta-click",
+   "t": 32.233,
+   "sound": "click/fs-399443-mouse-clicks",
+   "gain_db": -9,
+   "visual": "appear",
+   "align": "peak"
+  }
+ ]
+}

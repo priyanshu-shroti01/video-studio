@@ -1,0 +1,103 @@
+{
+ "fps": 30,
+ "duration": 33.994,
+ "voiceStart": 0.0,
+ "domain": "yourbrand.in",
+ "acts": {
+  "hook": [
+   0.0,
+   4.738
+  ],
+  "problem": [
+   4.738,
+   9.731
+  ],
+  "turn": [
+   9.731,
+   18.55
+  ],
+  "journey": [
+   18.55,
+   28.584
+  ],
+  "resolution": [
+   28.584,
+   33.994
+  ]
+ },
+ "beats": {
+  "building": 0.098,
+  "website": 0.574,
+  "in": 1.205,
+  "india": 1.431,
+  "stop": 2.198,
+  "overpaying": 2.614,
+  "slow": 3.519,
+  "hosting": 3.84,
+  "problem": 4.738,
+  "hook": 5.524,
+  "cheap": 6.202,
+  "intros": 6.583,
+  "then": 7.393,
+  "triple": 7.667,
+  "renewal": 8.869,
+  "turn": 9.731,
+  "shroti": 10.028,
+  "host": 10.457,
+  "fast": 11.212,
+  "nvme": 11.64,
+  "starting": 12.64,
+  "n49": 13.831,
+  "month": 15.128,
+  "with": 15.831,
+  "same": 16.664,
+  "renewal2": 17.676,
+  "journey": 18.55,
+  "grow": 18.884,
+  "n79": 19.824,
+  "type": 21.4,
+  "domain": 21.924,
+  "launch": 23.007,
+  "minutes": 23.674,
+  "litespeed": 24.472,
+  "free": 25.936,
+  "ssl": 26.269,
+  "daily": 27.281,
+  "backups": 27.65,
+  "resolution": 28.584,
+  "hidden": 28.798,
+  "hikes": 29.179,
+  "launch2": 29.982,
+  "today": 31.018,
+  "url": 31.696
+ },
+ "events": {
+  "planCards": [
+   18.6,
+   18.7,
+   18.8
+  ],
+  "growClick": 19.333,
+  "typeStart": 21.5,
+  "keyTimes": [
+   21.5,
+   21.567,
+   21.633,
+   21.733,
+   21.8,
+   21.867,
+   21.933,
+   22.033,
+   22.1,
+   22.167,
+   22.267,
+   22.333
+  ],
+  "available": 22.567,
+  "launchClick": 23.0,
+  "live": 23.867,
+  "logoMove": 11.2,
+  "priceCountEnd": 14.333,
+  "ctaClick": 32.233
+ }
+}

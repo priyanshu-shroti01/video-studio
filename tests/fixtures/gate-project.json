@@ -1,0 +1,22 @@
+{
+ "name": "wp-restored-v02",
+ "brand": "shrotihost",
+ "preset": "shorts",
+ "formats": [
+  "short"
+ ],
+ "storyboard": "tests/fixtures/gate-storyboard.json",
+ "audio": {
+  "music": "mood:corporate"
+ },
+ "publishing": {
+  "title": "WordPress hosting from ₹69/month | Shroti Host",
+  "description": "WP Starter: 10 GB NVMe storage, free SSL, daily backups, one-click WordPress install with LiteSpeed Cache. ₹69/month billed monthly, excl. taxes.\nhttps://shrotihost.in",
+  "hashtags": [
+   "#WordPress",
+   "#WebHosting",
+   "#India",
+   "#ShrotiHost"
+  ]
+ }
+}

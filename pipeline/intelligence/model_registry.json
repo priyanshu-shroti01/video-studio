@@ -1,0 +1,122 @@
+{
+ "$comment": "Local LLMs for the creative engine. Sizes from the Ollama registry manifest (sum of layers). Licences verified from the licence layer shipped with the model and the upstream model card. memory_required_mb is replaced by the measured peak runner RSS after `python -m pipeline.intelligence bench`.",
+ "default": "qwen3:4b-instruct-2507-q4_K_M",
+ "models": [
+  {
+   "id": "qwen3:4b-instruct-2507-q4_K_M",
+   "aliases": [
+    "qwen3:4b-instruct"
+   ],
+   "family": "Qwen3 (Qwen3-4B-Instruct-2507, non-thinking)",
+   "runtime": "ollama",
+   "format": "gguf",
+   "quantization": "Q4_K_M",
+   "parameters": "4.0B",
+   "download_bytes": 2497293444,
+   "download_size": "2.50 GB",
+   "model_digest": "sha256:85e4a5b7b8ef",
+   "memory_required_mb": 3206,
+   "memory_measured": true,
+   "tasks": [
+    "concepts",
+    "storyboard",
+    "repair",
+    "publishing-metadata"
+   ],
+   "context_length": 262144,
+   "context_used": 6144,
+   "license": "Apache-2.0",
+   "license_evidence": "Ollama licence layer sha256:d18a5cc71b84 (Apache License 2.0 text); HF card Qwen/Qwen3-4B-Instruct-2507 license: apache-2.0 + LICENSE file (checked 2026-11-13)",
+   "source": "https://ollama.com/library/qwen3:4b-instruct-2507-q4_K_M (upstream https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507)",
+   "commercial_use": true,
+   "benchmark": {
+    "schema_validity_rate": 1.0,
+    "load_s": 1.04,
+    "output_tokens_per_s": {
+     "mean": 36.591,
+     "min": 31.72,
+     "max": 39.15,
+     "n": 57
+    },
+    "prompt_latency_s": {
+     "mean": 0.8,
+     "min": 0.171,
+     "max": 3.686,
+     "n": 57
+    },
+    "peak_rss_mb": 3206,
+    "swap_delta_mb": -56.0,
+    "pageouts_delta": 43311,
+    "generations": 57,
+    "measured_at": "2026-11-13T20:28:19+0530",
+    "raw": "bench-qwen3_4b-instruct-2507-q4_K_M-20261113-202819.json"
+   }
+  },
+  {
+   "id": "qwen3.5:latest",
+   "aliases": [],
+   "family": "Qwen3.5 9B (multimodal), local validation build 'qwen35-validation-20260930:9b-modelopt-nvfp4-attention8-mse'",
+   "runtime": "ollama (MLX runner: safetensors)",
+   "format": "safetensors",
+   "quantization": "mixed NVFP4 / MXFP8 (ModelOpt)",
+   "parameters": "9.7B",
+   "download_bytes": 7639229431,
+   "download_size": "7.64 GB (already on disk, not downloaded by this pipeline)",
+   "memory_required_mb": 8200,
+   "memory_measured": false,
+   "tasks": [
+    "concepts",
+    "storyboard"
+   ],
+   "context_length": null,
+   "license": "Apache-2.0",
+   "license_evidence": "licence layer bundled in the local manifest (~/.ollama/models, sha256:50cbab8a892c)",
+   "source": "pre-existing in ~/.ollama/models (do not delete)",
+   "commercial_use": true,
+   "benchmark": {
+    "status": "SKIPPED",
+    "measured_at": "2026-11-13T20:14:28+0530",
+    "reason": "memory guard: 5673 MB available < 8600 MB needed (swap already 8780 MB); not loaded",
+    "metadata_loadable_by_ollama_0.40.16": true,
+    "raw": "bench-qwen3.5_latest-20261113-201428.json"
+   }
+  }
+ ],
+ "rejected_candidates": [
+  {
+   "id": "qwen3.5:4b",
+   "download_size": "3.32 GB",
+   "reason": "over the 2.6 GB budget (includes vision projector)"
+  },
+  {
+   "id": "qwen3.5:2b",
+   "download_size": "2.68 GB",
+   "reason": "over budget; vision projector not needed"
+  },
+  {
+   "id": "gemma3:4b",
+   "download_size": "3.35 GB",
+   "reason": "over budget; Gemma terms are more restrictive than Apache-2.0"
+  },
+  {
+   "id": "phi4-mini:3.8b",
+   "download_size": "2.49 GB",
+   "reason": "fits (MIT) but weaker at creative copy than Qwen3-4B-2507 in public evals; kept as alternative"
+  },
+  {
+   "id": "granite4:3b",
+   "download_size": "2.10 GB",
+   "reason": "fits (Apache-2.0); alternative if memory is tighter"
+  },
+  {
+   "id": "llama3.2:3b",
+   "download_size": "2.02 GB",
+   "reason": "fits but Llama 3.2 Community License adds acceptable-use/attribution terms"
+  },
+  {
+   "id": "ministral-3:3b",
+   "download_size": "2.95 GB",
+   "reason": "over budget"
+  }
+ ]
+}

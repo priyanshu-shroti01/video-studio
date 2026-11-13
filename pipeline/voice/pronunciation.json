@@ -1,0 +1,120 @@
+{
+ "$comment": "Display -> spoken forms. Captions always show the display text; the TTS engine is given the spoken form, and the spoken-word timings are mapped back onto the display tokens (pipeline/voice/pronunciation.py, timing.map_to_display). 'spoken' is a plain-English respelling so it works with every engine (Kokoro and Piper both phonemize with espeak-ng). Matching is case-insensitive unless \"case\": true. Multi-word entries match across consecutive tokens. Per-project additions go in the project's voice.pronunciation {display: spoken} and win over these. This shared file holds only brand-neutral terms. Brand names and domains live in brands/<id>/pronunciation.json (merged per production; project entries win) and MUST be confirmed by ear.",
+ "version": 4,
+ "entries": [
+  {
+   "display": "cPanel",
+   "spoken": "see panel"
+  },
+  {
+   "display": "WHMCS",
+   "spoken": "W H M C S",
+   "case": true
+  },
+  {
+   "display": "NVMe",
+   "spoken": "N V M e"
+  },
+  {
+   "display": "VPS",
+   "spoken": "V P S",
+   "case": true
+  },
+  {
+   "display": "WordPress",
+   "spoken": "Word Press"
+  },
+  {
+   "display": "LiteSpeed",
+   "spoken": "Lite Speed"
+  },
+  {
+   "display": "SSL",
+   "spoken": "S S L",
+   "case": true
+  },
+  {
+   "display": "DNS",
+   "spoken": "D N S",
+   "case": true
+  },
+  {
+   "display": "SSD",
+   "spoken": "S S D",
+   "case": true
+  },
+  {
+   "display": "UPI",
+   "spoken": "U P I",
+   "case": true
+  },
+  {
+   "display": "GST",
+   "spoken": "G S T",
+   "case": true
+  },
+  {
+   "display": "/mo",
+   "spoken": "a month"
+  },
+  {
+   "display": "/month",
+   "spoken": "a month"
+  },
+  {
+   "display": "/yr",
+   "spoken": "a year"
+  },
+  {
+   "display": "/year",
+   "spoken": "a year"
+  }
+ ],
+ "units": {
+  "GB": [
+   "gigabyte",
+   "gigabytes"
+  ],
+  "TB": [
+   "terabyte",
+   "terabytes"
+  ],
+  "MB": [
+   "megabyte",
+   "megabytes"
+  ]
+ },
+ "currency": {
+  "₹": [
+   "rupee",
+   "rupees"
+  ],
+  "Rs.": [
+   "rupee",
+   "rupees"
+  ],
+  "Rs": [
+   "rupee",
+   "rupees"
+  ],
+  "$": [
+   "dollar",
+   "dollars"
+  ]
+ },
+ "tlds": [
+  "in",
+  "com",
+  "net",
+  "org",
+  "io",
+  "co",
+  "dev",
+  "app",
+  "cloud",
+  "host",
+  "site",
+  "online",
+  "xyz"
+ ]
+}

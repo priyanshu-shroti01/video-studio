@@ -1,0 +1,33 @@
+{
+ "text": "Welcome to Shroti Host.",
+ "voice": "en-IN-PrabhatNeural",
+ "rate": "+0%",
+ "pitch": "+0Hz",
+ "audio": "voiceover/test.mp3",
+ "duration": 1.875,
+ "speechEnd": 1.575,
+ "fps": 30,
+ "durationInFrames": 57,
+ "words": [
+  {
+   "text": "Welcome",
+   "start": 0.1,
+   "end": 0.612
+  },
+  {
+   "text": "to",
+   "start": 0.613,
+   "end": 0.7
+  },
+  {
+   "text": "Shroti",
+   "start": 0.7,
+   "end": 1.15
+  },
+  {
+   "text": "Host.",
+   "start": 1.15,
+   "end": 1.575
+  }
+ ]
+}

@@ -1,0 +1,46 @@
+{
+ "assets": [
+  {
+   "path": "brands/acme-demo/logos/logo-on-dark.svg",
+   "source": "self-made test asset",
+   "license": "PUBLIC-DOMAIN (self-made test logo)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/acme-demo/logos/logo-on-light.svg",
+   "source": "self-made test asset",
+   "license": "PUBLIC-DOMAIN (self-made test logo)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/acme-demo/logos/mark.svg",
+   "source": "self-made test asset",
+   "license": "PUBLIC-DOMAIN (self-made test logo)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/acme-demo/fonts/jakarta-latin.woff2",
+   "source": "copy of OFL font",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "brands/acme-demo/fonts/jakarta-latin-ext.woff2",
+   "source": "copy of OFL font",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "brands/acme-demo/fonts/geistmono-latin.woff2",
+   "source": "copy of OFL font",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "brands/acme-demo/fonts/geistmono-latin-ext.woff2",
+   "source": "copy of OFL font",
+   "license": "OFL-1.1",
+   "attribution": ""
+  }
+ ]
+}

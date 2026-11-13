@@ -1,0 +1,45 @@
+node_modules/
+out/
+build/
+.remotion/
+audio/kit/
+audio/browse.png
+audio/qa.png
+public/audio/*.premaster.wav
+*.part
+.DS_Store
+__pycache__/
+
+# pipeline state, outputs and environments
+.pipeline/
+output/
+.venv/
+projects/e2etest-*
+.pytest_cache/
+
+# cloned third-party skills (pinned in skills.lock.json) and regenerable media
+skills/
+public/audio/*.wav
+out/
+*.premaster.wav
+
+# downloaded local AI models (registry: pipeline/intelligence + pipeline/voice)
+models/
+
+# finished-video copies (originals in output/)
+video-out/
+
+# internal development files: kept locally, never published
+.claude/
+CLAUDE.md
+.mcp.json
+skills.lock.json
+docs/reports/AUDIT_REPORT.md
+docs/reports/BENCHMARK_REPORT.md
+docs/reports/DEMO_EVIDENCE.md
+docs/reports/MIGRATION_V030.md
+docs/reports/V030_UPGRADE_PLAN.md
+docs/reports/CREATIVE_REGRESSION_ANALYSIS.md
+knowledge/*/build_facts.py
+projects/*/briefs/*-39.json
+projects/*/briefs/*-hybrid.json

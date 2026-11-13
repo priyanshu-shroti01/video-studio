@@ -1,0 +1,175 @@
+{
+ "$comment": "Shroti Host brand profile (defaults for every Shroti Host production).",
+ "id": "shrotihost",
+ "name": "Shroti Host",
+ "website": "https://shrotihost.in",
+ "assetRoots": [
+  "public/brands/shrotihost/"
+ ],
+ "watermark": {
+  "policy": "platform",
+  "variant": "mark",
+  "opacity": 0.85,
+  "widthFrac": 0.07,
+  "marginFrac": 0.04
+ },
+ "intro": {
+  "enabled": false
+ },
+ "outro": {
+  "enabled": true,
+  "url": "shrotihost.in"
+ },
+ "publishing": {
+  "hashtags": [
+   "#ShrotiHost",
+   "#WebHosting",
+   "#India"
+  ],
+  "descriptionFooter": "https://shrotihost.in",
+  "platforms": [
+   "youtube",
+   "instagram"
+  ],
+  "privacyDefault": "private",
+  "accounts": {
+   "$comment": "The ONLY accounts this brand may publish to. Publishing asks the platform which account the credentials in .pipeline/secrets/shrotihost/ belong to and refuses on any mismatch. Fill these in during docs/SOCIAL_SETUP.md (ids are not secrets).",
+   "youtube": {
+    "channel_id": "UCXeIKCl-QEB0JIn-sfuXI2g",
+    "channel_title": "Shroti Host"
+   },
+   "instagram": {
+    "ig_user_id": null,
+    "username": null
+   }
+  },
+  "social": {
+   "$comment": "Social metadata rules (pipeline/social). Copy only from knowledge/shrotihost/facts.json; keyword seeds are generic search phrases and are the only text keyword research sends to the network.",
+   "voice": "Clear, honest and practical. Speak to Indian website owners, students and developers in plain English. Concrete facts over adjectives; no hype, no fake urgency, no superlatives the facts do not support.",
+   "link": "https://shrotihost.in",
+   "language": "en",
+   "region": "IN",
+   "categoryId": "28",
+   "aiDisclosure": true,
+   "cta": {
+    "youtube": "Get started at https://shrotihost.in",
+    "instagram": "Link in bio: shrotihost.in"
+   },
+   "hashtags": {
+    "youtube": [
+     "#ShrotiHost"
+    ],
+    "instagram": [
+     "#ShrotiHost"
+    ]
+   },
+   "products": [
+    {
+     "id": "wordpress",
+     "match": [
+      "wordpress",
+      "wp "
+     ],
+     "factProduct": "wordpress",
+     "primaryKeyword": "WordPress Hosting in India",
+     "keywordSeeds": [
+      "wordpress hosting india",
+      "managed wordpress hosting",
+      "wordpress hosting for beginners",
+      "cheap wordpress hosting india"
+     ],
+     "tags": [
+      "WordPress hosting",
+      "managed WordPress hosting",
+      "WordPress hosting India",
+      "web hosting India",
+      "LiteSpeed hosting",
+      "NVMe hosting"
+     ],
+     "highlightFactIds": [
+      "wp.one_click",
+      "policy.same_renewal",
+      "platform.free_ssl"
+     ],
+     "hashtags": {
+      "youtube": [
+       "#WordPressHosting",
+       "#WebHosting"
+      ],
+      "instagram": [
+       "#WordPressHosting",
+       "#WebHostingIndia",
+       "#WordPressTips"
+      ]
+     }
+    },
+    {
+     "id": "shared",
+     "match": [
+      "shared",
+      "nvme",
+      "web hosting",
+      "hosting"
+     ],
+     "factProduct": "shared",
+     "primaryKeyword": "Web Hosting in India",
+     "keywordSeeds": [
+      "web hosting india",
+      "nvme hosting india",
+      "cheap web hosting india",
+      "web hosting for beginners"
+     ],
+     "tags": [
+      "web hosting",
+      "web hosting India",
+      "shared hosting",
+      "NVMe hosting",
+      "LiteSpeed hosting",
+      "cPanel hosting"
+     ],
+     "highlightFactIds": [
+      "platform.nvme",
+      "policy.same_renewal",
+      "platform.free_ssl"
+     ],
+     "hashtags": {
+      "youtube": [
+       "#WebHosting",
+       "#WebsiteIndia"
+      ],
+      "instagram": [
+       "#WebHosting",
+       "#WebHostingIndia",
+       "#SmallBusinessIndia"
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "knowledge": "knowledge/shrotihost/facts.json",
+ "creative": {
+  "$comment": "Read by pipeline.creative (docs/CREATIVE_SYSTEM.md). Industry pack, house voice, CTA default, tagline (fact-bound), brand-specific banned words.",
+  "industry": "web-hosting",
+  "voice": "Confident, concrete and friendly; second person; short sentences. Talk like a builder, not an advertiser. Prices are said in rupees.",
+  "cta": "Get started",
+  "tagline": {
+   "wordpress": {
+    "fact": "wp.tagline"
+   },
+   "shared": {
+    "fact": "shared.tagline"
+   },
+   "default": {
+    "fact": "shared.tagline"
+   }
+  },
+  "banned": [
+   "cheap",
+   "dirt cheap",
+   "budget hosting",
+   "lowest price"
+  ],
+  "placeholderDomain": "yourbrand.in"
+ }
+}

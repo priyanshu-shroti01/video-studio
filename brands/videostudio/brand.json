@@ -1,0 +1,372 @@
+{
+ "$comment": "Video Studio: the studio's own product brand (used for its launch film).",
+ "id": "videostudio",
+ "name": "Video Studio",
+ "website": "https://github.com/priyanshu-shroti01/video-studio",
+ "status": "ready",
+ "assetRoots": [
+  "public/brands/videostudio/"
+ ],
+ "watermark": {
+  "policy": "none"
+ },
+ "intro": {
+  "enabled": false
+ },
+ "outro": {
+  "enabled": true,
+  "url": "github.com/priyanshu-shroti01/video-studio"
+ },
+ "creative": {
+  "industry": "software",
+  "voice": "Confident, precise, unhurried. Plain engineering language; short declarative sentences; no hype.",
+  "cta": "Explore the code",
+  "tagline": {
+   "default": {
+    "text": "Built to create. Used to create itself."
+   }
+  },
+  "displayUrl": "github.com/priyanshu-shroti01/video-studio",
+  "banned": [
+   "autonomous filmmaking",
+   "replaces editors",
+   "perfect",
+   "unlimited",
+   "magic"
+  ],
+  "footage": {
+   "app-tour": {
+    "asset": "brands/videostudio/footage/brief-to-concepts.mp4",
+    "title": "Video Studio · New production",
+    "frame": "browser",
+    "beats": [
+     {
+      "cues": [
+       "brief"
+      ],
+      "x": 0.42,
+      "y": 0.42,
+      "scale": 1.25
+     },
+     {
+      "cues": [
+       "product"
+      ],
+      "x": 0.55,
+      "y": 0.24,
+      "scale": 1.7
+     },
+     {
+      "cues": [
+       "audience"
+      ],
+      "x": 0.57,
+      "y": 0.31,
+      "scale": 1.8
+     },
+     {
+      "cues": [
+       "goal"
+      ],
+      "x": 0.36,
+      "y": 0.6,
+      "scale": 1.6
+     },
+     {
+      "cues": [
+       "studio",
+       "drafts"
+      ],
+      "x": 0.5,
+      "y": 0.5,
+      "scale": 1.0
+     },
+     {
+      "cues": [
+       "concepts"
+      ],
+      "x": 0.56,
+      "y": 0.42,
+      "scale": 1.35
+     },
+     {
+      "cues": [
+       "sequence"
+      ],
+      "x": 0.3,
+      "y": 0.5,
+      "scale": 1.8
+     },
+     {
+      "cues": [
+       "scenes"
+      ],
+      "x": 0.5,
+      "y": 0.5,
+      "scale": 1.0
+     }
+    ]
+   },
+   "storyboard": {
+    "asset": "brands/videostudio/footage/storyboard-self.mp4",
+    "title": "Video Studio · Storyboard",
+    "frame": "browser",
+    "playbackRate": 1.0,
+    "beats": [
+     {
+      "cues": [
+       "concept"
+      ],
+      "x": 0.5,
+      "y": 0.5,
+      "scale": 1.15
+     },
+     {
+      "cues": [
+       "storyboard"
+      ],
+      "x": 0.33,
+      "y": 0.45,
+      "scale": 1.5
+     },
+     {
+      "cues": [
+       "scene"
+      ],
+      "x": 0.2,
+      "y": 0.42,
+      "scale": 1.8
+     },
+     {
+      "cues": [
+       "animation"
+      ],
+      "x": 0.62,
+      "y": 0.62,
+      "scale": 1.7
+     },
+     {
+      "cues": [
+       "word"
+      ],
+      "x": 0.62,
+      "y": 0.75,
+      "scale": 1.9
+     }
+    ]
+   },
+   "self": {
+    "asset": "brands/videostudio/footage/self-review.mp4",
+    "title": "Video Studio · Preview & QA",
+    "frame": "browser",
+    "startFrom": 3.6,
+    "beats": [
+     {
+      "cues": [
+       "film",
+       "this"
+      ],
+      "x": 0.415,
+      "y": 0.5,
+      "scale": 2.0
+     },
+     {
+      "cues": [
+       "itself"
+      ],
+      "x": 0.5,
+      "y": 0.5,
+      "scale": 1.0
+     }
+    ]
+   },
+   "preview": {
+    "asset": "brands/videostudio/footage/preview-gate.mp4",
+    "title": "Video Studio · Storyboard",
+    "frame": "browser",
+    "startFrom": 1.5,
+    "beats": [
+     {
+      "cues": [
+       "storyboard"
+      ],
+      "x": 0.3,
+      "y": 0.45,
+      "scale": 1.6
+     },
+     {
+      "cues": [
+       "animation"
+      ],
+      "x": 0.55,
+      "y": 0.82,
+      "scale": 2.0
+     },
+     {
+      "cues": [
+       "word"
+      ],
+      "x": 0.5,
+      "y": 0.9,
+      "scale": 2.6
+     },
+     {
+      "cues": [
+       "scene",
+       "renders"
+      ],
+      "x": 0.6,
+      "y": 0.75,
+      "scale": 1.4
+     },
+     {
+      "cues": [
+       "preview"
+      ],
+      "x": 0.45,
+      "y": 0.82,
+      "scale": 1.9
+     },
+     {
+      "cues": [
+       "gate",
+       "checks"
+      ],
+      "x": 0.62,
+      "y": 0.85,
+      "scale": 1.6
+     },
+     {
+      "cues": [
+       "approves",
+       "person"
+      ],
+      "x": 0.5,
+      "y": 0.5,
+      "scale": 1.0
+     }
+    ]
+   },
+   "render": {
+    "asset": "brands/videostudio/footage/render-monitor.mp4",
+    "title": "Video Studio · Render Monitor",
+    "frame": "browser",
+    "beats": [
+     {
+      "cues": [
+       "stages"
+      ],
+      "x": 0.52,
+      "y": 0.37,
+      "scale": 1.5
+     },
+     {
+      "cues": [
+       "voice"
+      ],
+      "x": 0.35,
+      "y": 0.364,
+      "scale": 2.4
+     },
+     {
+      "cues": [
+       "timeline"
+      ],
+      "x": 0.46,
+      "y": 0.364,
+      "scale": 2.4
+     },
+     {
+      "cues": [
+       "frames"
+      ],
+      "x": 0.58,
+      "y": 0.364,
+      "scale": 2.4
+     },
+     {
+      "cues": [
+       "mix"
+      ],
+      "x": 0.69,
+      "y": 0.364,
+      "scale": 2.4
+     },
+     {
+      "cues": [
+       "checks"
+      ],
+      "x": 0.81,
+      "y": 0.364,
+      "scale": 2.4
+     }
+    ]
+   },
+   "publishing": {
+    "asset": "brands/videostudio/footage/publishing.mp4",
+    "title": "Video Studio · Publishing",
+    "frame": "browser",
+    "startFrom": 4.8,
+    "beats": [
+     {
+      "cues": [
+       "approves",
+       "package"
+      ],
+      "x": 0.42,
+      "y": 0.86,
+      "scale": 2.0
+     },
+     {
+      "cues": [
+       "Publishing"
+      ],
+      "x": 0.82,
+      "y": 0.84,
+      "scale": 1.8
+     },
+     {
+      "cues": [
+       "confirmed"
+      ],
+      "x": 0.78,
+      "y": 0.86,
+      "scale": 2.6
+     },
+     {
+      "cues": [
+       "YouTube"
+      ],
+      "x": 0.5,
+      "y": 0.5,
+      "scale": 1.0
+     }
+    ]
+   }
+  }
+ },
+ "publishing": {
+  "hashtags": [
+   "#VideoStudio",
+   "#Remotion",
+   "#LocalAI"
+  ],
+  "descriptionFooter": "https://github.com/priyanshu-shroti01/video-studio",
+  "platforms": [
+   "youtube"
+  ],
+  "privacyDefault": "private",
+  "accounts": {
+   "$comment": "Not connected: this brand has no publishing account yet.",
+   "youtube": {
+    "channel_id": null,
+    "channel_title": null
+   },
+   "instagram": {
+    "ig_user_id": null,
+    "username": null
+   }
+  }
+ },
+ "knowledge": "knowledge/videostudio/facts.json"
+}

@@ -1,0 +1,869 @@
+{
+ "contractVersion": 1,
+ "format": "short",
+ "fps": 30,
+ "durationInFrames": 638,
+ "theme": {
+  "name": "Shroti Host",
+  "colors": {
+   "bg": "#0a0a0f",
+   "surface": "#131318",
+   "card": "#17171f",
+   "raised": "#191921",
+   "border": "rgba(255,255,255,0.14)",
+   "borderStrong": "rgba(255,255,255,0.22)",
+   "text": "#f5f5f7",
+   "text2": "#a1a1ab",
+   "muted": "#87878f",
+   "brand": "#a810c7",
+   "brandHover": "#c817ea",
+   "brandActive": "#8b0da3",
+   "brandText": "#cf6cf2",
+   "success": "#22c55e",
+   "danger": "#f0576b",
+   "warning": "#f5a524",
+   "info": "#3fa7ff",
+   "light": {
+    "card": "#ffffff",
+    "surface": "#f7f5fa",
+    "border": "#e6e1ec",
+    "text": "#15111c",
+    "text2": "#4b4655",
+    "muted": "#726c7d",
+    "success": "#15803d"
+   }
+  },
+  "fonts": {
+   "sans": {
+    "family": "Plus Jakarta Sans",
+    "files": [
+     {
+      "src": "fonts/jakarta-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+     },
+     {
+      "src": "fonts/jakarta-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+1E00-1EFF,U+20A0-20AB,U+20AD-20C4,U+2113"
+     }
+    ]
+   },
+   "mono": {
+    "family": "Geist Mono",
+    "files": [
+     {
+      "src": "fonts/geistmono-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212"
+     },
+     {
+      "src": "fonts/geistmono-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+20A0-20AB,U+20AD-20C4"
+     }
+    ]
+   }
+  },
+  "logo": {
+   "onDark": "brand/logo-on-dark.svg",
+   "onLight": "brand/logo-on-light.svg",
+   "mark": "brand/icon.svg",
+   "aspect": 5
+  },
+  "background": {
+   "style": "dots-glow",
+   "glowA": "#a810c7",
+   "glowB": "#3fa7ff"
+  },
+  "caption": {
+   "highlight": "#cf6cf2",
+   "box": "rgba(0,0,0,0.55)",
+   "text": "#f5f5f7",
+   "dim": "rgba(255,255,255,0.45)"
+  },
+  "radius": {
+   "card": 32,
+   "pill": 999
+  }
+ },
+ "captions": {
+  "enabled": true,
+  "style": "word",
+  "maxWords": 4,
+  "pages": [
+   {
+    "start": 0.1,
+    "end": 1.13,
+    "wordIdx": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "start": 1.4,
+    "end": 2.765,
+    "wordIdx": [
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   {
+    "start": 2.785,
+    "end": 3.19,
+    "wordIdx": [
+     7
+    ]
+   },
+   {
+    "start": 3.56,
+    "end": 4.255,
+    "wordIdx": [
+     8,
+     9
+    ]
+   },
+   {
+    "start": 4.355,
+    "end": 5.585,
+    "wordIdx": [
+     10,
+     11,
+     12,
+     13
+    ]
+   },
+   {
+    "start": 5.605,
+    "end": 6.21,
+    "wordIdx": [
+     14,
+     15
+    ]
+   },
+   {
+    "start": 6.58,
+    "end": 7.52,
+    "wordIdx": [
+     16,
+     17,
+     18
+    ]
+   },
+   {
+    "start": 7.79,
+    "end": 8.975,
+    "wordIdx": [
+     19,
+     20,
+     21,
+     22
+    ]
+   },
+   {
+    "start": 8.995,
+    "end": 9.355,
+    "wordIdx": [
+     23
+    ]
+   },
+   {
+    "start": 9.455,
+    "end": 10.685,
+    "wordIdx": [
+     24,
+     25,
+     26,
+     27
+    ]
+   },
+   {
+    "start": 11.055,
+    "end": 12.15,
+    "wordIdx": [
+     28,
+     29,
+     30,
+     31
+    ]
+   },
+   {
+    "start": 12.17,
+    "end": 12.93,
+    "wordIdx": [
+     32,
+     33,
+     34
+    ]
+   },
+   {
+    "start": 13.3,
+    "end": 14.485,
+    "wordIdx": [
+     35,
+     36,
+     37,
+     38
+    ]
+   },
+   {
+    "start": 14.505,
+    "end": 14.865,
+    "wordIdx": [
+     39
+    ]
+   },
+   {
+    "start": 14.965,
+    "end": 15.75,
+    "wordIdx": [
+     40,
+     41
+    ]
+   },
+   {
+    "start": 15.85,
+    "end": 16.945,
+    "wordIdx": [
+     42,
+     43,
+     44,
+     45
+    ]
+   },
+   {
+    "start": 16.965,
+    "end": 17.37,
+    "wordIdx": [
+     46
+    ]
+   },
+   {
+    "start": 17.74,
+    "end": 18.635,
+    "wordIdx": [
+     47,
+     48,
+     49
+    ]
+   },
+   {
+    "start": 19.005,
+    "end": 20.55,
+    "wordIdx": [
+     50,
+     51,
+     52,
+     53
+    ]
+   }
+  ],
+  "fontSize": 66,
+  "bottomFrac": 0.27,
+  "maxWidthFrac": 0.8
+ },
+ "words": [
+  {
+   "text": "Building",
+   "start": 0.1,
+   "end": 0.55
+  },
+  {
+   "text": "a",
+   "start": 0.57,
+   "end": 0.705
+  },
+  {
+   "text": "website?",
+   "start": 0.725,
+   "end": 1.13
+  },
+  {
+   "text": "Stop",
+   "start": 1.4,
+   "end": 1.67
+  },
+  {
+   "text": "overpaying",
+   "start": 1.69,
+   "end": 2.23
+  },
+  {
+   "text": "for",
+   "start": 2.25,
+   "end": 2.475
+  },
+  {
+   "text": "slow",
+   "start": 2.495,
+   "end": 2.765
+  },
+  {
+   "text": "hosting.",
+   "start": 2.785,
+   "end": 3.19
+  },
+  {
+   "text": "Cheap",
+   "start": 3.56,
+   "end": 3.875
+  },
+  {
+   "text": "intros,",
+   "start": 3.895,
+   "end": 4.255
+  },
+  {
+   "text": "then",
+   "start": 4.355,
+   "end": 4.625
+  },
+  {
+   "text": "triple",
+   "start": 4.645,
+   "end": 5.005
+  },
+  {
+   "text": "the",
+   "start": 5.025,
+   "end": 5.25
+  },
+  {
+   "text": "price",
+   "start": 5.27,
+   "end": 5.585
+  },
+  {
+   "text": "on",
+   "start": 5.605,
+   "end": 5.785
+  },
+  {
+   "text": "renewal.",
+   "start": 5.805,
+   "end": 6.21
+  },
+  {
+   "text": "Meet",
+   "start": 6.58,
+   "end": 6.85
+  },
+  {
+   "text": "Shroti",
+   "start": 6.87,
+   "end": 7.23
+  },
+  {
+   "text": "Host.",
+   "start": 7.25,
+   "end": 7.52
+  },
+  {
+   "text": "NVMe",
+   "start": 7.79,
+   "end": 8.06
+  },
+  {
+   "text": "hosting",
+   "start": 8.08,
+   "end": 8.485
+  },
+  {
+   "text": "from",
+   "start": 8.505,
+   "end": 8.775
+  },
+  {
+   "text": "49",
+   "start": 8.795,
+   "end": 8.975
+  },
+  {
+   "text": "rupees,",
+   "start": 8.995,
+   "end": 9.355
+  },
+  {
+   "text": "same",
+   "start": 9.455,
+   "end": 9.725
+  },
+  {
+   "text": "price",
+   "start": 9.745,
+   "end": 10.06
+  },
+  {
+   "text": "on",
+   "start": 10.08,
+   "end": 10.26
+  },
+  {
+   "text": "renewal.",
+   "start": 10.28,
+   "end": 10.685
+  },
+  {
+   "text": "Pick",
+   "start": 11.055,
+   "end": 11.325
+  },
+  {
+   "text": "the",
+   "start": 11.345,
+   "end": 11.57
+  },
+  {
+   "text": "Grow",
+   "start": 11.59,
+   "end": 11.86
+  },
+  {
+   "text": "plan",
+   "start": 11.88,
+   "end": 12.15
+  },
+  {
+   "text": "at",
+   "start": 12.17,
+   "end": 12.35
+  },
+  {
+   "text": "79",
+   "start": 12.37,
+   "end": 12.55
+  },
+  {
+   "text": "rupees.",
+   "start": 12.57,
+   "end": 12.93
+  },
+  {
+   "text": "Type",
+   "start": 13.3,
+   "end": 13.57
+  },
+  {
+   "text": "your",
+   "start": 13.59,
+   "end": 13.86
+  },
+  {
+   "text": "domain",
+   "start": 13.88,
+   "end": 14.24
+  },
+  {
+   "text": "and",
+   "start": 14.26,
+   "end": 14.485
+  },
+  {
+   "text": "launch,",
+   "start": 14.505,
+   "end": 14.865
+  },
+  {
+   "text": "with",
+   "start": 14.965,
+   "end": 15.235
+  },
+  {
+   "text": "LiteSpeed,",
+   "start": 15.255,
+   "end": 15.75
+  },
+  {
+   "text": "free",
+   "start": 15.85,
+   "end": 16.12
+  },
+  {
+   "text": "SSL",
+   "start": 16.14,
+   "end": 16.365
+  },
+  {
+   "text": "and",
+   "start": 16.385,
+   "end": 16.61
+  },
+  {
+   "text": "daily",
+   "start": 16.63,
+   "end": 16.945
+  },
+  {
+   "text": "backups.",
+   "start": 16.965,
+   "end": 17.37
+  },
+  {
+   "text": "No",
+   "start": 17.74,
+   "end": 17.92
+  },
+  {
+   "text": "hidden",
+   "start": 17.94,
+   "end": 18.3
+  },
+  {
+   "text": "hikes.",
+   "start": 18.32,
+   "end": 18.635
+  },
+  {
+   "text": "Launch",
+   "start": 19.005,
+   "end": 19.365
+  },
+  {
+   "text": "today",
+   "start": 19.385,
+   "end": 19.7
+  },
+  {
+   "text": "at",
+   "start": 19.72,
+   "end": 19.9
+  },
+  {
+   "text": "shrotihost.in.",
+   "start": 19.92,
+   "end": 20.55
+  }
+ ],
+ "scenes": [
+  {
+   "id": "hook",
+   "purpose": "hook",
+   "start": 0.0,
+   "end": 3.375,
+   "transition": "fade",
+   "layout": "stack",
+   "blocks": [
+    {
+     "type": "pill",
+     "text": "STOP",
+     "tone": "danger",
+     "stamp": true,
+     "at": 1.4
+    },
+    {
+     "type": "headline",
+     "size": "l",
+     "words": [
+      {
+       "text": "overpaying",
+       "at": 1.69
+      }
+     ],
+     "strike": {
+      "word": 0,
+      "at": 2.09
+     }
+    },
+    {
+     "type": "text",
+     "text": "for slow hosting",
+     "size": "m",
+     "at": 2.395
+    },
+    {
+     "type": "browser",
+     "url": "your-website.in",
+     "at": 0.1,
+     "loadUntil": 2.495,
+     "stallAt": 2.495,
+     "tag": {
+      "text": "₹₹₹ /mo",
+      "at": 1.69
+     }
+    }
+   ]
+  },
+  {
+   "id": "problem",
+   "purpose": "problem",
+   "start": 3.375,
+   "end": 6.395,
+   "transition": "fade",
+   "layout": "stack",
+   "blocks": [
+    {
+     "type": "hook-tag",
+     "label": "INTRO OFFER",
+     "text": "Cheap!",
+     "sub": "first term only",
+     "at": 3.56
+    },
+    {
+     "type": "bars",
+     "title": "Your hosting bill",
+     "bars": [
+      {
+       "label": "Intro",
+       "value": 1,
+       "tone": "muted",
+       "at": 3.66
+      },
+      {
+       "label": "Renewal",
+       "value": 3,
+       "tone": "danger",
+       "at": 4.645,
+       "growEnd": 5.145
+      }
+     ],
+     "badge": {
+      "text": "3×",
+      "bar": 1,
+      "at": 5.145,
+      "tone": "danger"
+     }
+    }
+   ],
+   "mood": "danger"
+  },
+  {
+   "id": "turn",
+   "purpose": "turn",
+   "start": 6.395,
+   "end": 10.87,
+   "transition": "fade",
+   "layout": "stack",
+   "blocks": [
+    {
+     "type": "logo",
+     "variant": "onDark",
+     "width": 620,
+     "at": 6.58
+    },
+    {
+     "type": "pill",
+     "text": "Fast NVMe hosting",
+     "tone": "brand",
+     "icon": "zap",
+     "at": 7.79
+    },
+    {
+     "type": "price",
+     "currency": "₹",
+     "amount": 49,
+     "period": "/mo",
+     "note": "excl. taxes",
+     "at": 8.795,
+     "countEnd": 9.295
+    },
+    {
+     "type": "compare-rows",
+     "rows": [
+      {
+       "label": "Today",
+       "value": "₹49/mo",
+       "at": 9.455
+      },
+      {
+       "label": "On renewal",
+       "value": "₹49/mo",
+       "at": 10.28
+      }
+     ],
+     "badge": {
+      "text": "Same price",
+      "tone": "success",
+      "at": 10.479999999999999
+     }
+    }
+   ],
+   "mood": "brand"
+  },
+  {
+   "id": "plans",
+   "purpose": "journey",
+   "start": 10.87,
+   "end": 13.115,
+   "transition": "fade",
+   "layout": "stack",
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Pick your plan",
+     "size": "l",
+     "tone": "text"
+    },
+    {
+     "type": "plans",
+     "plans": [
+      {
+       "name": "Launch",
+       "price": "₹49",
+       "period": "/mo",
+       "detail": "10 GB NVMe"
+      },
+      {
+       "name": "Grow",
+       "price": "₹79",
+       "period": "/mo",
+       "detail": "50 GB NVMe",
+       "badge": "Most popular"
+      },
+      {
+       "name": "Turbo",
+       "price": "₹149",
+       "period": "/mo",
+       "detail": "100 GB NVMe"
+      }
+     ],
+     "select": {
+      "index": 1,
+      "cursorStart": 11.54,
+      "clickAt": 12.04
+     },
+     "emphasizeAt": 12.37
+    }
+   ]
+  },
+  {
+   "id": "launch",
+   "purpose": "journey",
+   "start": 13.115,
+   "end": 17.555,
+   "transition": "fade",
+   "layout": "stack",
+   "blocks": [
+    {
+     "type": "domain-input",
+     "title": "Find your domain",
+     "domain": "yourbrand.in",
+     "keyTimes": [
+      13.4,
+      13.467,
+      13.533,
+      13.6,
+      13.667,
+      13.733,
+      13.8,
+      13.867,
+      13.933,
+      14.0,
+      14.067,
+      14.133
+     ],
+     "availableAt": 14.383,
+     "availableText": "is available",
+     "at": 13.200000000000001,
+     "button": {
+      "idle": "Launch site",
+      "busy": "Launching…",
+      "done": "Your site is live",
+      "clickAt": 14.505,
+      "doneAt": 15.205
+     }
+    },
+    {
+     "type": "checklist",
+     "items": [
+      {
+       "text": "LiteSpeed servers",
+       "icon": "server",
+       "at": 15.255
+      },
+      {
+       "text": "Free SSL",
+       "icon": "lock",
+       "at": 15.85
+      },
+      {
+       "text": "Daily backups",
+       "icon": "cloud",
+       "at": 16.63
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hikes",
+   "purpose": "resolution",
+   "start": 17.555,
+   "end": 18.82,
+   "transition": "slide-up",
+   "layout": "stack",
+   "blocks": [
+    {
+     "type": "headline",
+     "size": "xl",
+     "words": [
+      {
+       "text": "No",
+       "at": 17.74
+      },
+      {
+       "text": "hidden",
+       "at": 17.94
+      },
+      {
+       "text": "hikes.",
+       "at": 18.32,
+       "tone": "danger"
+      }
+     ],
+     "strike": {
+      "word": 2,
+      "at": 18.47,
+      "tone": "text"
+     }
+    },
+    {
+     "type": "flat-line",
+     "title": "Your bill, every year",
+     "points": [
+      {
+       "label": "Year 1",
+       "value": "₹79"
+      },
+      {
+       "label": "Year 2",
+       "value": "₹79"
+      },
+      {
+       "label": "Year 3",
+       "value": "₹79"
+      }
+     ],
+     "at": 17.94,
+     "drawEnd": 18.72
+    }
+   ]
+  },
+  {
+   "id": "cta",
+   "purpose": "cta",
+   "start": 18.82,
+   "end": 21.25,
+   "transition": "fade",
+   "layout": "stack",
+   "blocks": [
+    {
+     "type": "logo",
+     "variant": "mark",
+     "width": 240
+    },
+    {
+     "type": "cta",
+     "text": "Launch your site today",
+     "url": "shrotihost.in",
+     "urlAt": 19.92,
+     "clickAt": 20.520000000000003,
+     "sub": "Same price on renewal",
+     "at": 19.005
+    }
+   ]
+  }
+ ],
+ "brandBar": {
+  "from": 10.87,
+  "to": 17.555
+ }
+}

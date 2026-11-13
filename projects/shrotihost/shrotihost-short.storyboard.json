@@ -1,0 +1,339 @@
+{
+ "version": 1,
+ "title": "Shroti Host — same price on renewal",
+ "scenes": [
+  {
+   "id": "hook-question",
+   "purpose": "hook",
+   "narration": "Building a website in India?",
+   "transition": "fade",
+   "blocks": [
+    {
+     "type": "headline",
+     "size": "xl",
+     "words": "Building a website in India?",
+     "tones": {
+      "India?": "brand"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hook-stop",
+   "purpose": "hook",
+   "narration": "Stop overpaying for slow hosting.",
+   "transition": "fade",
+   "cues": {
+    "stop": {
+     "word": "Stop"
+    },
+    "over": {
+     "word": "overpaying"
+    },
+    "slow": {
+     "word": "slow"
+    }
+   },
+   "layout": "split",
+   "splitAt": 3,
+   "blocks": [
+    {
+     "type": "pill",
+     "text": "STOP",
+     "tone": "danger",
+     "stamp": true,
+     "at": "@stop"
+    },
+    {
+     "type": "headline",
+     "size": "l",
+     "words": "overpaying",
+     "strike": {
+      "word": 0,
+      "at": "@over+0.35",
+      "tone": "danger"
+     }
+    },
+    {
+     "type": "text",
+     "text": "for slow hosting",
+     "size": "m",
+     "tone": "muted",
+     "at": "@slow-0.1"
+    },
+    {
+     "type": "browser",
+     "url": "your-website.in",
+     "at": "@over-0.05",
+     "loadUntil": "@slow",
+     "stallAt": "@slow",
+     "tag": {
+      "text": "₹₹₹ /mo",
+      "at": "@over+0.05"
+     }
+    }
+   ]
+  },
+  {
+   "id": "problem",
+   "purpose": "problem",
+   "mood": "danger",
+   "transition": "fade",
+   "narration": "Most hosts hook you with cheap intros, then triple the price on renewal.",
+   "layout": "split",
+   "splitAt": 1,
+   "blocks": [
+    {
+     "type": "hook-tag",
+     "label": "INTRO OFFER",
+     "text": "Cheap!",
+     "sub": "first term only",
+     "at": "@word:hook-0.1"
+    },
+    {
+     "type": "bars",
+     "title": "Your hosting bill",
+     "at": "@word:cheap-0.15",
+     "bars": [
+      {
+       "label": "Intro",
+       "value": 1,
+       "tone": "muted",
+       "at": "@word:cheap"
+      },
+      {
+       "label": "Renewal",
+       "value": 3,
+       "tone": "danger",
+       "at": "@word:triple-0.05",
+       "growEnd": "@word:triple+0.55"
+      }
+     ],
+     "badge": {
+      "text": "3×",
+      "bar": 1,
+      "at": "@word:triple+0.6",
+      "tone": "danger"
+     }
+    }
+   ]
+  },
+  {
+   "id": "turn-meet",
+   "purpose": "turn",
+   "mood": "brand",
+   "transition": "fade",
+   "narration": "Meet Shroti Host.",
+   "blocks": [
+    {
+     "type": "logo",
+     "variant": "onDark",
+     "width": 840,
+     "at": "@word:Meet"
+    }
+   ]
+  },
+  {
+   "id": "turn-price",
+   "purpose": "turn",
+   "brandBar": true,
+   "transition": "slide-up",
+   "narration": "Fast NVMe hosting starting at just 49 rupees a month—with the exact same price on renewal.",
+   "layout": "split",
+   "splitAt": 2,
+   "blocks": [
+    {
+     "type": "pill",
+     "text": "Fast NVMe hosting",
+     "tone": "brand",
+     "icon": "zap",
+     "at": "@word:NVMe-0.08"
+    },
+    {
+     "type": "price",
+     "currency": "₹",
+     "amount": 49,
+     "period": "/mo",
+     "label": "Launch plan · starting at just",
+     "note": "excl. taxes",
+     "at": "@word:starting-0.1",
+     "countEnd": "@word:49+0.5"
+    },
+    {
+     "type": "compare-rows",
+     "rows": [
+      {
+       "label": "Today",
+       "value": "₹49/mo",
+       "at": "@word:with"
+      },
+      {
+       "label": "On renewal",
+       "value": "₹49/mo",
+       "at": "@word:same"
+      }
+     ],
+     "badge": {
+      "text": "Same price",
+      "tone": "success",
+      "at": "@word:renewal"
+     }
+    }
+   ]
+  },
+  {
+   "id": "journey-plan",
+   "purpose": "journey",
+   "brandBar": true,
+   "transition": "fade",
+   "narration": "Pick the Grow plan at 79 rupees,",
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Pick your plan",
+     "size": "l",
+     "tone": "text"
+    },
+    {
+     "type": "plans",
+     "plans": [
+      {
+       "name": "Launch",
+       "price": "₹49",
+       "period": "/mo",
+       "detail": "10 GB NVMe"
+      },
+      {
+       "name": "Grow",
+       "price": "₹79",
+       "period": "/mo",
+       "detail": "50 GB NVMe",
+       "badge": "Most popular"
+      },
+      {
+       "name": "Turbo",
+       "price": "₹149",
+       "period": "/mo",
+       "detail": "100 GB NVMe"
+      }
+     ],
+     "select": {
+      "index": 1,
+      "cursorStart": "@word:Grow-0.05",
+      "clickAt": "@word:Grow+0.45"
+     },
+     "emphasizeAt": "@word:79"
+    }
+   ]
+  },
+  {
+   "id": "journey-launch",
+   "purpose": "journey",
+   "brandBar": true,
+   "transition": "fade",
+   "narration": "type your domain, and launch in minutes with LiteSpeed servers, free SSL, and daily backups.",
+   "layout": "split",
+   "splitAt": 1,
+   "blocks": [
+    {
+     "type": "domain-input",
+     "title": "Find your domain",
+     "domain": "yourbrand.in",
+     "typeAt": "@word:type+0.1",
+     "availableText": "is available",
+     "button": {
+      "idle": "Launch site",
+      "busy": "Launching…",
+      "done": "Your site is live",
+      "clickAt": "@word:launch",
+      "doneAt": "@word:minutes+0.2"
+     }
+    },
+    {
+     "type": "checklist",
+     "items": [
+      {
+       "text": "LiteSpeed servers",
+       "icon": "server",
+       "at": "@word:LiteSpeed"
+      },
+      {
+       "text": "Free SSL",
+       "icon": "lock",
+       "at": "@word:free"
+      },
+      {
+       "text": "Daily backups",
+       "icon": "cloud",
+       "at": "@word:daily"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "resolution",
+   "purpose": "resolution",
+   "transition": "fade",
+   "narration": "No hidden hikes.",
+   "blocks": [
+    {
+     "type": "headline",
+     "size": "xl",
+     "words": "No hidden hikes.",
+     "tones": {
+      "hikes.": "danger"
+     },
+     "strike": {
+      "word": 2,
+      "at": "@word:hikes+0.1",
+      "tone": "text"
+     }
+    },
+    {
+     "type": "flat-line",
+     "title": "Your Shroti Host bill",
+     "at": "@word:hidden-0.1",
+     "drawEnd": "@word:hikes+0.35",
+     "points": [
+      {
+       "label": "Year 1",
+       "value": "₹79"
+      },
+      {
+       "label": "Year 2",
+       "value": "₹79"
+      },
+      {
+       "label": "Year 3",
+       "value": "₹79"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cta",
+   "purpose": "cta",
+   "mood": "brand",
+   "transition": "fade",
+   "narration": "Launch your site today at shrotihost.in.",
+   "blocks": [
+    {
+     "type": "logo",
+     "variant": "onDark",
+     "width": 760
+    },
+    {
+     "type": "cta",
+     "text": "Launch your site today",
+     "url": "shrotihost.in",
+     "at": "@word:Launch-0.05",
+     "urlAt": "@word:shrotihost",
+     "clickAt": "@word:shrotihost+0.55",
+     "sub": "Same price on renewal · NVMe · LiteSpeed"
+    }
+   ]
+  }
+ ]
+}

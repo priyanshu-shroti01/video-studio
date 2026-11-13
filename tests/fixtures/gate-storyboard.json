@@ -1,0 +1,235 @@
+{
+ "version": 1,
+ "title": "Shroti Host WordPress — restored v0.2.0 creative system",
+ "$comment": "Composition A: the v0.2.0 hand-authored design language (v1 blocks only), re-authored for the WordPress brief with verified facts only.",
+ "scenes": [
+  {
+   "id": "hook",
+   "purpose": "hook",
+   "narration": "New to WordPress? Your first website starts here.",
+   "blocks": [
+    {
+     "type": "headline",
+     "size": "l",
+     "words": "New to WordPress?",
+     "tones": {
+      "WordPress?": "brand"
+     }
+    },
+    {
+     "type": "text",
+     "text": "Your first website starts here.",
+     "size": "m",
+     "tone": "muted",
+     "at": "@word:Your"
+    }
+   ]
+  },
+  {
+   "id": "problem",
+   "purpose": "problem",
+   "mood": "danger",
+   "narration": "Stop losing weekends to slow, complicated setups.",
+   "layout": "split",
+   "splitAt": 2,
+   "blocks": [
+    {
+     "type": "pill",
+     "text": "STOP",
+     "tone": "danger",
+     "stamp": true,
+     "at": "@word:Stop"
+    },
+    {
+     "type": "headline",
+     "size": "l",
+     "words": "complicated setups",
+     "strike": {
+      "word": 0,
+      "at": "@word:complicated+0.3",
+      "tone": "danger"
+     }
+    },
+    {
+     "type": "browser",
+     "url": "your-website.in",
+     "at": "@word:losing",
+     "loadUntil": "@word:slow",
+     "stallAt": "@word:slow"
+    }
+   ]
+  },
+  {
+   "id": "reveal",
+   "purpose": "turn",
+   "mood": "brand",
+   "narration": "Meet Shroti Host WordPress hosting.",
+   "blocks": [
+    {
+     "type": "logo",
+     "variant": "onDark",
+     "width": 840,
+     "at": "@word:Meet"
+    },
+    {
+     "type": "pill",
+     "text": "WordPress hosting",
+     "tone": "brand",
+     "icon": "server",
+     "at": "@word:WordPress"
+    }
+   ]
+  },
+  {
+   "id": "price",
+   "purpose": "turn",
+   "brandBar": true,
+   "transition": "slide-up",
+   "layout": "split",
+   "splitAt": 2,
+   "narration": "WP Starter is just ₹69 a month, with 10 GB NVMe storage, free SSL and daily backups.",
+   "blocks": [
+    {
+     "type": "pill",
+     "text": "WP Starter",
+     "tone": "brand",
+     "icon": "server",
+     "at": "@word:Starter"
+    },
+    {
+     "type": "price",
+     "currency": "₹",
+     "amount": 69,
+     "period": "/mo",
+     "label": "WordPress hosting · billed monthly",
+     "note": "excl. taxes",
+     "at": "@word:just-0.1",
+     "countEnd": "@word:69+0.5"
+    },
+    {
+     "type": "checklist",
+     "items": [
+      {
+       "text": "10 GB NVMe storage",
+       "icon": "server",
+       "at": "@word:NVMe"
+      },
+      {
+       "text": "Free SSL",
+       "icon": "lock",
+       "at": "@word:SSL"
+      },
+      {
+       "text": "Daily backups",
+       "icon": "cloud",
+       "at": "@word:daily"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "plans",
+   "purpose": "journey",
+   "brandBar": true,
+   "narration": "WP Business covers five sites. Most start with WP Starter.",
+   "blocks": [
+    {
+     "type": "text",
+     "text": "WordPress plans",
+     "size": "l"
+    },
+    {
+     "type": "plans",
+     "plans": [
+      {
+       "name": "Starter",
+       "price": "₹69",
+       "period": "/mo",
+       "detail": "1 site · 10 GB"
+      },
+      {
+       "name": "Business",
+       "price": "₹119",
+       "period": "/mo",
+       "detail": "5 sites · 50 GB",
+       "badge": "Most popular"
+      }
+     ],
+     "select": {
+      "index": 0,
+      "cursorStart": "@word:Most",
+      "clickAt": "@word:Starter+0.35"
+     },
+     "emphasizeAt": "@word:Business"
+    }
+   ]
+  },
+  {
+   "id": "install",
+   "purpose": "journey",
+   "brandBar": true,
+   "layout": "split",
+   "splitAt": 1,
+   "narration": "Type your domain, click install, and WordPress sets itself up, with LiteSpeed Cache and free migration included.",
+   "blocks": [
+    {
+     "type": "domain-input",
+     "title": "Find your domain",
+     "domain": "yourbrand.in",
+     "typeAt": "@word:Type+0.1",
+     "availableText": "is available",
+     "button": {
+      "idle": "Install WordPress",
+      "busy": "Installing WordPress…",
+      "done": "WordPress is live",
+      "clickAt": "@word:click",
+      "doneAt": "@word:sets+0.4"
+     }
+    },
+    {
+     "type": "checklist",
+     "items": [
+      {
+       "text": "One-click install",
+       "icon": "zap",
+       "at": "@word:install"
+      },
+      {
+       "text": "LiteSpeed Cache",
+       "icon": "server",
+       "at": "@word:LiteSpeed"
+      },
+      {
+       "text": "Free migration",
+       "icon": "cloud",
+       "at": "@word:migration"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cta",
+   "purpose": "cta",
+   "mood": "brand",
+   "narration": "Start your WordPress site today at shrotihost.in.",
+   "blocks": [
+    {
+     "type": "logo",
+     "variant": "onDark",
+     "width": 760
+    },
+    {
+     "type": "cta",
+     "text": "Start your WordPress site",
+     "url": "shrotihost.in",
+     "at": "@word:Start-0.05",
+     "urlAt": "@word:shrotihost",
+     "clickAt": "@word:shrotihost+0.55",
+     "sub": "WP Starter · ₹69/month · excl. taxes"
+    }
+   ]
+  }
+ ]
+}

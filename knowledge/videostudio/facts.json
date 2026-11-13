@@ -1,0 +1,573 @@
+{
+ "$comment": "Verified facts for Video Studio. Each excerpt is verbatim in its source (the public repository). Numbers in evidence.* come from real production QA reports (docs/reports/SELF_LAUNCH_PRODUCTION_EVIDENCE.md).",
+ "brand": "videostudio",
+ "brand_name": "Video Studio",
+ "site": "https://github.com/priyanshu-shroti01/video-studio",
+ "fetched_at": "2026-11-13T20:05:00Z",
+ "pages": {
+  "readme": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md"
+ },
+ "facts": [
+  {
+   "id": "company.url",
+   "category": "company",
+   "product": "all",
+   "claim": "Video Studio's source is on GitHub",
+   "value": {
+    "domain": "github.com",
+    "path": "priyanshu-shroti01/video-studio"
+   },
+   "keywords": [
+    "GitHub"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:05:00Z",
+   "excerpt": "Turn a product brief into a branded, narrated, animated and fact-checked marketing video, entirely on your Mac.",
+   "volatile": false
+  },
+  {
+   "id": "product.what",
+   "category": "product",
+   "product": "all",
+   "claim": "Video Studio turns a product brief into a branded, narrated, animated and fact-checked video on a Mac",
+   "value": {
+    "text": "From brief to finished film, on one Mac"
+   },
+   "keywords": [
+    "brief",
+    "on your Mac",
+    "one Mac",
+    "finished film"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:05:00Z",
+   "excerpt": "Turn a product brief into a branded, narrated, animated and fact-checked marketing video, entirely on your Mac.",
+   "volatile": false
+  },
+  {
+   "id": "product.concepts",
+   "category": "product",
+   "product": "all",
+   "claim": "A brief becomes three distinct concepts",
+   "value": {
+    "count": 3
+   },
+   "keywords": [
+    "three concepts",
+    "three distinct concepts"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:05:00Z",
+   "excerpt": "becomes three distinct concepts.",
+   "volatile": false
+  },
+  {
+   "id": "product.pipeline",
+   "category": "product",
+   "product": "all",
+   "claim": "A production moves through concepts, storyboard, a preview gate, a local voice, rendering and quality checks, then waits for a person's approval",
+   "value": {
+    "app": "Video Studio",
+    "title": "Production pipeline",
+    "steps": [
+     {
+      "label": "Concepts",
+      "cues": [
+       "concepts"
+      ]
+     },
+     {
+      "label": "Storyboard",
+      "cues": [
+       "storyboard"
+      ]
+     },
+     {
+      "label": "Preview gate",
+      "cues": [
+       "preview"
+      ]
+     },
+     {
+      "label": "Local voice",
+      "cues": [
+       "voice"
+      ]
+     },
+     {
+      "label": "Render",
+      "cues": [
+       "render",
+       "renders"
+      ]
+     },
+     {
+      "label": "Quality checks",
+      "cues": [
+       "quality",
+       "checks"
+      ]
+     }
+    ],
+    "done": "Waiting for a person's approval",
+    "done_cues": [
+     "approves",
+     "approval",
+     "person"
+    ]
+   },
+   "keywords": [
+    "preview gate",
+    "approves",
+    "approval"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:05:00Z",
+   "excerpt": "A person approves the preview before the full render.",
+   "volatile": false
+  },
+  {
+   "id": "product.voice",
+   "category": "product",
+   "product": "all",
+   "claim": "A local voice (Kokoro) speaks the script, and every animation is tied to the word that names it",
+   "value": {
+    "engine": "Kokoro"
+   },
+   "keywords": [
+    "Kokoro",
+    "local voice",
+    "Python",
+    "exact word"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:05:00Z",
+   "excerpt": "A local voice (Kokoro) speaks the script; Python resolves every animation to the exact word that names it.",
+   "volatile": false
+  },
+  {
+   "id": "product.render",
+   "category": "product",
+   "product": "all",
+   "claim": "Remotion renders the frames and FFmpeg mixes voice, licensed music and sound effects",
+   "value": {
+    "renderer": "Remotion",
+    "mixer": "FFmpeg"
+   },
+   "keywords": [
+    "Remotion",
+    "FFmpeg"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:05:00Z",
+   "excerpt": "Remotion renders in parallel headless Chromium tabs; FFmpeg mixes voice, licensed music and sound effects.",
+   "volatile": false
+  },
+  {
+   "id": "product.stack",
+   "category": "product",
+   "product": "all",
+   "claim": "The studio's local stack: Python orchestration, Kokoro voice, Remotion rendering, FFmpeg mastering, on one Mac",
+   "value": {
+    "title": "Local production stack",
+    "nodes": [
+     {
+      "label": "Python orchestrator",
+      "icon": "cpu",
+      "cues": [
+       "Python"
+      ]
+     },
+     {
+      "label": "Kokoro voice",
+      "icon": "gauge",
+      "cues": [
+       "Kokoro"
+      ]
+     },
+     {
+      "label": "Remotion renderer",
+      "icon": "app",
+      "cues": [
+       "Remotion"
+      ]
+     },
+     {
+      "label": "FFmpeg mastering",
+      "icon": "settings",
+      "cues": [
+       "FFmpeg"
+      ]
+     }
+    ],
+    "status": "Runs on one Mac",
+    "status_cues": [
+     "Mac"
+    ]
+   },
+   "keywords": [
+    "Python",
+    "Kokoro",
+    "Remotion",
+    "FFmpeg",
+    "one Mac"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:05:00Z",
+   "excerpt": "Turn a product brief into a branded, narrated, animated and fact-checked marketing video, entirely on your Mac.",
+   "volatile": false
+  },
+  {
+   "id": "product.llm",
+   "category": "product",
+   "product": "all",
+   "claim": "A local LLM (Qwen3-4B via Ollama) may only draft copy inside validated slots",
+   "value": {
+    "model": "Qwen3-4B",
+    "runtime": "Ollama"
+   },
+   "keywords": [
+    "local LLM",
+    "Qwen3",
+    "Ollama",
+    "validated slots"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:05:00Z",
+   "excerpt": "A local LLM (Qwen3-4B) may draft copy only inside validated slots",
+   "volatile": false
+  },
+  {
+   "id": "evidence.qa",
+   "category": "evidence",
+   "product": "all",
+   "claim": "Video Studio's own launch film passed 31 of 31 blocking QA checks in both formats",
+   "value": {
+    "title": "Quality report",
+    "checks": 31,
+    "counter_label": "Blocking checks passed",
+    "counter_cues": [
+     "thirty-one"
+    ],
+    "items": [
+     {
+      "text": "Audio in sync",
+      "icon": "check",
+      "cues": [
+       "sync",
+       "picture"
+      ]
+     },
+     {
+      "text": "Claims verified",
+      "icon": "check",
+      "cues": [
+       "verified",
+       "claim"
+      ]
+     },
+     {
+      "text": "Layout checked",
+      "icon": "check",
+      "cues": [
+       "layout",
+       "captions"
+      ]
+     }
+    ],
+    "spoken": "thirty-one"
+   },
+   "keywords": [
+    "quality checks",
+    "QA"
+   ],
+   "source_url": "repo:docs/reports/SELF_LAUNCH_PRODUCTION_EVIDENCE.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T22:07:29Z",
+   "excerpt": "Blocking QA checks: 31 / 31 PASS in both formats.",
+   "volatile": false
+  },
+  {
+   "id": "product.self_made",
+   "category": "product",
+   "product": "all",
+   "claim": "This film was produced with Video Studio itself",
+   "value": {
+    "text": "Made with Video Studio itself"
+   },
+   "keywords": [
+    "produced with Video Studio itself",
+    "made with Video Studio itself",
+    "itself"
+   ],
+   "source_url": "repo:docs/reports/SELF_LAUNCH_PRODUCTION_EVIDENCE.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T20:47:06Z",
+   "excerpt": "This film was produced with Video Studio itself.",
+   "volatile": false
+  },
+  {
+   "id": "product.architecture",
+   "category": "product",
+   "product": "all",
+   "claim": "AI proposes, humans decide, and deterministic code owns everything that must be exact: timing, layout, facts and file integrity",
+   "value": {
+    "title": "How it is built",
+    "principle": "AI proposes. Humans decide. Code owns the exact parts.",
+    "layers": [
+     {
+      "label": "AI proposes",
+      "detail": "Concepts and copy, local models only",
+      "icon": "zap",
+      "cues": [
+       "AI",
+       "proposes"
+      ]
+     },
+     {
+      "label": "Humans decide",
+      "detail": "Preview, final approval, publishing",
+      "icon": "users",
+      "cues": [
+       "humans",
+       "decide",
+       "people"
+      ]
+     },
+     {
+      "label": "Code keeps it exact",
+      "detail": "Timing · Layout · Facts · File integrity",
+      "icon": "shield",
+      "cues": [
+       "code"
+      ]
+     }
+    ],
+    "exact": [
+     {
+      "label": "Timing",
+      "cues": [
+       "exact"
+      ]
+     },
+     {
+      "label": "Layout",
+      "cues": []
+     },
+     {
+      "label": "Facts",
+      "cues": []
+     },
+     {
+      "label": "Files",
+      "cues": []
+     }
+    ]
+   },
+   "keywords": [
+    "AI proposes",
+    "humans decide",
+    "deterministic code"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T21:10:10Z",
+   "excerpt": "AI proposes, humans decide, and deterministic code owns everything that must be exact",
+   "volatile": false
+  },
+  {
+   "id": "product.workflow",
+   "category": "product",
+   "product": "all",
+   "claim": "Brief, three concepts, storyboard, scene preview with a quality gate, a person approves, render, QA on the real file, a person approves, then an explicitly confirmed publish",
+   "value": {
+    "title": "Production workflow",
+    "steps": [
+     {
+      "label": "Brief",
+      "cues": [
+       "brief"
+      ]
+     },
+     {
+      "label": "Three concepts",
+      "cues": [
+       "concepts"
+      ]
+     },
+     {
+      "label": "Storyboard",
+      "cues": [
+       "storyboard"
+      ]
+     },
+     {
+      "label": "Preview + quality gate",
+      "cues": [
+       "preview",
+       "gate"
+      ]
+     },
+     {
+      "label": "Person approves",
+      "cues": [
+       "approves",
+       "person"
+      ],
+      "gate": true
+     },
+     {
+      "label": "Render",
+      "cues": [
+       "render",
+       "renders"
+      ]
+     },
+     {
+      "label": "QA on the real file",
+      "cues": [
+       "QA",
+       "checks",
+       "checked"
+      ]
+     },
+     {
+      "label": "Person approves",
+      "cues": [
+       "approves",
+       "approval"
+      ],
+      "gate": true
+     },
+     {
+      "label": "Publish",
+      "cues": [
+       "publish",
+       "publishing",
+       "YouTube"
+      ]
+     }
+    ]
+   },
+   "keywords": [
+    "workflow",
+    "pipeline",
+    "preview",
+    "quality gate"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T21:10:10Z",
+   "excerpt": "QA on the real file",
+   "volatile": false
+  },
+  {
+   "id": "product.publishing",
+   "category": "product",
+   "product": "all",
+   "claim": "Publishing to YouTube or Instagram is a separate, confirmed step; the upload is refused if the platform account doesn't belong to the video's brand",
+   "value": {
+    "title": "Publishing",
+    "items": [
+     {
+      "text": "Approved package only",
+      "cues": [
+       "approved",
+       "package"
+      ]
+     },
+     {
+      "text": "Separate, confirmed step",
+      "cues": [
+       "confirmed",
+       "separate"
+      ]
+     },
+     {
+      "text": "Account must match the brand",
+      "cues": [
+       "account",
+       "brand"
+      ]
+     }
+    ]
+   },
+   "keywords": [
+    "publishing",
+    "YouTube",
+    "Instagram"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T21:10:10Z",
+   "excerpt": "Publishing to YouTube or Instagram is a separate, confirmed step.",
+   "volatile": false
+  },
+  {
+   "id": "product.facts",
+   "category": "product",
+   "product": "all",
+   "claim": "Numbers come only from the brand's verified facts",
+   "value": {
+    "title": "Verified facts"
+   },
+   "keywords": [
+    "verified facts",
+    "claims"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T21:10:10Z",
+   "excerpt": "Numbers come only from the brand's verified facts.",
+   "volatile": false
+  },
+  {
+   "id": "product.word_anchors",
+   "category": "product",
+   "product": "all",
+   "claim": "Every visual beat is anchored to a spoken word",
+   "value": {
+    "title": "Word-anchored beats",
+    "example": "@word:What"
+   },
+   "keywords": [
+    "spoken word",
+    "anchored"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T21:10:10Z",
+   "excerpt": "Every visual beat is anchored to a spoken word",
+   "volatile": false
+  },
+  {
+   "id": "evidence.published",
+   "category": "evidence",
+   "product": "all",
+   "claim": "A real output: a 36.7 s YouTube Short for Shroti Host WordPress Hosting, made from a 10-line brief, approved by a person before it was published",
+   "value": {
+    "title": "Published",
+    "platform": "YouTube",
+    "seconds": 36.7
+   },
+   "keywords": [
+    "published",
+    "YouTube Short"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-13T21:10:10Z",
+   "excerpt": "A real output: a 36.7 s YouTube Short for Shroti Host WordPress Hosting, made from a 10-line brief.",
+   "volatile": false
+  }
+ ],
+ "not_found": []
+}

@@ -1,0 +1,9 @@
+{
+ "test-bed.wav": {
+  "source": "generated locally with ffmpeg (sine chord)",
+  "license": "PUBLIC-DOMAIN (self-generated test tone; NOT FOR PUBLICATION)",
+  "attribution": "",
+  "publishable": false,
+  "moods": []
+ }
+}

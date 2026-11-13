@@ -1,0 +1,722 @@
+{
+ "contractVersion": 2,
+ "format": "landscape",
+ "fps": 30,
+ "durationInFrames": 756,
+ "theme": {
+  "name": "Shroti Host",
+  "colors": {
+   "bg": "#0a0a0f",
+   "surface": "#131318",
+   "card": "#17171f",
+   "raised": "#191921",
+   "border": "rgba(255,255,255,0.14)",
+   "borderStrong": "rgba(255,255,255,0.22)",
+   "text": "#f5f5f7",
+   "text2": "#a1a1ab",
+   "muted": "#87878f",
+   "brand": "#a810c7",
+   "brandHover": "#c817ea",
+   "brandActive": "#8b0da3",
+   "brandText": "#cf6cf2",
+   "success": "#22c55e",
+   "danger": "#f0576b",
+   "warning": "#f5a524",
+   "info": "#3fa7ff",
+   "light": {
+    "card": "#ffffff",
+    "surface": "#f7f5fa",
+    "border": "#e6e1ec",
+    "text": "#15111c",
+    "text2": "#4b4655",
+    "muted": "#726c7d",
+    "success": "#15803d"
+   }
+  },
+  "fonts": {
+   "sans": {
+    "family": "Plus Jakarta Sans",
+    "files": [
+     {
+      "src": "fonts/jakarta-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+     },
+     {
+      "src": "fonts/jakarta-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+1E00-1EFF,U+20A0-20AB,U+20AD-20C4,U+2113"
+     }
+    ]
+   },
+   "mono": {
+    "family": "Geist Mono",
+    "files": [
+     {
+      "src": "fonts/geistmono-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212"
+     },
+     {
+      "src": "fonts/geistmono-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+20A0-20AB,U+20AD-20C4"
+     }
+    ]
+   }
+  },
+  "logo": {
+   "onDark": "brand/logo-on-dark.svg",
+   "onLight": "brand/logo-on-light.svg",
+   "mark": "brand/icon.svg",
+   "aspect": 5
+  },
+  "background": {
+   "style": "dots-glow",
+   "glowA": "#a810c7",
+   "glowB": "#3fa7ff"
+  },
+  "caption": {
+   "highlight": "#cf6cf2",
+   "box": "rgba(0,0,0,0.55)",
+   "text": "#f5f5f7",
+   "dim": "rgba(255,255,255,0.45)"
+  },
+  "radius": {
+   "card": 32,
+   "pill": 999
+  }
+ },
+ "captions": {
+  "enabled": true,
+  "style": "word",
+  "maxWords": 4,
+  "pages": [
+   {
+    "start": 0.15,
+    "end": 1.47,
+    "wordIdx": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   {
+    "start": 2.75,
+    "end": 4.07,
+    "wordIdx": [
+     4,
+     5,
+     6,
+     7
+    ]
+   },
+   {
+    "start": 4.11,
+    "end": 4.41,
+    "wordIdx": [
+     8
+    ]
+   },
+   {
+    "start": 5.55,
+    "end": 6.87,
+    "wordIdx": [
+     9,
+     10,
+     11,
+     12
+    ]
+   },
+   {
+    "start": 6.91,
+    "end": 8.23,
+    "wordIdx": [
+     13,
+     14,
+     15,
+     16
+    ]
+   },
+   {
+    "start": 8.27,
+    "end": 9.59,
+    "wordIdx": [
+     17,
+     18,
+     19,
+     20
+    ]
+   },
+   {
+    "start": 9.63,
+    "end": 10.27,
+    "wordIdx": [
+     21,
+     22
+    ]
+   },
+   {
+    "start": 11.05,
+    "end": 12.37,
+    "wordIdx": [
+     23,
+     24,
+     25,
+     26
+    ]
+   },
+   {
+    "start": 12.41,
+    "end": 13.73,
+    "wordIdx": [
+     27,
+     28,
+     29,
+     30
+    ]
+   },
+   {
+    "start": 13.77,
+    "end": 14.41,
+    "wordIdx": [
+     31,
+     32
+    ]
+   },
+   {
+    "start": 16.05,
+    "end": 17.37,
+    "wordIdx": [
+     33,
+     34,
+     35,
+     36
+    ]
+   },
+   {
+    "start": 17.41,
+    "end": 18.73,
+    "wordIdx": [
+     37,
+     38,
+     39,
+     40
+    ]
+   },
+   {
+    "start": 18.77,
+    "end": 19.75,
+    "wordIdx": [
+     41,
+     42,
+     43
+    ]
+   },
+   {
+    "start": 20.75,
+    "end": 22.07,
+    "wordIdx": [
+     44,
+     45,
+     46,
+     47
+    ]
+   },
+   {
+    "start": 22.11,
+    "end": 22.75,
+    "wordIdx": [
+     48,
+     49
+    ]
+   }
+  ],
+  "fontSize": 50,
+  "bottomFrac": 0.07,
+  "maxWidthFrac": 0.7
+ },
+ "words": [
+  {
+   "text": "Shroti",
+   "start": 0.15,
+   "end": 0.45
+  },
+  {
+   "text": "Host",
+   "start": 0.49,
+   "end": 0.79
+  },
+  {
+   "text": "WordPress",
+   "start": 0.83,
+   "end": 1.13
+  },
+  {
+   "text": "hosting.",
+   "start": 1.17,
+   "end": 1.47
+  },
+  {
+   "text": "One-click",
+   "start": 2.75,
+   "end": 3.05
+  },
+  {
+   "text": "WordPress",
+   "start": 3.09,
+   "end": 3.39
+  },
+  {
+   "text": "install",
+   "start": 3.43,
+   "end": 3.73
+  },
+  {
+   "text": "with",
+   "start": 3.77,
+   "end": 4.07
+  },
+  {
+   "text": "Softaculous.",
+   "start": 4.11,
+   "end": 4.41
+  },
+  {
+   "text": "WP",
+   "start": 5.55,
+   "end": 5.85
+  },
+  {
+   "text": "Starter",
+   "start": 5.89,
+   "end": 6.19
+  },
+  {
+   "text": "is",
+   "start": 6.23,
+   "end": 6.53
+  },
+  {
+   "text": "sixty-nine",
+   "start": 6.57,
+   "end": 6.87
+  },
+  {
+   "text": "rupees",
+   "start": 6.91,
+   "end": 7.21
+  },
+  {
+   "text": "a",
+   "start": 7.25,
+   "end": 7.55
+  },
+  {
+   "text": "month.",
+   "start": 7.59,
+   "end": 7.89
+  },
+  {
+   "text": "Ten",
+   "start": 7.93,
+   "end": 8.23
+  },
+  {
+   "text": "GB",
+   "start": 8.27,
+   "end": 8.57
+  },
+  {
+   "text": "NVMe,",
+   "start": 8.61,
+   "end": 8.91
+  },
+  {
+   "text": "free",
+   "start": 8.95,
+   "end": 9.25
+  },
+  {
+   "text": "SSL,",
+   "start": 9.29,
+   "end": 9.59
+  },
+  {
+   "text": "daily",
+   "start": 9.63,
+   "end": 9.93
+  },
+  {
+   "text": "backups.",
+   "start": 9.97,
+   "end": 10.27
+  },
+  {
+   "text": "Click",
+   "start": 11.05,
+   "end": 11.35
+  },
+  {
+   "text": "install.",
+   "start": 11.39,
+   "end": 11.69
+  },
+  {
+   "text": "Softaculous",
+   "start": 11.73,
+   "end": 12.03
+  },
+  {
+   "text": "sets",
+   "start": 12.07,
+   "end": 12.37
+  },
+  {
+   "text": "up",
+   "start": 12.41,
+   "end": 12.71
+  },
+  {
+   "text": "WordPress,",
+   "start": 12.75,
+   "end": 13.05
+  },
+  {
+   "text": "a",
+   "start": 13.09,
+   "end": 13.39
+  },
+  {
+   "text": "theme",
+   "start": 13.43,
+   "end": 13.73
+  },
+  {
+   "text": "and",
+   "start": 13.77,
+   "end": 14.07
+  },
+  {
+   "text": "plugins.",
+   "start": 14.11,
+   "end": 14.41
+  },
+  {
+   "text": "It",
+   "start": 16.05,
+   "end": 16.35
+  },
+  {
+   "text": "runs",
+   "start": 16.39,
+   "end": 16.69
+  },
+  {
+   "text": "on",
+   "start": 16.73,
+   "end": 17.03
+  },
+  {
+   "text": "NVMe",
+   "start": 17.07,
+   "end": 17.37
+  },
+  {
+   "text": "storage",
+   "start": 17.41,
+   "end": 17.71
+  },
+  {
+   "text": "with",
+   "start": 17.75,
+   "end": 18.05
+  },
+  {
+   "text": "LiteSpeed",
+   "start": 18.09,
+   "end": 18.39
+  },
+  {
+   "text": "Cache",
+   "start": 18.43,
+   "end": 18.73
+  },
+  {
+   "text": "and",
+   "start": 18.77,
+   "end": 19.07
+  },
+  {
+   "text": "daily",
+   "start": 19.11,
+   "end": 19.41
+  },
+  {
+   "text": "backups.",
+   "start": 19.45,
+   "end": 19.75
+  },
+  {
+   "text": "Start",
+   "start": 20.75,
+   "end": 21.05
+  },
+  {
+   "text": "with",
+   "start": 21.09,
+   "end": 21.39
+  },
+  {
+   "text": "WP",
+   "start": 21.43,
+   "end": 21.73
+  },
+  {
+   "text": "Starter",
+   "start": 21.77,
+   "end": 22.07
+  },
+  {
+   "text": "at",
+   "start": 22.11,
+   "end": 22.41
+  },
+  {
+   "text": "shrotihost.in.",
+   "start": 22.45,
+   "end": 22.75
+  }
+ ],
+ "scenes": [
+  {
+   "id": "intro",
+   "purpose": "custom",
+   "start": 0.0,
+   "end": 2.6,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "none",
+   "motion": "cinematic",
+   "backdrop": "deep",
+   "blocks": [
+    {
+     "type": "logo-sting",
+     "at": 0.2,
+     "tagline": "WordPress hosting"
+    }
+   ]
+  },
+  {
+   "id": "hook",
+   "purpose": "custom",
+   "start": 2.6,
+   "end": 5.4,
+   "transition": "mask-wipe",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "push-in",
+   "motion": "energetic",
+   "backdrop": "spotlight",
+   "blocks": [
+    {
+     "type": "kinetic-text",
+     "at": 2.69,
+     "size": "xl",
+     "words": [
+      {
+       "text": "One-click",
+       "at": 2.69,
+       "emphasis": true
+      },
+      {
+       "text": "WordPress",
+       "at": 3.03
+      },
+      {
+       "text": "install.",
+       "at": 3.37
+      }
+     ]
+    },
+    {
+     "type": "pill",
+     "at": 4.06,
+     "text": "Softaculous",
+     "tone": "brand",
+     "icon": "app"
+    }
+   ]
+  },
+  {
+   "id": "plan",
+   "purpose": "custom",
+   "start": 5.4,
+   "end": 10.9,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "drift",
+   "motion": "standard",
+   "backdrop": "split",
+   "blocks": [
+    {
+     "type": "plan-card",
+     "at": 5.55,
+     "name": "WP Starter",
+     "price": 69,
+     "currency": "₹",
+     "period": "/mo",
+     "billing": "Billed monthly · excl. taxes",
+     "badge": "WordPress",
+     "countFrom": 0,
+     "countEnd": 7.07,
+     "features": [
+      {
+       "text": "10 GB NVMe storage",
+       "icon": "disk",
+       "at": 7.93
+      },
+      {
+       "text": "1 WordPress website",
+       "icon": "app",
+       "at": 8.23
+      },
+      {
+       "text": "Free SSL",
+       "icon": "lock",
+       "at": 8.95
+      },
+      {
+       "text": "Daily backups",
+       "icon": "refresh",
+       "at": 9.63
+      },
+      {
+       "text": "Free WordPress migration",
+       "icon": "download",
+       "at": 9.88
+      },
+      {
+       "text": "LiteSpeed Cache",
+       "icon": "zap",
+       "at": 10.13
+      }
+     ],
+     "ctaLabel": "Choose WP Starter",
+     "highlightAt": 9.7
+    }
+   ]
+  },
+  {
+   "id": "install",
+   "purpose": "custom",
+   "start": 10.9,
+   "end": 15.9,
+   "transition": "slide-up",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "none",
+   "motion": "standard",
+   "backdrop": "light",
+   "blocks": [
+    {
+     "type": "install-flow",
+     "at": 11.05,
+     "app": "WordPress",
+     "title": "Softaculous · one-click install",
+     "steps": [
+      {
+       "label": "Installing WordPress",
+       "at": 11.73
+      },
+      {
+       "label": "Choosing a theme",
+       "at": 12.48
+      },
+      {
+       "label": "Installing plugins",
+       "at": 13.23
+      },
+      {
+       "label": "Configuring",
+       "at": 13.93
+      }
+     ],
+     "doneAt": 14.58,
+     "doneText": "WordPress installed",
+     "siteUrl": "yourbrand.in"
+    }
+   ]
+  },
+  {
+   "id": "infra",
+   "purpose": "custom",
+   "start": 15.9,
+   "end": 20.6,
+   "transition": "gradient-sweep",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "pan-left",
+   "motion": "calm",
+   "backdrop": "grid",
+   "blocks": [
+    {
+     "type": "server-stack",
+     "at": 16.05,
+     "title": "WP Starter infrastructure",
+     "nodes": [
+      {
+       "label": "NVMe storage",
+       "icon": "disk",
+       "at": 17.07
+      },
+      {
+       "label": "LiteSpeed Cache",
+       "icon": "zap",
+       "at": 18.09
+      },
+      {
+       "label": "Daily backups",
+       "icon": "refresh",
+       "at": 19.11
+      }
+     ],
+     "pulseAt": 19.51,
+     "status": {
+      "text": "Free SSL included",
+      "at": 19.91,
+      "tone": "success"
+     }
+    }
+   ]
+  },
+  {
+   "id": "outro",
+   "purpose": "custom",
+   "start": 20.6,
+   "end": 25.2,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "camera": "none",
+   "motion": "standard",
+   "backdrop": "glow",
+   "blocks": [
+    {
+     "type": "outro",
+     "at": 20.75,
+     "url": "shrotihost.in",
+     "cta": "WP Starter · ₹69/month",
+     "tagline": "WordPress hosting",
+     "urlAt": 22.35
+    }
+   ]
+  }
+ ],
+ "brandBar": null,
+ "motion": "standard",
+ "watermark": {
+  "policy": "brand",
+  "position": "top-right",
+  "opacity": 0.8
+ }
+}

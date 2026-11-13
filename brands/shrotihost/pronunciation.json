@@ -1,0 +1,29 @@
+{
+ "$comment": "Shroti Host brand pronunciations (display -> spoken). Best guesses: confirm by ear on every new voice.",
+ "entries": [
+  {
+   "display": "Shroti Host",
+   "spoken": "Shro-tee Host"
+  },
+  {
+   "display": "ShrotiHost",
+   "spoken": "Shro-tee Host"
+  },
+  {
+   "display": "shrotihost.in",
+   "spoken": "Shro-tee Host dot in"
+  },
+  {
+   "display": "www.shrotihost.in",
+   "spoken": "Shro-tee Host dot in"
+  },
+  {
+   "display": "shrotihost",
+   "spoken": "Shro-tee Host"
+  },
+  {
+   "display": "Shroti",
+   "spoken": "Shro-tee"
+  }
+ ]
+}

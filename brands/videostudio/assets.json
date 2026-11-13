@@ -1,0 +1,82 @@
+{
+ "assets": [
+  {
+   "path": "brands/videostudio/logos/logo-on-dark.svg",
+   "source": "self-made Video Studio logo (wordmark outlined from Plus Jakarta Sans, OFL-1.1)",
+   "license": "PROPRIETARY (Video Studio brand asset, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/logos/logo-on-light.svg",
+   "source": "self-made Video Studio logo (wordmark outlined from Plus Jakarta Sans, OFL-1.1)",
+   "license": "PROPRIETARY (Video Studio brand asset, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/logos/mark.svg",
+   "source": "self-made Video Studio logo (wordmark outlined from Plus Jakarta Sans, OFL-1.1)",
+   "license": "PROPRIETARY (Video Studio brand asset, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/fonts/geistmono-latin-ext.woff2",
+   "source": "copy of OFL font",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/fonts/geistmono-latin.woff2",
+   "source": "copy of OFL font",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/fonts/jakarta-latin-ext.woff2",
+   "source": "copy of OFL font",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/fonts/jakarta-latin.woff2",
+   "source": "copy of OFL font",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/brief-to-concepts.mp4",
+   "source": "screen recording of the running Video Studio app (scripts/capture_studio.mjs); edited from brief-create.mp4 + concepts.mp4 (speed-up, trim)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/storyboard-self.mp4",
+   "source": "screen recording of the running Video Studio app (scripts/capture_studio.mjs)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/self-review.mp4",
+   "source": "screen recording of the running Video Studio app playing this production's first render (scripts/capture_studio.mjs)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/preview-gate.mp4",
+   "source": "screen recording of the running Video Studio app: the storyboard's scene preview and quality gate (scripts/capture_studio.mjs)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/render-monitor.mp4",
+   "source": "screen recording of the running Video Studio app: the render monitor of a completed job (scripts/capture_studio.mjs)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/publishing.mp4",
+   "source": "screen recording of the running Video Studio app: the publishing page of a published production (scripts/capture_studio.mjs)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  }
+ ]
+}

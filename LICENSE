@@ -1,0 +1,29 @@
+Copyright (c) 2026 Priyanshu Shroti. All rights reserved.
+
+Video Studio, including its source code, documentation, scene templates, copy, designs, images and other
+materials in this repository (the "Software"), is the proprietary work of the copyright holder.
+
+NO LICENCE IS GRANTED except as stated below. Without the copyright holder's prior written permission, you may
+not copy, reproduce, modify, adapt, translate, create derivative works of, distribute, sublicense, publish,
+sell, rent, lend, host or otherwise make the Software or any part of it available to anyone, nor use it to
+provide any product or service.
+
+Viewing. If this repository is publicly visible on GitHub, you may view it and fork it on GitHub only to the
+extent required by the GitHub Terms of Service. That permission does not extend to any other use.
+
+Third-party components. Components written by others and included in or used by the Software (for example
+Remotion, FFmpeg, Kokoro, Piper, espeak-ng, fonts, music, sound effects and icons) remain under their own
+licences, which are listed in docs/LICENSING.md and in each asset's licence record. Nothing in this notice
+restricts any right you have under those licences for those components.
+
+Trademarks. "Shroti Host", its logos and other brand assets in this repository are trademarks or brand assets
+of their owners and may not be used without permission. WordPress(R) is a trademark of the WordPress
+Foundation, referred to here only to describe compatibility.
+
+Disclaimer. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO
+EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+Permission requests: open an issue on the repository or contact the copyright holder through GitHub
+(https://github.com/priyanshu-shroti01).
