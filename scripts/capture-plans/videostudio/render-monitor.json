@@ -1,0 +1,5 @@
+{"url": "http://127.0.0.1:8796/", "out": "public/brands/videostudio/footage/render-monitor-v2.mp4", "preset": "video-legible", "viewport": {"width": 1440, "height": 800, "scale": 2.4, "uiScale": 1.4}, "crop": {"x": 308, "y": 0, "w": 1132, "h": 800},
+ "steps": [{"nav": "#/monitor"}, {"wait": 3500}, {"record": true}, {"hold": 300}, {"region": ["stages", ".pipeline"]},
+  {"region": ["prepare", ".pipeline > :nth-child(1)"]}, {"region": ["voice", ".pipeline > :nth-child(2)"]}, {"region": ["timeline", ".pipeline > :nth-child(3)"]},
+  {"region": ["frames", ".pipeline > :nth-child(4)"]}, {"region": ["mix", ".pipeline > :nth-child(5)"]}, {"region": ["checks", ".pipeline > :nth-child(6)"]},
+  {"hold": 10000}]}

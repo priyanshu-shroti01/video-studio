@@ -13,7 +13,10 @@ a template whose fact (or clip) is missing is simply not used:
   product.concepts   {count}                                                optional, for the copy
 
 Media clips (creative.footage.<id>): {asset (public/-relative video), title, frame, startFrom?, playbackRate?,
-beats: [{cues: [spoken words], x, y, scale}]}: each beat zooms the recording to a region on the word that names it."""
+beats: [{cues: [spoken words], x, y, scale, region?: {x, y, w, h}, callout?}]}: each beat zooms the recording to a region
+on the word that names it. `region` is the named UI element (normalised, measured on the recording): the engine frames
+it; small regions (or `callout: true`) get a magnified callout panel instead. In 9:16 the clip fills the column
+(`fit: {short: "fill"}`) so the crop, not a small browser window, carries the UI."""
 from __future__ import annotations
 
 from ..templates import T, fmt_off, ic, kinetic, pill
@@ -57,11 +60,38 @@ def footage_block(ctx, A, clip_id: str, name: str = "footage") -> dict:
     for k in ("startFrom", "playbackRate", "aspect"):
         if spec.get(k) is not None:
             b[k] = spec[k]
-    zooms = [{"at": A.at(beat["cues"], -0.15, name=f"zoom:{i}"), "x": beat["x"], "y": beat["y"], "scale": beat["scale"]}
-             for i, beat in enumerate(spec.get("beats") or [])]
+    # 9:16: no browser chrome, the clip fills the column and the crop follows the beats (16:9 keeps the window)
+    b["fit"] = {"short": "fill"}
+    zooms, callouts = [], []
+    for i, beat in enumerate(spec.get("beats") or []):
+        at = A.at(beat["cues"], -0.15, name=f"zoom:{i}")
+        z = {"at": at, "x": beat["x"], "y": beat["y"], "scale": beat["scale"]}
+        region = beat.get("region")
+        if region and _wants_callout(beat):
+            # a small element: the view moves to it with context, and a magnified lens of the element pops in on the word
+            z["scale"] = min(beat["scale"], CALLOUT_CONTEXT_SCALE)
+            callouts.append({"at": at, **{k: region[k] for k in ("x", "y", "w", "h")}})
+        elif region:
+            z["region"] = {k: region[k] for k in ("x", "y", "w", "h")}   # the engine frames the element (fits, centred)
+        zooms.append(z)
     if zooms:
         b["zooms"] = zooms
+    if callouts:
+        b["callouts"] = callouts
     return b
+
+
+CALLOUT_MAX_SIDE = 0.25       # beats naming a small element (both sides <= 1/4 of the clip) get a callout ("zoom lens");
+                              # a wide element (a form row) is framed by the zoom instead, which already fills the width
+CALLOUT_CONTEXT_SCALE = 1.6   # ... and the view behind the lens zooms only this far, so the viewer keeps the context
+
+
+def _wants_callout(beat: dict) -> bool:
+    """A beat's callout: the spec's explicit `callout` flag, else automatic for a small region."""
+    if "callout" in beat:
+        return bool(beat["callout"])
+    r = beat.get("region") or {}
+    return max(r.get("w", 1), r.get("h", 1)) <= CALLOUT_MAX_SIDE
 
 
 # ---- templates --------------------------------------------------------------------------------------------

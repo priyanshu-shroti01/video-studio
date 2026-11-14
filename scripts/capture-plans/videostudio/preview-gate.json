@@ -1,0 +1,68 @@
+{
+ "url": "http://127.0.0.1:8796/",
+ "out": "public/brands/videostudio/footage/preview-gate-v2.mp4",
+ "preset": "video-legible",
+ "viewport": {
+  "width": 1440,
+  "height": 800,
+  "scale": 2.4,
+  "uiScale": 1.4
+ },
+ "crop": {
+  "x": 308,
+  "y": 0,
+  "w": 1132,
+  "h": 800
+ },
+ "steps": [
+  {
+   "nav": "#/storyboard/P20261114-031556-9adf5"
+  },
+  {
+   "wait": 3000
+  },
+  {
+   "scrollTo": "img.contact"
+  },
+  {
+   "waitFor": "img.contact"
+  },
+  {
+   "wait": 6000
+  },
+  {
+   "scrollTo": "img.contact"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "region": [
+    "toolbar",
+    ".toolbar"
+   ]
+  },
+  {
+   "region": [
+    "preview",
+    "img.contact"
+   ]
+  },
+  {
+   "regionText": [
+    "preview-card",
+    "Low-cost preview",
+    ".card"
+   ]
+  },
+  {
+   "hold": 12000
+  }
+ ]
+}

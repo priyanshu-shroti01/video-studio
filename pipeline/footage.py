@@ -134,3 +134,37 @@ def prepare_footage(storyboard: dict) -> list[str]:
         if dur and start >= dur:
             errs.append(f"{where}: startFrom {start} s is past the end of {asset} ({dur:.2f} s)")
     return errs
+
+
+def footage_spec_errors(spec: dict, where: str = "footage") -> list[str]:
+    """A brand's media clip spec (brand.json creative.footage.<id>): asset inside public/ and present, beats with cue
+    words, normalised x / y, a scale in 1..4, and an optional `region` {x, y, w, h} inside the clip (the UI element the
+    beat names, measured on the recording) and boolean `callout`."""
+    errs: list[str] = []
+    asset = spec.get("asset") if isinstance(spec, dict) else None
+    if not isinstance(asset, str) or not asset.lower().endswith(VIDEO_EXTS):
+        return [f"{where}: asset must be a public/ path to a {' / '.join(VIDEO_EXTS)} video"]
+    try:
+        if not public_file(asset).is_file():
+            errs.append(f"{where}: missing video public/{asset}")
+    except PipelineError as e:
+        errs.append(f"{where}: asset {asset!r} must be inside public/ ({e})")
+    for i, beat in enumerate(spec.get("beats") or []):
+        bp = f"{where}.beats[{i}]"
+        if not isinstance(beat, dict) or not beat.get("cues") or not all(isinstance(c, str) and c for c in beat["cues"]):
+            errs.append(f"{bp}: needs cues (spoken words)")
+            continue
+        if not all(_num(beat.get(k)) is not None and 0 <= beat[k] <= 1 for k in ("x", "y")):
+            errs.append(f"{bp}: x and y must be normalised 0..1")
+        sc = _num(beat.get("scale"))
+        if sc is None or not 1 <= sc <= 4:
+            errs.append(f"{bp}: scale must be between 1 and 4")
+        r = beat.get("region")
+        if r is not None:
+            vals = [_num(r.get(k)) if isinstance(r, dict) else None for k in ("x", "y", "w", "h")]
+            if None in vals or not (0 <= vals[0] and 0 <= vals[1] and vals[2] > 0 and vals[3] > 0
+                                    and vals[0] + vals[2] <= 1 + 1e-6 and vals[1] + vals[3] <= 1 + 1e-6):
+                errs.append(f"{bp}: region must be {{x, y, w, h}} inside the clip (0..1)")
+        if "callout" in beat and not isinstance(beat["callout"], bool):
+            errs.append(f"{bp}: callout must be true or false")
+    return errs

@@ -77,6 +77,42 @@
    "source": "screen recording of the running Video Studio app: the publishing page of a published production (scripts/capture_studio.mjs)",
    "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
    "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/brief-to-concepts-v2.mp4",
+   "source": "screen recording of the running Video Studio app: the brief form being filled in, then this production's three concepts; trimmed while the concepts load (scripts/capture_studio.mjs, preset video-legible: 1440x800 layout, uiScale 1.4, scale 2.4, sidebar cropped; plan scripts/capture-plans/videostudio/brief-to-concepts.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/storyboard-self-v2.mp4",
+   "source": "screen recording of the running Video Studio app: this production's storyboard: scene list, scene editor and word-anchored blocks (scripts/capture_studio.mjs, preset video-legible: 1440x800 layout, uiScale 1.4, scale 2.4, sidebar cropped; plan scripts/capture-plans/videostudio/storyboard-self.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/self-review-v2.mp4",
+   "source": "screen recording of the running Video Studio app: the Preview & QA page playing this production's approved film (scripts/capture_studio.mjs, preset video-legible: 1440x800 layout, uiScale 1.4, scale 2.4, sidebar cropped; plan scripts/capture-plans/videostudio/self-review.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/preview-gate-v2.mp4",
+   "source": "screen recording of the running Video Studio app: the storyboard's low-cost preview (one still per scene) and toolbar (scripts/capture_studio.mjs, preset video-legible: 1440x800 layout, uiScale 1.4, scale 2.4, sidebar cropped; plan scripts/capture-plans/videostudio/preview-gate.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/render-monitor-v2.mp4",
+   "source": "screen recording of the running Video Studio app: the render monitor: every pipeline stage of this production's render, with its timing (scripts/capture_studio.mjs, preset video-legible: 1440x800 layout, uiScale 1.4, scale 2.4, sidebar cropped; plan scripts/capture-plans/videostudio/render-monitor.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/publishing-v2.mp4",
+   "source": "screen recording of the running Video Studio app: the publishing page: the approved package, its hash-bound approval and the export / publish gate (scripts/capture_studio.mjs, preset video-legible: 1440x800 layout, uiScale 1.4, scale 2.4, sidebar cropped; plan scripts/capture-plans/videostudio/publishing.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
   }
  ]
 }

@@ -18,6 +18,31 @@
  * checkIndex: n-th checkbox; selectIndex: [n, value]; setValue: [selector, value];
  * waitFor: selector (up to 120 s); scroll: pixels (smooth); hold/wait: ms; record: true/false starts/stops recording. The screencast only emits frames on change;
  * frame durations come from their timestamps, so pauses are kept exactly. Output: H.264 30 fps, yuv420p, BT.709.
+ *
+ * Recording for video (text must stay readable when the film shows the clip on a phone):
+ *   viewport.uiScale (default 1): CSS zoom of the UI itself relative to the layout viewport. The page lays out in
+ *     width/uiScale x height/uiScale CSS px and every glyph is uiScale x larger in the recording (frames stay
+ *     width*scale x height*scale). A desktop UI recorded at uiScale 1 shows 13-14 px body text, i.e. ~1 % of the frame
+ *     height: unreadable once the film shrinks the clip into a 9:16 column.
+ *   crop: {x, y, w, h} in layout px of the viewport (before scale): only that part of the screen is encoded.
+ *   {"region": ["name", "css selector"]} / {"regionText": ["name", "visible text"]}: records the element's bounding
+ *     rect, normalised 0..1 to the encoded frame (after crop), with the clip time t (s since recording started) into
+ *     the sidecar <out>.regions.json ([{name, t, x, y, w, h}]): the footage beats' `region` come from it.
+ *     regionText takes an optional third item, a selector of the ancestor to report (e.g. ".card" for the whole card).
+ *   {"scrollTo": "css selector"} / {"scrollToText": "visible text" | [text, ancestor]}: smooth-scrolls it to the middle of the view.
+ *   {"play": "css selector"}: starts that <video> (muted).
+ *
+ * Presets (median OCR line height of a settled frame: "9:16" = clip height scaled to 1175 px and centre-cropped to
+ * 940 px, the footage viewport of a Short before any zoom; "16:9" = clip scaled to 1000 px wide):
+ *   video-legible   {"viewport": {"width": 1440, "height": 800, "scale": 2.4, "uiScale": 1.4},
+ *                    "crop": {"x": 308, "y": 0, "w": 1132, "h": 800}}   (scripts/capture-plans/videostudio/*.json)
+ *                   1029x571 CSS px of UI (the Studio's < 1180 px layout: 220 px sidebar, cropped away), 2716x1920 frames.
+ *                   One clip serves both formats: 25-28.6 px (9:16) / 16-18 px (16:9), against 18 / 10 px for the
+ *                   v1 desktop recordings (1440x900 at uiScale 1). Zoom beats of 1.3-4x come on top.
+ *   mobile-legible  {"width": 900, "height": 1300, "scale": 2, "uiScale": 1.75}  portrait-only footage (9:16 films);
+ *                   514x743 CSS px: the UI's narrow layout, ~2.1x larger text than v1 in a Short.
+ *   desktop-legible {"width": 1280, "height": 800, "scale": 2, "uiScale": 1.5}   16:9-only films (853x533 CSS px).
+ * Keep the CSS height (height / uiScale) at or below ~600 px: text height in a Short scales with 1 / CSS height.
  */
 import {spawn, spawnSync} from 'node:child_process';
 import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
@@ -25,7 +50,10 @@ import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
 
 const plan = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-const vp = {width: 1440, height: 900, scale: 2, ...(plan.viewport || {})};
+const vp = {width: 1440, height: 900, scale: 2, uiScale: 1, ...(plan.viewport || {})};
+const zoom = vp.scale * vp.uiScale;                     // CSS zoom of the page (pixels x UI size)
+const crop = plan.crop ? {x: 0, y: 0, w: vp.width, h: vp.height, ...plan.crop} : null;   // layout px
+const regions = [];
 const chrome = 'node_modules/.remotion/chrome-headless-shell/mac-arm64/chrome-headless-shell-mac-arm64/chrome-headless-shell';
 const port = 9300 + Math.floor(Math.random() * 400);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -41,6 +69,7 @@ const pending = new Map();
 const frames = [];
 const tmp = mkdtempSync(join(tmpdir(), 'capture-'));
 let recording = false;
+let t0 = null;                                          // wall time of the first recorded frame (clip time 0)
 ws.addEventListener('message', (e) => {
   const m = JSON.parse(e.data);
   if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
@@ -49,6 +78,7 @@ ws.addEventListener('message', (e) => {
     if (recording) {
       const f = join(tmp, `f${String(frames.length).padStart(6, '0')}.jpg`);
       writeFileSync(f, Buffer.from(data, 'base64'));
+      if (!frames.length) t0 = Date.now() / 1000;
       frames.push({f, t: metadata.timestamp, wall: Date.now() / 1000});
     }
     ws.send(JSON.stringify({id: ++id, method: 'Page.screencastFrameAck', params: {sessionId}}));
@@ -65,20 +95,44 @@ const clickAt = async (p) => {
   }
 };
 const q = (sel) => `document.querySelector(${JSON.stringify(sel)})`;
+// the smallest visible element whose text starts with `text` (or its closest `up` ancestor, e.g. its card)
+const byText = (text, up) => `(() => { const el = [...document.querySelectorAll('body *')].filter((e) => e.getClientRects().length &&
+  e.textContent.trim().startsWith(${JSON.stringify(text)})${up ? ` && e.closest(${JSON.stringify(up)})` : ''}).sort((a, b) => a.textContent.length - b.textContent.length)[0];
+  return el && ${up ? `el.closest(${JSON.stringify(up)})` : 'el'}; })()`;
 
 await send('Page.enable');
 await send('Runtime.enable');
 // The screencast captures at layout size, so render the page at width*scale with CSS zoom = scale: same layout as a
 // width x height screen, scale-times the pixels (sharp when the film zooms in). Input coordinates are viewport pixels.
 await send('Emulation.setDeviceMetricsOverride', {width: vp.width * vp.scale, height: vp.height * vp.scale, deviceScaleFactor: 1, mobile: false});
-await send('Page.addScriptToEvaluateOnNewDocument', {source: `document.addEventListener('DOMContentLoaded', () => { document.documentElement.style.zoom = '${vp.scale}'; });`});
+await send('Page.addScriptToEvaluateOnNewDocument', {source: `document.addEventListener('DOMContentLoaded', () => { document.documentElement.style.zoom = '${zoom}'; });`});
 await send('Page.navigate', {url: plan.url});
 await sleep(2500);                                      // token → cookie → app shell
 const base = new URL(plan.url).origin + '/';
-await evaluate(`document.documentElement.style.zoom = '${vp.scale}'`);
+await evaluate(`document.documentElement.style.zoom = '${zoom}'`);
+// an element's rect in layout px of the viewport (getBoundingClientRect is in viewport px of the width*scale metrics)
+const rectOf = async (js) => evaluate(`(() => { const el = ${js}; if (!el) return null; const r = el.getBoundingClientRect();
+  return {x: r.x / ${vp.scale}, y: r.y / ${vp.scale}, w: r.width / ${vp.scale}, h: r.height / ${vp.scale}}; })()`);
+const record = async (name, js) => {
+  const r = await rectOf(js); if (!r) throw new Error(`no region element for ${name}`);
+  const c = crop || {x: 0, y: 0, w: vp.width, h: vp.height};
+  const n = (v) => +Math.min(1, Math.max(0, v)).toFixed(4);
+  const x0 = n((r.x - c.x) / c.w), y0 = n((r.y - c.y) / c.h), x1 = n((r.x + r.w - c.x) / c.w), y1 = n((r.y + r.h - c.y) / c.h);
+  const t = t0 === null ? 0 : +((Date.now() / 1000) - t0).toFixed(2);
+  regions.push({name, t, x: x0, y: y0, w: +(x1 - x0).toFixed(4), h: +(y1 - y0).toFixed(4)});
+};
 await send('Page.startScreencast', {format: 'jpeg', quality: 92, maxWidth: vp.width * vp.scale, maxHeight: vp.height * vp.scale, everyNthFrame: 1});
 for (const s of plan.steps) {
-  if (s.record === true) recording = true;
+  if (s.record === true && !recording) {   // restart the screencast so a static page still yields its first frame now
+    recording = true;
+    await send('Page.stopScreencast');
+    await send('Page.startScreencast', {format: 'jpeg', quality: 92, maxWidth: vp.width * vp.scale, maxHeight: vp.height * vp.scale, everyNthFrame: 1});
+    for (let i = 0; i < 10 && !frames.length; i++) {   // no frame yet: repaint one invisible pixel to get one
+      await evaluate(`(() => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;background:rgba(0,0,0,0.004);pointer-events:none';
+        document.body.appendChild(d); setTimeout(() => d.remove(), 60); })()`);
+      await sleep(150);
+    }
+  }
   if (s.record === false) recording = false;
   if (s.nav !== undefined) { await send('Page.navigate', {url: base + s.nav}); await sleep(1800); }
   if (s.wait || s.hold) await sleep(s.wait || s.hold);
@@ -90,6 +144,18 @@ for (const s of plan.steps) {
     const p = await centre(`[...document.querySelectorAll('button, a')].find((b) => b.textContent.trim().startsWith(${JSON.stringify(s.clickText)}))`);
     if (!p) throw new Error(`no button "${s.clickText}"`);
     await clickAt(p);
+  }
+  if (s.region) await record(s.region[0], q(s.region[1]));
+  if (s.regionText) await record(s.regionText[0], byText(s.regionText[1], s.regionText[2]));
+  if (s.scrollTo || s.scrollToText) {       // smooth-scroll an element to the middle of the view (selector / visible text)
+    const el = s.scrollTo ? q(s.scrollTo) : byText(...[s.scrollToText].flat());   // text or [text, ancestor selector]
+    if (!(await evaluate(`(() => { const el = ${el}; if (!el) return false; el.scrollIntoView({behavior: 'smooth', block: 'center'}); return true; })()`))) {
+      throw new Error(`no element ${s.scrollTo || s.scrollToText}`);
+    }
+    await sleep(900);
+  }
+  if (s.play) {                              // start a <video>/<audio> (muted: no autoplay prompt)
+    await evaluate(`(() => { const el = ${q(s.play)}; if (el) { el.muted = true; return el.play().then(() => true, () => false); } return false; })()`);
   }
   if (s.select) {
     await evaluate(`(() => { const el = ${q(s.select[0])}; const set = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;
@@ -146,9 +212,11 @@ const lines = frames.map((fr, i) => `file '${fr.f}'\nduration ${Math.max(0.001, 
 lines.push(`file '${frames[frames.length - 1].f}'`);
 writeFileSync(join(tmp, 'list.txt'), lines.join('\n'));
 mkdirSync(dirname(plan.out), {recursive: true});
+const cropF = crop ? `crop=${Math.round(crop.w * vp.scale)}:${Math.round(crop.h * vp.scale)}:${Math.round(crop.x * vp.scale)}:${Math.round(crop.y * vp.scale)},` : '';
 const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', join(tmp, 'list.txt'), '-vf',
-  'fps=30,scale=trunc(iw/2)*2:trunc(ih/2)*2:flags=lanczos,format=yuv420p', '-c:v', 'libx264', '-preset', 'slow', '-crf', '16',
+  `fps=30,${cropF}scale=trunc(iw/2)*2:trunc(ih/2)*2:flags=lanczos,format=yuv420p`, '-c:v', 'libx264', '-preset', 'slow', '-crf', '16',
   '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-movflags', '+faststart', plan.out], {stdio: 'inherit'});
 rmSync(tmp, {recursive: true, force: true});
 if (r.status !== 0) throw new Error('ffmpeg failed');
+if (regions.length) writeFileSync(plan.out.replace(/\.[a-z0-9]+$/i, '') + '.regions.json', JSON.stringify(regions, null, 1) + '\n');
 console.log(JSON.stringify({out: plan.out, frames: frames.length, seconds: +(frames.at(-1).t - frames[0].t).toFixed(2)}));

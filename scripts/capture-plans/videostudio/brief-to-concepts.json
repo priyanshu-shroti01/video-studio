@@ -1,0 +1,126 @@
+{
+ "url": "http://127.0.0.1:8796/",
+ "out": "public/brands/videostudio/footage/brief-to-concepts-v2.mp4",
+ "preset": "video-legible",
+ "viewport": {
+  "width": 1440,
+  "height": 800,
+  "scale": 2.4,
+  "uiScale": 1.4
+ },
+ "crop": {
+  "x": 308,
+  "y": 0,
+  "w": 1132,
+  "h": 800
+ },
+ "steps": [
+  {
+   "nav": "#/create"
+  },
+  {
+   "wait": 2500
+  },
+  {
+   "click": ".wchoices .wchoice:nth-child(2)"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "region": [
+    "brief",
+    ".wpanel"
+   ]
+  },
+  {
+   "region": [
+    "product",
+    ".field:has(input[maxlength='120'])"
+   ]
+  },
+  {
+   "region": [
+    "audience",
+    ".field:has(input[maxlength='160'])"
+   ]
+  },
+  {
+   "region": [
+    "goal",
+    ".field:has(select)"
+   ]
+  },
+  {
+   "type": [
+    "input[maxlength='120']",
+    "Video Studio",
+    18
+   ]
+  },
+  {
+   "type": [
+    "input[maxlength='160']",
+    "Developers, creators and product teams",
+    30
+   ]
+  },
+  {
+   "hold": 900
+  },
+  {
+   "record": false
+  },
+  {
+   "nav": "#/create/P20261114-031556-9adf5"
+  },
+  {
+   "waitFor": ".wsteps li:nth-child(3) button:not([disabled])"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "click": ".wsteps li:nth-child(3) button"
+  },
+  {
+   "waitFor": ".widea-grid"
+  },
+  {
+   "wait": 1200
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 200
+  },
+  {
+   "region": [
+    "concepts",
+    ".widea-grid"
+   ]
+  },
+  {
+   "region": [
+    "sequence",
+    ".widea:nth-child(2)"
+   ]
+  },
+  {
+   "region": [
+    "idea-1",
+    ".widea:nth-child(1)"
+   ]
+  },
+  {
+   "hold": 6000
+  }
+ ]
+}

@@ -1,0 +1,62 @@
+{
+ "url": "http://127.0.0.1:8796/",
+ "out": "public/brands/videostudio/footage/self-review-v2.mp4",
+ "preset": "video-legible",
+ "viewport": {
+  "width": 1440,
+  "height": 800,
+  "scale": 2.4,
+  "uiScale": 1.4
+ },
+ "crop": {
+  "x": 308,
+  "y": 0,
+  "w": 1132,
+  "h": 800
+ },
+ "steps": [
+  {
+   "nav": "#/qa/P20261114-031556-9adf5"
+  },
+  {
+   "wait": 4000
+  },
+  {
+   "scrollToText": [
+    "Final video",
+    ".card"
+   ]
+  },
+  {
+   "wait": 500
+  },
+  {
+   "play": "video"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 200
+  },
+  {
+   "region": [
+    "film",
+    "video"
+   ]
+  },
+  {
+   "regionText": [
+    "video-card",
+    "Final video",
+    ".card"
+   ]
+  },
+  {
+   "hold": 10000
+  }
+ ]
+}

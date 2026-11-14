@@ -1,0 +1,71 @@
+{
+ "url": "http://127.0.0.1:8796/",
+ "out": "public/brands/videostudio/footage/storyboard-self-v2.mp4",
+ "preset": "video-legible",
+ "viewport": {
+  "width": 1440,
+  "height": 800,
+  "scale": 2.4,
+  "uiScale": 1.4
+ },
+ "crop": {
+  "x": 308,
+  "y": 0,
+  "w": 1132,
+  "h": 800
+ },
+ "steps": [
+  {
+   "nav": "#/storyboard/P20261114-031556-9adf5"
+  },
+  {
+   "wait": 3000
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "region": [
+    "concept",
+    ".toolbar"
+   ]
+  },
+  {
+   "region": [
+    "storyboard",
+    ".scene-list"
+   ]
+  },
+  {
+   "region": [
+    "scene",
+    ".scene-list > :first-child"
+   ]
+  },
+  {
+   "hold": 3200
+  },
+  {
+   "scrollTo": "input[value*='@word']"
+  },
+  {
+   "regionText": [
+    "animation",
+    "Blocks (",
+    ".card"
+   ]
+  },
+  {
+   "region": [
+    "word",
+    "input[value*='@word']"
+   ]
+  },
+  {
+   "hold": 6000
+  }
+ ]
+}

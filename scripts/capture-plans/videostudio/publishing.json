@@ -1,0 +1,69 @@
+{
+ "url": "http://127.0.0.1:8796/",
+ "out": "public/brands/videostudio/footage/publishing-v2.mp4",
+ "preset": "video-legible",
+ "viewport": {
+  "width": 1440,
+  "height": 800,
+  "scale": 2.4,
+  "uiScale": 1.4
+ },
+ "crop": {
+  "x": 308,
+  "y": 0,
+  "w": 1132,
+  "h": 800
+ },
+ "steps": [
+  {
+   "nav": "#/publish/P20261114-031556-9adf5"
+  },
+  {
+   "wait": 5000
+  },
+  {
+   "scrollToText": [
+    "Package hash",
+    ".card"
+   ]
+  },
+  {
+   "wait": 600
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "regionText": [
+    "package",
+    "Approval",
+    ".card"
+   ]
+  },
+  {
+   "regionText": [
+    "hash",
+    "Package hash"
+   ]
+  },
+  {
+   "regionText": [
+    "publishing",
+    "Export & publish",
+    ".card"
+   ]
+  },
+  {
+   "regionText": [
+    "confirmed",
+    "Current approval"
+   ]
+  },
+  {
+   "hold": 10000
+  }
+ ]
+}
