@@ -113,6 +113,42 @@
    "source": "screen recording of the running Video Studio app: the publishing page: the approved package, its hash-bound approval and the export / publish gate (scripts/capture_studio.mjs, preset video-legible: 1440x800 layout, uiScale 1.4, scale 2.4, sidebar cropped; plan scripts/capture-plans/videostudio/publishing.json)",
    "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
    "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/studio-home-v3.mp4",
+   "source": "screen recording of the running Video Studio app (0.5 redesign): the redesigned Home page: the \"Your videos\" grid with real video cards and their statuses, hovered card by card (scripts/capture_studio.mjs, preset phone-legible: uiScale 1.6, scale 2, sidebar cropped, tight crop; plan scripts/capture-plans/videostudio/studio-home-v3.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/studio-player-v3.mp4",
+   "source": "screen recording of the running Video Studio app (0.5 redesign): the storyboard's \"Watch every frame\" player (16:9 tab) playing this production with its real voice timing, stepping single frames, then the scene list (scripts/capture_studio.mjs, preset phone-legible: uiScale 1.6, scale 2, sidebar cropped, tight crop; plan scripts/capture-plans/videostudio/studio-player-v3.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/studio-share-v3.mp4",
+   "source": "screen recording of the running Video Studio app (0.5 redesign): step 6 of the Create-a-video wizard (\"Your video is ready\"): the finished film playing, the download buttons, title and description, and \"I posted it on…\" with platform logos (scripts/capture_studio.mjs, preset phone-legible: uiScale 1.6, scale 2, sidebar cropped, tight crop; plan scripts/capture-plans/videostudio/studio-share-v3.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/studio-facts-v3.mp4",
+   "source": "screen recording of the running Video Studio app (0.5 redesign): Websites & facts for Shroti Host: verified facts with their source text, then the suggested facts with the found numbers highlighted (read-only) (scripts/capture_studio.mjs, preset phone-legible: uiScale 1.6, scale 2, sidebar cropped, tight crop; plan scripts/capture-plans/videostudio/studio-facts-v3.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/studio-render-v3.mp4",
+   "source": "screen recording of the running Video Studio app (0.5 redesign): the Render Monitor of a completed job: stage cards with timings, render stats and the chunk table (scripts/capture_studio.mjs, preset phone-legible: uiScale 1.6, scale 2, sidebar cropped, tight crop; plan scripts/capture-plans/videostudio/studio-render-v3.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/studio-create-v3.mp4",
+   "source": "screen recording of the running Video Studio app (0.5 redesign): step 1 of the Create-a-video wizard (\"Which website is this video for?\") with the website cards, hovered (nothing created) (scripts/capture_studio.mjs, preset phone-legible: uiScale 1.6, scale 2, sidebar cropped, tight crop; plan scripts/capture-plans/videostudio/studio-create-v3.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
   }
  ]
 }

@@ -1,0 +1,104 @@
+{
+ "url": "http://127.0.0.1:8765/",
+ "out": "public/brands/videostudio/footage/studio-render-v3.mp4",
+ "preset": "phone-legible",
+ "viewport": {
+  "width": 1600,
+  "height": 1000,
+  "scale": 2,
+  "uiScale": 1.6
+ },
+ "crop": {
+  "x": 466,
+  "y": 150,
+  "w": 1084,
+  "h": 620
+ },
+ "steps": [
+  {
+   "nav": "#/monitor/20261113-230607-3af663"
+  },
+  {
+   "wait": 9000
+  },
+  {
+   "waitFor": ".pipeline"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "regionText": [
+    "status",
+    "Completed"
+   ]
+  },
+  {
+   "region": [
+    "stages",
+    ".pipeline"
+   ]
+  },
+  {
+   "region": [
+    "stage-render",
+    ".pstage:nth-child(4)"
+   ]
+  },
+  {
+   "region": [
+    "progress",
+    ".mon-head"
+   ]
+  },
+  {
+   "hold": 3500
+  },
+  {
+   "scrollTo": ".stats"
+  },
+  {
+   "hold": 500
+  },
+  {
+   "region": [
+    "stats",
+    ".stats"
+   ]
+  },
+  {
+   "region": [
+    "fps",
+    ".stats > :first-child"
+   ]
+  },
+  {
+   "hold": 3000
+  },
+  {
+   "scrollToText": [
+    "Chunks",
+    ".card"
+   ]
+  },
+  {
+   "hold": 500
+  },
+  {
+   "regionText": [
+    "chunks",
+    "Chunks",
+    ".card"
+   ]
+  },
+  {
+   "hold": 3000
+  }
+ ]
+}

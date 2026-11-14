@@ -31,6 +31,8 @@
  *     regionText takes an optional third item, a selector of the ancestor to report (e.g. ".card" for the whole card).
  *   {"scrollTo": "css selector"} / {"scrollToText": "visible text" | [text, ancestor]}: smooth-scrolls it to the middle of the view.
  *   {"play": "css selector"}: starts that <video> (muted).
+ *   {"hover": "css selector"} / {"hoverText": "visible text" | [text, ancestor]}: glides the mouse onto the element (hover
+ *     styles show) without clicking or scrolling: for read-only tours of cards and buttons.
  *
  * Presets (median OCR line height of a settled frame: "9:16" = clip height scaled to 1175 px and centre-cropped to
  * 940 px, the footage viewport of a Short before any zoom; "16:9" = clip scaled to 1000 px wide):
@@ -39,6 +41,13 @@
  *                   1029x571 CSS px of UI (the Studio's < 1180 px layout: 220 px sidebar, cropped away), 2716x1920 frames.
  *                   One clip serves both formats: 25-28.6 px (9:16) / 16-18 px (16:9), against 18 / 10 px for the
  *                   v1 desktop recordings (1440x900 at uiScale 1). Zoom beats of 1.3-4x come on top.
+ *   phone-legible   {"viewport": {"width": 1600, "height": 1000, "scale": 2, "uiScale": 1.6}, "crop": tight, h <= ~780}
+ *                   (scripts/capture-plans/videostudio/studio-*-v3.json): what decides text size in a 9:16 "fill" is the
+ *                   CSS height of the crop (crop.h / uiScale), not uiScale alone, so crop to the part of the page the
+ *                   clip is about (<= ~490 CSS px tall: ~31-45 px in 9:16 before zoom beats). Widen the layout (e.g.
+ *                   2000 px) for wide tables, raise it (e.g. 1560 px) when a click recentres a tall element (the
+ *                   storyboard player under its sticky toolbar). Clicks scroll their target to the middle of the view:
+ *                   record a region again after a click.
  *   mobile-legible  {"width": 900, "height": 1300, "scale": 2, "uiScale": 1.75}  portrait-only footage (9:16 films);
  *                   514x743 CSS px: the UI's narrow layout, ~2.1x larger text than v1 in a Short.
  *   desktop-legible {"width": 1280, "height": 800, "scale": 2, "uiScale": 1.5}   16:9-only films (853x533 CSS px).
@@ -88,6 +97,7 @@ const send = (method, params = {}) => new Promise((r) => { const i = ++id; pendi
 const evaluate = async (expr) => (await send('Runtime.evaluate', {expression: expr, awaitPromise: true, returnByValue: true})).result?.result?.value;
 const centre = async (js) => evaluate(`(() => { const el = ${js}; if (!el) return null; el.scrollIntoView({block: 'center', inline: 'center'});
   const r = el.getBoundingClientRect(); return {x: r.x + r.width / 2, y: r.y + r.height / 2}; })()`);
+let hoverAt = null;                                     // last pointer position of a hover step
 const clickAt = async (p) => {
   for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) {
     await send('Input.dispatchMouseEvent', {type, x: p.x, y: p.y, button: 'left', clickCount: 1});
@@ -153,6 +163,17 @@ for (const s of plan.steps) {
       throw new Error(`no element ${s.scrollTo || s.scrollToText}`);
     }
     await sleep(900);
+  }
+  if (s.hover || s.hoverText) {              // move the mouse onto an element (hover styles), without clicking or scrolling
+    const el = s.hover ? q(s.hover) : byText(...[s.hoverText].flat());
+    const p = await evaluate(`(() => { const el = ${el}; if (!el) return null; const r = el.getBoundingClientRect(); return {x: r.x + r.width / 2, y: r.y + r.height / 2}; })()`);
+    if (!p) throw new Error(`no element ${s.hover || s.hoverText}`);
+    for (let i = 1; i <= 12; i++) {           // a short glide from the last position, so the pointer path looks human
+      const k = i / 12, from = hoverAt || p;
+      await send('Input.dispatchMouseEvent', {type: 'mouseMoved', x: from.x + (p.x - from.x) * k, y: from.y + (p.y - from.y) * k});
+      await sleep(25);
+    }
+    hoverAt = p;
   }
   if (s.play) {                              // start a <video>/<audio> (muted: no autoplay prompt)
     await evaluate(`(() => { const el = ${q(s.play)}; if (el) { el.muted = true; return el.play().then(() => true, () => false); } return false; })()`);

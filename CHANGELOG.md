@@ -5,6 +5,14 @@
 ### Added
 - **"Zero Cost" teaser blueprint** (software pack): a 30–35 s film — the price promise, the real app, the local stack
   and the frame-by-frame preview — backed by a new `product.cost` fact taken verbatim from the README.
+- **Footage of the redesigned Studio** (videostudio brand, `studio-*-v3.mp4` with region sidecars and plans in
+  scripts/capture-plans/videostudio/): Home, the storyboard's frame-accurate player, "Your video is ready", Websites
+  & facts (verified and suggested facts), the Render Monitor and the wizard's first step. Footage ids `app-tour`,
+  `preview`, `self`, `render` and `publishing` now use them, plus new ids `home` and `facts`. Recorded with the new
+  `phone-legible` approach (tight crops); every clip passes footage.legibility in 9:16 with fit "fill" (34–72 px
+  median against 28.8 px). The older recordings stay in place.
+- **capture_studio.mjs `hover` / `hoverText` steps:** glide the mouse onto a card or button (hover styles) without
+  clicking or scrolling, for read-only tours.
 
 ### Fixed
 - **The teaser copy names no currency:** the software pack says the price through the brand's `product.cost` fact

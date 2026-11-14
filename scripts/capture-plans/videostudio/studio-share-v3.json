@@ -1,0 +1,110 @@
+{
+ "url": "http://127.0.0.1:8765/",
+ "out": "public/brands/videostudio/footage/studio-share-v3.mp4",
+ "preset": "phone-legible",
+ "viewport": {
+  "width": 1600,
+  "height": 1000,
+  "scale": 2,
+  "uiScale": 1.6
+ },
+ "crop": {
+  "x": 470,
+  "y": 240,
+  "w": 1080,
+  "h": 680
+ },
+ "steps": [
+  {
+   "nav": "#/create/P20261114-031556-9adf5"
+  },
+  {
+   "wait": 9000
+  },
+  {
+   "waitFor": ".wshare video"
+  },
+  {
+   "wait": 1000
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "play": ".wshare video"
+  },
+  {
+   "regionText": [
+    "ready",
+    "Your video is ready"
+   ]
+  },
+  {
+   "region": [
+    "video",
+    ".wshare video"
+   ]
+  },
+  {
+   "regionText": [
+    "download",
+    "Download"
+   ]
+  },
+  {
+   "region": [
+    "downloads",
+    ".wdl"
+   ]
+  },
+  {
+   "hold": 5500
+  },
+  {
+   "scrollTo": ".wcopy"
+  },
+  {
+   "hold": 500
+  },
+  {
+   "region": [
+    "title",
+    ".wcopy-i"
+   ]
+  },
+  {
+   "regionText": [
+    "description",
+    "Description",
+    ".wcopy-i"
+   ]
+  },
+  {
+   "hold": 3000
+  },
+  {
+   "scrollToText": "I posted it on"
+  },
+  {
+   "hold": 500
+  },
+  {
+   "regionText": [
+    "posted",
+    "I posted it on"
+   ]
+  },
+  {
+   "region": [
+    "platforms",
+    ".wplat"
+   ]
+  },
+  {
+   "hold": 4000
+  }
+ ]
+}

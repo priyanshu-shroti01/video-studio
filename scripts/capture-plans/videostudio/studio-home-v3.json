@@ -1,0 +1,110 @@
+{
+ "url": "http://127.0.0.1:8765/",
+ "out": "public/brands/videostudio/footage/studio-home-v3.mp4",
+ "preset": "phone-legible",
+ "viewport": {
+  "width": 1600,
+  "height": 1000,
+  "scale": 2,
+  "uiScale": 1.6
+ },
+ "crop": {
+  "x": 420,
+  "y": 0,
+  "w": 1180,
+  "h": 780
+ },
+ "steps": [
+  {
+   "nav": "#/"
+  },
+  {
+   "wait": 9000
+  },
+  {
+   "waitFor": ".pcard-b"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "regionText": [
+    "your-videos",
+    "Your videos"
+   ]
+  },
+  {
+   "region": [
+    "card",
+    ".pcard"
+   ]
+  },
+  {
+   "regionText": [
+    "status",
+    "Posted on LinkedIn"
+   ]
+  },
+  {
+   "regionText": [
+    "card-2",
+    "WordPress Hosting",
+    ".pcard"
+   ]
+  },
+  {
+   "regionText": [
+    "status-2",
+    "Posted on YouTube"
+   ]
+  },
+  {
+   "region": [
+    "download",
+    ".pcard-next"
+   ]
+  },
+  {
+   "hold": 1500
+  },
+  {
+   "hover": ".pcard"
+  },
+  {
+   "hold": 2600
+  },
+  {
+   "hover": ".pcard-next"
+  },
+  {
+   "hold": 1800
+  },
+  {
+   "hoverText": [
+    "WordPress Hosting",
+    ".pcard"
+   ]
+  },
+  {
+   "hold": 2600
+  },
+  {
+   "scroll": 80
+  },
+  {
+   "hold": 1500
+  },
+  {
+   "scroll": -80
+  },
+  {
+   "hold": 1500
+  }
+ ]
+}

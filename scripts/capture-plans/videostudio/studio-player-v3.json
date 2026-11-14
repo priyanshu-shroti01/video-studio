@@ -1,0 +1,131 @@
+{
+ "url": "http://127.0.0.1:8765/",
+ "out": "public/brands/videostudio/footage/studio-player-v3.mp4",
+ "preset": "phone-legible",
+ "viewport": {
+  "width": 1440,
+  "height": 1560,
+  "scale": 2,
+  "uiScale": 1.6
+ },
+ "crop": {
+  "x": 450,
+  "y": 300,
+  "w": 810,
+  "h": 760
+ },
+ "steps": [
+  {
+   "nav": "#/storyboard/P20261114-031556-9adf5"
+  },
+  {
+   "wait": 10000
+  },
+  {
+   "clickText": "landscape"
+  },
+  {
+   "wait": 5000
+  },
+  {
+   "scrollTo": "input[aria-label=Scrub]"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "region": [
+    "player",
+    "div:has(> [aria-label^='Preview controls']) > div:first-child"
+   ]
+  },
+  {
+   "region": [
+    "controls",
+    "[aria-label^='Preview controls']"
+   ]
+  },
+  {
+   "regionText": [
+    "play",
+    "Play"
+   ]
+  },
+  {
+   "regionText": [
+    "frame",
+    "frame "
+   ]
+  },
+  {
+   "regionText": [
+    "step",
+    "+1 f"
+   ]
+  },
+  {
+   "hold": 1200
+  },
+  {
+   "clickText": "Play"
+  },
+  {
+   "hold": 600
+  },
+  {
+   "regionText": [
+    "play",
+    "Pause"
+   ]
+  },
+  {
+   "hold": 7400
+  },
+  {
+   "clickText": "+1 f"
+  },
+  {
+   "hold": 1300
+  },
+  {
+   "regionText": [
+    "frame-stepped",
+    "frame "
+   ]
+  },
+  {
+   "clickText": "+1 f"
+  },
+  {
+   "hold": 1500
+  },
+  {
+   "scroll": 480
+  },
+  {
+   "hold": 600
+  },
+  {
+   "regionText": [
+    "scenes",
+    "Scenes"
+   ]
+  },
+  {
+   "regionText": [
+    "scene-list",
+    "1. s1-",
+    ".row"
+   ]
+  },
+  {
+   "hold": 3000
+  }
+ ]
+}

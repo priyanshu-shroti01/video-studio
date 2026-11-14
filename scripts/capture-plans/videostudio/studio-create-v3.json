@@ -1,0 +1,92 @@
+{
+ "url": "http://127.0.0.1:8765/",
+ "out": "public/brands/videostudio/footage/studio-create-v3.mp4",
+ "preset": "phone-legible",
+ "viewport": {
+  "width": 1600,
+  "height": 1000,
+  "scale": 2,
+  "uiScale": 1.6
+ },
+ "crop": {
+  "x": 466,
+  "y": 140,
+  "w": 1084,
+  "h": 660
+ },
+ "steps": [
+  {
+   "nav": "#/create"
+  },
+  {
+   "wait": 9000
+  },
+  {
+   "waitFor": ".wchoice"
+  },
+  {
+   "wait": 800
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "regionText": [
+    "question",
+    "Which website is this video for?"
+   ]
+  },
+  {
+   "region": [
+    "site",
+    ".wchoice"
+   ]
+  },
+  {
+   "regionText": [
+    "site-2",
+    "github.com",
+    ".wchoice"
+   ]
+  },
+  {
+   "region": [
+    "add",
+    ".wchoice-add"
+   ]
+  },
+  {
+   "region": [
+    "steps",
+    ".wsteps, .steps"
+   ]
+  },
+  {
+   "hold": 1500
+  },
+  {
+   "hover": ".wchoice"
+  },
+  {
+   "hold": 2500
+  },
+  {
+   "hoverText": [
+    "github.com",
+    ".wchoice"
+   ]
+  },
+  {
+   "hold": 2500
+  },
+  {
+   "hover": ".wchoice-add"
+  },
+  {
+   "hold": 2200
+  }
+ ]
+}

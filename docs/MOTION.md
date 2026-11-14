@@ -325,7 +325,9 @@ rates, not timeline times.
   inside the viewport is taken per sample, or inside the callout panel while one is up. A scene's value is the median
   of its samples. 9:16 FAILs (blocking) below 1.5 % of the frame height (28.8 px of 1920: Apple's smallest readable
   11–12 pt is 1.3–1.4 % of a phone screen). 16:9 WARNs below 1.1 % (12 px of 1080). The fix is a larger `uiScale` in
-  the recording (scripts/capture_studio.mjs presets), `fit: 'fill'`, regions and callouts.
+  the recording (scripts/capture_studio.mjs presets; `phone-legible` records tight crops), `fit: 'fill'`, regions
+  and callouts. Recording plans live in `scripts/capture-plans/<brand>/`; `hover` / `hoverText` steps tour cards
+  and buttons without clicking.
 - **Pipeline.** `pipeline/footage.py` (called from `load_project`) rejects clips outside `public/`, non-video or
   undecodable files, and a `startFrom` past the end. It fills `aspect` / `duration` in memory; the storyboard file is
   not rewritten. Brand isolation uses the `asset` key like images, and the runner registers each clip in the job's

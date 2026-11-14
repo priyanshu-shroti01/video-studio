@@ -1,0 +1,112 @@
+{
+ "url": "http://127.0.0.1:8765/",
+ "out": "public/brands/videostudio/footage/studio-facts-v3.mp4",
+ "preset": "phone-legible",
+ "viewport": {
+  "width": 2000,
+  "height": 1000,
+  "scale": 2,
+  "uiScale": 1.6
+ },
+ "crop": {
+  "x": 440,
+  "y": 0,
+  "w": 1520,
+  "h": 780
+ },
+ "steps": [
+  {
+   "nav": "#/brands/shrotihost"
+  },
+  {
+   "wait": 10000
+  },
+  {
+   "scrollToText": [
+    "shared.launch.price.monthly",
+    "tr"
+   ]
+  },
+  {
+   "scroll": -120
+  },
+  {
+   "wait": 1200
+  },
+  {
+   "record": true
+  },
+  {
+   "hold": 300
+  },
+  {
+   "regionText": [
+    "fact",
+    "Launch shared hosting plan costs",
+    "tr"
+   ]
+  },
+  {
+   "regionText": [
+    "source",
+    "“Launch",
+    ".excerpt"
+   ]
+  },
+  {
+   "regionText": [
+    "source-url",
+    "shrotihost.in/hosting"
+   ]
+  },
+  {
+   "hold": 3500
+  },
+  {
+   "scroll": 260
+  },
+  {
+   "hold": 2000
+  },
+  {
+   "scrollToText": [
+    "Grow plan costs ₹79",
+    "tr"
+   ]
+  },
+  {
+   "hold": 800
+  },
+  {
+   "scrollToText": [
+    "Grow plan costs ₹79",
+    "tr"
+   ]
+  },
+  {
+   "hold": 700
+  },
+  {
+   "regionText": [
+    "suggested-fact",
+    "Grow plan costs ₹79",
+    "tr"
+   ]
+  },
+  {
+   "region": [
+    "highlight",
+    "mark"
+   ]
+  },
+  {
+   "regionText": [
+    "needs-review",
+    "needs review"
+   ]
+  },
+  {
+   "hold": 4500
+  }
+ ]
+}
