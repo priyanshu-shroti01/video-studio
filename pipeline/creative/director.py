@@ -63,6 +63,17 @@ def studio(brief: dict, fb: FactBase) -> Studio:
 
 
 # ---- sequencing --------------------------------------------------------------------------------------
+def with_optional(bp: dict, k: int) -> dict:
+    """The blueprint with its first k optional slots inserted. Each optional slot is (before, role, candidates):
+    it goes before the fixed slot at index `before` (len(slots) = at the end)."""
+    if k <= 0 or not bp.get("optional"):
+        return bp
+    slots = list(bp["slots"])
+    for before, role, cands in sorted(bp["optional"][:k], key=lambda o: -o[0]):
+        slots.insert(before, (role, cands))
+    return {**bp, "slots": slots}
+
+
 def instantiate(bp: dict, st: Studio, avoid: dict[str, set] | None = None) -> list[tuple[str, SceneTemplate]] | None:
     avoid = avoid or {}
     seq: list[tuple[str, SceneTemplate]] = []
@@ -199,16 +210,28 @@ def hook_options(seq, st: Studio, tags: list[str]) -> list[dict]:
 def plan_concept(bp: dict, st: Studio, idx: int, avoid: dict, hook_variant: str | None = None
                  ) -> tuple[dict | None, list[dict] | None, str | None]:
     """-> (concept, failed rules, rejection reason)"""
-    seq = instantiate(bp, st, avoid)
-    if seq is None:
-        return None, None, "no available template for a slot (product family / missing facts)"
+    # A blueprint may declare optional slots: when its fixed scenes cannot reach the brief's length, they are added
+    # one at a time (in order) until a copy combination fits. Short briefs never see them.
+    chosen, seq, reason = None, None, None
+    for k in range(len(bp.get("optional", [])) + 1):
+        bpk = with_optional(bp, k)
+        s = instantiate(bpk, st, avoid)
+        if s is None:
+            reason = reason or "no available template for a slot (product family / missing facts)"
+            continue
+        opts = hook_options(s, st, bp["hook_tags"])
+        hv = hook_variant or (opts[0]["id"] if opts else None)
+        c = fit_variants(s, st, float(st.brief.get("duration_seconds") or 35), hv, idx)
+        if isinstance(c, str):
+            reason = c
+            continue
+        chosen, seq = c, s
+        break
+    if chosen is None:
+        return None, None, reason
     bds = backdrops(seq, st.fresh if st.fresh_sequencing else None)
     ids = scene_ids(seq)
     opts = hook_options(seq, st, bp["hook_tags"])
-    hv = hook_variant or (opts[0]["id"] if opts else None)
-    chosen = fit_variants(seq, st, float(st.brief.get("duration_seconds") or 35), hv, idx)
-    if isinstance(chosen, str):
-        return None, None, chosen
     plan = [{"scene": sid, "role": role, "template": t.id, "backdrop": bd, "variant": v["id"]}
             for sid, (role, t), bd, v in zip(ids, seq, bds, chosen)]
     words = sum(word_count(v["narration"]) for v in chosen)

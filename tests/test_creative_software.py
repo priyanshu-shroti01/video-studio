@@ -136,3 +136,24 @@ def test_create_production_rejects_an_invalid_brief_before_creating_anything(reg
     with pytest.raises(ConfigError):
         api.create_production("videostudio", {"brand": "Video Studio", "product": "Video Studio", "voice": {"voice": "x"}})
     assert not any(pdir.iterdir())
+
+
+def test_optional_slots_are_inserted_in_order_and_only_when_asked():
+    from pipeline.creative.director import with_optional
+    bp = {"slots": [("hook", ["h"]), ("demo", ["d"]), ("cta", ["c"])], "optional": [(1, "proof", ["p"]), (2, "demo", ["r"])]}
+    assert with_optional(bp, 0)["slots"] == bp["slots"]
+    assert [s[1][0] for s in with_optional(bp, 1)["slots"]] == ["h", "p", "d", "c"]
+    assert [s[1][0] for s in with_optional(bp, 2)["slots"]] == ["h", "p", "d", "r", "c"]
+    assert with_optional({"slots": bp["slots"]}, 3)["slots"] == bp["slots"]
+
+
+def test_a_long_brief_still_gets_three_concepts():
+    """A ~110 s brief rejected every short blueprint (only 2 concepts); optional slots stretch one to fit."""
+    from pipeline.creative import generate_concepts
+    brief = {"brand": "Video Studio", "brand_id": "videostudio", "product": "Video Studio", "duration_seconds": 110,
+             "duration_flexible": True, "cta": "Explore the code", "audience": "Developers", "goal": "launch", "format": "short"}
+    res = generate_concepts(brief, provider="none")
+    assert len(res["concepts"]) == 3, res["rejected"]
+    stretched = next(c for c in res["concepts"] if c["blueprint"] == "brief-to-film")
+    assert "explain-architecture" in stretched["templates"]
+    assert all(not [r for r in c["rules"] if r["status"] == "FAIL"] for c in res["concepts"])

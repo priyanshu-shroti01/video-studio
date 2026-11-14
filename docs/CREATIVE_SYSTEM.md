@@ -64,6 +64,10 @@ spoken number comes from the fact's `value.spoken`), and an outro with the repos
 templates exist only when the brand's clip (`creative.footage.<id>`) is on disk. Four blueprints: The Whole
 Pipeline, It Created Itself, Proof First, From Brief to Film.
 
+**Optional slots.** A blueprint may list `optional: [(before, role, candidates)]`. When no copy combination of its
+fixed scenes reaches the brief's minimum length, the director inserts them one at a time, in order, until one fits.
+Short briefs never see them; a long brief no longer loses a whole direction because its blueprint is short.
+
 **web-hosting (13):** `hook-progress-promise` (progress + kinetic) · `hook-stalled-browser` (browser + kinetic · deep;
 a *problem* visual, never the demo) · `hook-site-missing` (device + kinetic · deep/spotlight) · `problem-diy-terminal`
 (terminal + kinetic · grid) · `problem-renewal-compare` (feature-compare + kinetic · split; only when the

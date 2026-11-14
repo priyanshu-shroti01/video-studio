@@ -271,6 +271,8 @@ BLUEPRINTS = [
      "slots": [("hook", ["hook-chain-progress"]), ("demo", ["demo-storyboard-footage", "demo-app-footage", "demo-preview-gate"]),
                ("proof", ["proof-local-stack"]), ("proof", ["proof-qa-counter"]), ("reveal", ["reveal-self-footage"]),
                ("cta", ["cta-outro"])],
+     # longer briefs: how it is built, then the render itself
+     "optional": [(2, "proof", ["explain-architecture"]), (3, "demo", ["demo-render-footage"])],
      "hook_tags": ["promise"], "music": "educational", "cta_style": "url-click",
      "pacing": {"label": "walkthrough", "detail": "even beats, the product on screen most of the time"}},
 ]
