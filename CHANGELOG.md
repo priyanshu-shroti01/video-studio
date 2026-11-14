@@ -3,10 +3,12 @@
 ## Unreleased
 
 ### Added
-- **"Zero Rupees" teaser blueprint** (software pack): a 30–35 s film — the ₹0 promise, the real app, the local stack
+- **"Zero Cost" teaser blueprint** (software pack): a 30–35 s film — the price promise, the real app, the local stack
   and the frame-by-frame preview — backed by a new `product.cost` fact taken verbatim from the README.
 
 ### Fixed
+- **The teaser copy names no currency:** the software pack says the price through the brand's `product.cost` fact
+  (`{cost_spoken}`), so shared code stays brand-neutral; the hook and stack lines now open on what they show.
 - **Code-scanning hardening (CodeQL):** the Studio server refuses any response header value that contains a line
   break, and checks a static file name's length before matching it. Neither was exploitable (header values were
   built from fixed types and numbers; the name regex is anchored), but both now hold by construction.

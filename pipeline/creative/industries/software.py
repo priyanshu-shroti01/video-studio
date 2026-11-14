@@ -30,7 +30,7 @@ GATED = tuple(FACT_IDS)
 # copy naming one of these terms is only used when the brand's fact base backs it
 TERM_ROLES = {"Kokoro": "voice", "Remotion": "render", "FFmpeg": "render", "Python": "stack", "Ollama": "llm",
               "three concepts": "concepts", "quality checks": "qa", "itself": "self_made", "deterministic": "architecture",
-              "YouTube": "published", "rupees": "cost"}
+              "YouTube": "published"}
 FAMILIES = [{"id": "app", "match": None, "product": "app", "label": "Video production", "icon": "app"}]
 BANNED = ["revolutionary", "game-changing", "fully autonomous", "replaces", "perfect", "unlimited", "magic", "effortless"]
 STYLE = ("Engineering-launch voice: plain, specific, confident. Name the real component or stage on screen. "
@@ -211,7 +211,8 @@ def b_hook_cost(ctx, A, copy):
     src = f"fact:{fact.get('id', 'product.cost')}"
     items = [{"text": ctx.L(i["text"], src), "icon": ic("check"), "at": A.at(i.get("cues") or [], -0.1, name=f"free:{k}")}
              for k, i in enumerate((fact.get("value") or {}).get("items") or [])]
-    head = kinetic(ctx, A, copy, "xl")
+    words = (copy.get("headline") or "").split()
+    head = kinetic(ctx, A, {**copy, "emphasis": copy.get("emphasis") or words[-1:]}, "xl")   # the price word lands hardest
     return [head, {"type": "checklist", "items": items, "at": items[0]["at"]}] if items else [head]
 
 
@@ -224,9 +225,9 @@ def b_hook_self(ctx, A, copy):
 IND = ("software",)
 _always = lambda pf: True  # noqa: E731
 TEMPLATES = [
-    T("hook-zero-cost", "Zero rupees", "hook", IND, None, "kinetic-text", "checklist", ("spotlight", "deep"), "push-in", "energetic",
+    T("hook-zero-cost", "Free to run", "hook", IND, None, "kinetic-text", "checklist", ("spotlight", "deep"), "push-in", "energetic",
       "fade", None, (10, 22), (2, 6), {"kinetic-text": "the price, as spoken", "pill": "what it costs nothing"}, (), (),
-      has("cost"), b_hook_cost, "The promise lands word by word, then what it needs: no subscription, no API keys."),
+      lambda pf: has("cost")(pf) and "cost_spoken" in (pf.spoken or {}), b_hook_cost, "The promise lands word by word, then what it needs: no subscription, no API keys."),
     T("hook-chain-progress", "The long chain", "hook", IND, None, "progress", "kinetic-text", ("spotlight", "deep"), "drift", "energetic",
       "fade", None, (9, 22), (2, 8), {"steps": ["script", "storyboard", "voice", "animation", "render"]}, (), (), _always, b_hook_chain,
       "The steps of a launch film light up one by one as they are named; the line lands beneath."),
@@ -279,8 +280,8 @@ TEMPLATES = [
 
 # ---- blueprints ---------------------------------------------------------------------------------------------
 BLUEPRINTS = [
-    {"id": "teaser-zero-cost", "name": "Zero Rupees", "pattern": "promise-demo-proof-close",
-     "pattern_name": "₹0 promise → The real app → What it runs on → Watch every frame → Close",
+    {"id": "teaser-zero-cost", "name": "Zero Cost", "pattern": "promise-demo-proof-close",
+     "pattern_name": "Price promise → The real app → What it runs on → Watch every frame → Close",
      "logline": "A fast teaser: the price promise, the real app making a video, the local stack that makes it free, "
                 "and the frame-by-frame preview, then the code.",
      "slots": [("hook", ["hook-zero-cost"]), ("demo", ["demo-app-footage"]), ("proof", ["proof-local-stack"]),
@@ -352,8 +353,8 @@ BANK: dict[str, dict[str, list[dict]]] = {
          "headline": "A brief goes in. A finished film comes out."},
     ]},
     "hook-zero-cost": {"app": [
-        {"id": "promise", "narration": "Make a product video on your Mac for zero rupees. No subscription. No API keys.",
-         "headline": "for zero rupees.", "emphasis": ["rupees."], "tags": ["promise"]},
+        {"id": "promise", "narration": "Make product videos for {cost_spoken}, right on your Mac. No subscription. No API keys.",
+         "headline": "Make product videos for {cost_spoken}.", "tags": ["promise"]},
     ]},
     "demo-app-footage": {"app": [
         {"id": "wizard", "narration": "Pick your website, say what you want to promote, and the studio offers three ideas "
@@ -388,7 +389,7 @@ BANK: dict[str, dict[str, list[dict]]] = {
                                        "A real Short reached YouTube exactly this way."},
     ]},
     "proof-local-stack": {"app": [
-        {"id": "local", "narration": "Everything runs on one Mac: Python, Kokoro, Remotion and FFmpeg, all of it local."},
+        {"id": "local", "narration": "Python, Kokoro, Remotion and FFmpeg. All of it runs locally, on one Mac."},
         {"id": "stack", "narration": "Python orchestrates. Kokoro speaks. Remotion renders. FFmpeg masters the sound. "
                                      "All of it runs on one Mac."},
     ]},

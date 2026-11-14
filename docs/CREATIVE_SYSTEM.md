@@ -61,8 +61,8 @@ no plan placeholders, and the pricing rule fails any concept that shows a price)
 and preview gate, render monitor and publishing pages, the product's pipeline stages (install-flow), architecture
 (checklist of the product's principle), local stack (server-stack with a `play` target), measured QA (counter whose
 spoken number comes from the fact's `value.spoken`), and an outro with the repository URL (`displayUrl`). Footage
-templates exist only when the brand's clip (`creative.footage.<id>`) is on disk. Five blueprints: Zero Rupees (a
-30–35 s teaser: the ₹0 promise, the real app, the local stack, the frame-by-frame preview), The Whole Pipeline,
+templates exist only when the brand's clip (`creative.footage.<id>`) is on disk. Five blueprints: Zero Cost (a
+30–35 s teaser: the price promise, the real app, the local stack, the frame-by-frame preview), The Whole Pipeline,
 It Created Itself, Proof First, From Brief to Film.
 
 **Optional slots.** A blueprint may list `optional: [(before, role, candidates)]`. When no copy combination of its
