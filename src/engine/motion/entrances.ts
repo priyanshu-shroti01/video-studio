@@ -23,7 +23,13 @@ export const blockEntrance = (t: number, appear: number, fps: number, m: MotionP
   return {p, opacity, dy, scale, blur: m.focusPull > 0 ? m.focusPull * Math.max(0, 1 - p) : 0, blurY: motionBlurLevel(t, at, fps, m, m.entrance.offsetY * outScale)};
 };
 
-/** Velocity-gated directional blur level 0..3 for a spring translation of `travel` output px. */
+/**
+ * Velocity-gated directional blur level 0..3 for a spring translation of `travel` output px.
+ * Deliberately per OUTPUT frame (px moved since the previous frame), i.e. a fixed shutter angle: at 60 fps an
+ * object moves half as far per frame as at 30 fps, so it gets less smear (it is already sampled twice as often).
+ * Normalising to 30 fps would double-smear 60-fps renders. Travel and blur radii are design px, so a --scale=2
+ * render scales both together.
+ */
 export const motionBlurLevel = (t: number, at: number, fps: number, m: MotionPreset, travel: number) => {
   if (m.motionBlur <= 0 || t < at) return 0;
   const p1 = springAt(t, at, fps, m.entrance.spring);

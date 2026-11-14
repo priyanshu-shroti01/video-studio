@@ -110,6 +110,9 @@ def ensure_bundle(log: Callable[[str], None] = print) -> Path:
 
 
 # ---------------------------------------------------------------------------------------------
+ULTRA_MAX_CONCURRENCY = 2           # Chromium tabs at --scale=2 (each tab rasterises 4x the pixels of 1080p)
+
+
 @dataclass
 class RenderSettings:
     encoder: str = "auto"            # auto | videotoolbox | x264
@@ -122,16 +125,29 @@ class RenderSettings:
     retries: int = 2
     min_available_mb: float = 1500   # floor before starting a chunk (plus ~350 MB per Chromium tab)
     per_tab_mb: float = 350
+    scale: int = 1                   # Remotion --scale: output pixels per design pixel (quality "ultra" = 2)
+    quality: str = "standard"
 
     @classmethod
     def from_config(cls, r: dict, fmt: str) -> "RenderSettings":
+        """Project `render` section -> settings. `render.quality` (pipeline/quality.py) sets the scale and, for
+        smooth/ultra, the bitrate; chunks stay ~10 s of video (chunkFrames is in 30-fps frames) and the time a
+        chunk may take grows with its pixel work. Ultra caps the Chromium tabs (memory: 4x pixels per tab)."""
+        from .quality import BASE_FPS, preset
+        q = preset(r.get("quality"))
         conc = r.get("concurrency", "auto")
         if conc == "auto":
             conc = recommended_concurrency(fmt)
-        return cls(encoder=r.get("encoder", "auto"), bitrate=r.get("bitrate", "40M"),
-                   image_format=r.get("imageFormat", "png"), chunk_frames=r.get("chunkFrames", 300),
-                   concurrency=int(conc), timeout_per_chunk=r.get("timeoutPerChunk", 900),
-                   stall_timeout=r.get("stallTimeout", 120), retries=r.get("retries", 2))
+            if q.scale > 1:
+                conc = min(int(conc), ULTRA_MAX_CONCURRENCY)
+        work = (q.fps / BASE_FPS) * q.scale ** 2           # pixel work per chunk vs standard
+        return cls(encoder=r.get("encoder", "auto"),
+                   bitrate=r.get("bitrate", "40M") if q.name == "standard" else q.bitrate,
+                   image_format=r.get("imageFormat", "png"),
+                   chunk_frames=int(r.get("chunkFrames", 300) * q.fps / BASE_FPS),
+                   concurrency=int(conc), timeout_per_chunk=r.get("timeoutPerChunk", 900) * work,
+                   stall_timeout=r.get("stallTimeout", 120) * q.scale, retries=r.get("retries", 2),
+                   per_tab_mb=350 * q.scale ** 2, scale=q.scale, quality=q.name)
 
 
 def recommended_concurrency(fmt: str) -> int:
@@ -165,6 +181,8 @@ class RenderReport:
     chunks: list[ChunkReport] = field(default_factory=list)
     encoder: str = ""
     output: str = ""
+    scale: int = 1
+    bitrate: str = ""
 
     def as_dict(self):
         d = {k: v for k, v in self.__dict__.items() if k != "chunks"}
@@ -205,8 +223,9 @@ def render_format(*, props_file: Path, props_hash: str, fmt: str, total_frames: 
     """Render `total_frames` of the Storyboard composition as muted H.264 chunks, reuse valid chunks
     from an interrupted run, then losslessly concatenate them into `out`."""
     w, h = FORMATS[fmt]
+    w, h = w * s.scale, h * s.scale
     chunks_dir.mkdir(parents=True, exist_ok=True)
-    rep = RenderReport(fmt, total_frames, fps)
+    rep = RenderReport(fmt, total_frames, fps, scale=s.scale, bitrate=s.bitrate)
     encoder = "x264" if s.encoder == "x264" else ("videotoolbox" if s.encoder in ("auto", "videotoolbox") else "x264")
     conc = max(1, s.concurrency)
     spans = [(a, min(a + s.chunk_frames, total_frames) - 1) for a in range(0, total_frames, s.chunk_frames)]
@@ -224,7 +243,9 @@ def render_format(*, props_file: Path, props_hash: str, fmt: str, total_frames: 
                 meta = json.loads(meta_f.read_text())
             except json.JSONDecodeError:
                 meta = {}
-            if meta.get("props_hash") == props_hash and meta.get("frames") == n and count_frames(f) == n:
+            same = (meta.get("props_hash") == props_hash and meta.get("frames") == n
+                    and meta.get("scale", 1) == s.scale and meta.get("bitrate", s.bitrate) == s.bitrate)
+            if same and count_frames(f) == n:
                 rep.chunks.append(ChunkReport((a, b), 0.0, meta.get("encoder", "?"), meta.get("concurrency", 0), 0, 0, 0, True))
                 files.append(f); done_frames += n
                 log(f"[{fmt}] chunk {a}-{b}: reused (validated {n} frames)")
@@ -246,6 +267,8 @@ def render_format(*, props_file: Path, props_hash: str, fmt: str, total_frames: 
                     "--hardware-acceleration=" + ("required" if encoder == "videotoolbox" else "disable")]
             if s.image_format == "jpeg":
                 args.append("--jpeg-quality=92")
+            if s.scale != 1:
+                args.append(f"--scale={s.scale}")
             env = {**os.environ, "REMOTION_HW": "required" if encoder == "videotoolbox" else "disable",
                    "REMOTION_BITRATE": s.bitrate, "REMOTION_CONCURRENCY": str(conc)}
 
@@ -264,7 +287,8 @@ def render_format(*, props_file: Path, props_hash: str, fmt: str, total_frames: 
                 cr = ChunkReport((a, b), round(r.seconds, 2), encoder, conc, round(r.peak_rss_mb),
                                  round(m1.swap_used_mb - m0.swap_used_mb, 1), m1.pageouts - m0.pageouts, False, attempts)
                 atomic_write_json(meta_f, {"props_hash": props_hash, "frames": n, "encoder": encoder,
-                                           "concurrency": conc, "seconds": cr.seconds, "w": w, "h": h})
+                                           "concurrency": conc, "seconds": cr.seconds, "w": w, "h": h,
+                                           "scale": s.scale, "bitrate": s.bitrate})
                 rep.chunks.append(cr); files.append(f); done_frames += n
                 log(f"[{fmt}] chunk {a}-{b}: {n} frames in {cr.seconds:.1f}s ({n / max(cr.seconds, 0.01):.1f} fps) "
                     f"enc={encoder} tabs={conc} rss={cr.peak_rss_mb:.0f}MB swapΔ={cr.swap_delta_mb:+.0f}MB "

@@ -35,8 +35,9 @@ export const SCENE_DUR = {
 export const LIFE = {in: 0.18, out: 0.22, outPower: 1.5} as const;
 export const EXIT = {dur: 0.2, power: 1.5} as const;
 
-/** Frames of the global end-of-video fade. */
-export const VIDEO_FADE_FRAMES = 12;
+/** Seconds of the global end-of-video fade (12 frames at 30 fps, 24 at 60: same length at every frame rate). */
+export const VIDEO_FADE_S = 0.4;
+export const videoFadeFrames = (fps: number) => Math.round(VIDEO_FADE_S * fps);
 
 /** Brand bar and watermark envelopes. */
 export const BRANDBAR_DUR = {fadeIn: 0.25, fadeOut: 0.22, pad: 0.05} as const;
