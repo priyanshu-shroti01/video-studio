@@ -8,13 +8,16 @@ The engine is chosen per brief (`"engine": "llm"` to opt out). Default "hybrid" 
 chose the hybrid production (B3) after the same-brief comparison (docs/reports/CREATIVE_COMPARISON.md).
 Kept thin so the creative engine can evolve without touching the workflow/approval code.
 LLM work runs under the cross-process scheduler (priority "llm") so it never overlaps a render, and the
-local runtime is asked to unload its model afterwards."""
+local runtime is asked to unload its model afterwards. The runtime itself is managed automatically
+(`providers.ManagedRuntime`): started for the work if it isn't running, stopped again only if this call started
+it. Missing Ollama/model is not an error: the engine falls back, and the concepts report says so plainly."""
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
 from .errors import NotFound
+from .intelligence.providers import ManagedRuntime
 from .jobs import Registry
 from .paths import atomic_write_json
 from .scheduler import HeavyWork
@@ -46,12 +49,39 @@ def _engine(brief: dict):
 def concepts(brief: dict, out_dir: Path, brand: str, provider: str = "ollama") -> dict:
     _, intel = _engine(brief)
     out_dir.mkdir(parents=True, exist_ok=True)
-    with HeavyWork(Registry(), "llm", ref=f"concepts:{out_dir.parent.name}"):
+    with HeavyWork(Registry(), "llm", ref=f"concepts:{out_dir.parent.name}"), ManagedRuntime(provider) as rt:
         res = intel.generate_concepts(_brief(brief, brand), brief.get("request"), provider=provider, out_dir=out_dir)
+    _record_runtime(res, rt, out_dir)
     if any(c.get("components") for c in res.get("concepts", [])):       # "components": "generate"
         from .creative.components import save_generated
         res["component_files"] = save_generated(out_dir.parent, brand, res["concepts"])
     return res
+
+
+def _runtime_record(rt: dict) -> dict:
+    return {k: rt[k] for k in ("started", "stopped", "ready", "warning", "reason")}
+
+
+def _record_runtime(res: dict, rt: dict, out_dir: Path) -> None:
+    """Put the runtime outcome in the concepts result, concepts.json and (if there is a warning) concepts.md."""
+    if not rt.get("managed"):
+        return
+    res["llm_runtime"] = _runtime_record(rt)
+    if rt.get("warning"):
+        res.setdefault("warnings", []).append(rt["warning"])
+    cj = out_dir / "concepts.json"
+    if cj.exists():
+        doc = json.loads(cj.read_text(encoding="utf-8"))
+        doc["llm_runtime"] = res["llm_runtime"]
+        if rt.get("warning"):
+            doc["warnings"] = [*doc.get("warnings", []), rt["warning"]]
+        atomic_write_json(cj, doc)
+    md = out_dir / "concepts.md"
+    if rt.get("warning") and md.exists():
+        lines = md.read_text(encoding="utf-8").split("\n")
+        at = 1 if lines and lines[0].startswith("#") else 0
+        lines[at:at] = ["", f"> **Note:** {rt['warning']}"]
+        md.write_text("\n".join(lines), encoding="utf-8")
 
 
 def claims_report(reports: dict) -> dict:
@@ -77,9 +107,14 @@ def storyboard(brief: dict, prod_dir: Path, concept_id: str, brand: str,
     concept = next((c for c in doc["concepts"] if c.get("id") == concept_id), None)
     if concept is None:
         raise NotFound(f"no concept {concept_id!r}; available: {[c.get('id') for c in doc['concepts']]}")
-    with HeavyWork(Registry(), "llm", ref=f"storyboard:{prod_dir.name}"):
+    with HeavyWork(Registry(), "llm", ref=f"storyboard:{prod_dir.name}"), ManagedRuntime(provider) as rt:
         sb, project, reports = intel.build_storyboard(_brief(brief, brand), concept, request=brief.get("request"),
                                                       provider=provider, out_dir=cdir)
+    if rt.get("managed"):
+        reports["llm_runtime"] = _runtime_record(rt)
+        if rt.get("warning"):
+            reports.setdefault("warnings", []).append(rt["warning"])
+            atomic_write_json(cdir / "llm-runtime.json", reports["llm_runtime"])
     mood = (reports.get("creative_plan", {}).get("music") or {}).get("mood")
     if mood:
         project.setdefault("audio", {})["music"] = f"mood:{mood}"

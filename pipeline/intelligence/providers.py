@@ -196,7 +196,13 @@ class OllamaRuntime:
     def stop(self) -> dict:
         if not self.pidfile.exists():
             return {"stopped": False, "reason": "not started by the pipeline (no pid file); leaving it alone"}
-        pid = int(self.pidfile.read_text().strip() or 0)
+        try:
+            pid = int(self.pidfile.read_text().strip() or 0)
+        except ValueError:
+            pid = 0
+        if pid <= 0 or not _is_ollama_pid(pid):     # stale pid file (crash/reboot): never signal someone else's process
+            self.pidfile.unlink(missing_ok=True)
+            return {"stopped": False, "pid": pid or None, "reason": "stale pid file (no pipeline-started Ollama); removed"}
         try:
             os.killpg(pid, signal.SIGTERM)
         except ProcessLookupError:
@@ -223,6 +229,91 @@ class OllamaRuntime:
             except (urllib.error.URLError, OSError, KeyError, ValueError):
                 pass
         return out
+
+
+def _is_ollama_pid(pid: int) -> bool:
+    """True when `pid` is alive and is an ollama process (guards against a recycled pid in a stale pid file)."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return False                                    # not ours to signal
+    out = subprocess.run(["ps", "-p", str(pid), "-o", "comm="], capture_output=True, text=True).stdout.strip()
+    return "ollama" in Path(out).name if out else False
+
+
+# ---- automatic lifecycle (concepts / concept selection / render) ------------------------------
+MODEL_MISSING_WARNING = ("The local AI model isn't installed, so the copy came from the built-in copy bank. "
+                         "Run videostudio doctor to fix.")
+MODEL_START_WARNING = ("The local AI model couldn't start, so the copy came from the built-in copy bank. "
+                       "Run videostudio doctor to fix.")
+
+
+def model_ready(model: str = DEFAULT_MODEL, host: str = DEFAULT_HOST) -> tuple[bool, str]:
+    """Is `model` pulled on the (running) local server? Never starts anything."""
+    try:
+        OllamaProvider(model, host, autostart=False)._model_meta()
+    except LLMError as e:
+        return False, e.message
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        return False, f"Ollama API error: {e}"
+    return True, "ok"
+
+
+class ManagedRuntime:
+    """`with ManagedRuntime(provider) as state:` — start the local Ollama server for LLM work if it isn't running,
+    and stop it afterwards **only if this block started it**. A server the user runs themselves (no pid file), or
+    one a developer started with `runtime start`, is left alone. Never raises for a missing runtime/model: the
+    engines fall back to the copy bank / deterministic planner, and `state["warning"]` says so in plain language.
+    Use it inside `HeavyWork(..., "llm")` so the start/stop never overlaps a render. No-op unless provider is
+    "ollama"."""
+
+    def __init__(self, provider, *, model: str = DEFAULT_MODEL, host: str = DEFAULT_HOST, log=None):
+        self.model, self.host = model, host
+        self.log = log or (lambda m: None)
+        self.state = {"managed": provider == "ollama", "started": False, "stopped": False, "ready": None,
+                      "warning": None, "reason": None}
+
+    def __enter__(self) -> dict:
+        if not self.state["managed"]:
+            return self.state
+        rt = OllamaRuntime(self.host)
+        had_pid = rt.pidfile.exists()
+        try:
+            r = rt.start()
+        except LLMUnavailable as e:
+            if not had_pid and rt.pidfile.exists():  # we spawned a server that never came up: don't leave it behind
+                rt.stop()
+            self.state.update(ready=False, reason=e.message,
+                              warning=MODEL_START_WARNING if ollama_binary() else MODEL_MISSING_WARNING)
+            self.log(f"local AI runtime unavailable: {e.message}")
+            return self.state
+        self.state["started"] = bool(r.get("started"))
+        if self.state["started"]:
+            self.log(f"started the local AI runtime (pid {r.get('pid')}, {r.get('startup_s')}s)")
+        ok, why = model_ready(self.model, self.host)
+        self.state["ready"] = ok
+        if not ok:
+            self.state.update(reason=why, warning=MODEL_MISSING_WARNING)
+            self.log(f"local AI model not ready: {why}")
+        return self.state
+
+    def __exit__(self, *exc) -> bool:
+        if self.state["started"]:
+            try:
+                res = OllamaRuntime(self.host).stop()
+                self.state["stopped"] = bool(res.get("stopped"))
+                self.log("stopped the local AI runtime to free memory")
+            except OSError as e:                         # never mask the work's own result/error
+                self.state["reason"] = f"could not stop the local AI runtime: {e}"
+        return False
+
+
+def stop_pipeline_runtime(host: str = DEFAULT_HOST) -> dict:
+    """Before a render: stop the Ollama server if the pipeline started it (pid file). Never touches a server the
+    user started themselves."""
+    return OllamaRuntime(host).stop()
 
 
 def ollama_processes() -> list[dict]:
