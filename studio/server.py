@@ -238,6 +238,12 @@ def production_detail(pid: str, tasks: Tasks | None = None) -> dict:
     return _relify(out)
 
 
+def _play_rel(f: Path) -> str:
+    from pipeline.play_copy import play_copy
+    c = play_copy(f)
+    return rel(c) if c else rel(f)
+
+
 def production_outputs(pid: str) -> dict:
     """Everything Preview & QA and the Publishing Center show, read from the production's render job."""
     from pipeline.jobs import Registry
@@ -260,7 +266,9 @@ def production_outputs(pid: str) -> dict:
     fmt_videos = sorted(out.glob("video/final-*.mp4"))
     return _relify({
         "job": job,
-        "videos": [{"format": f.stem.replace("final-", ""), "path": rel(f), "mb": round(f.stat().st_size / 1e6, 1)}
+        # `play`: the same picture with Opus audio for in-app players (VS Code's browser has no AAC decoder);
+        # `path` stays the approved file for downloads
+        "videos": [{"format": f.stem.replace("final-", ""), "path": rel(f), "play": _play_rel(f), "mb": round(f.stat().st_size / 1e6, 1)}
                    for f in fmt_videos],
         "preview_mp4": rel(out / "previews/preview.mp4") if (out / "previews/preview.mp4").exists() else None,
         "contact_sheets": [rel(f) for f in sorted(out.glob("previews/*/contact-sheet.jpg"))],

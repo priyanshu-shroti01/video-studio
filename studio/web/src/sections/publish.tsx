@@ -43,7 +43,7 @@ export const PublishingCenter: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
 
       {o.job && <>
         <Card title="Final video & thumbnail" className="span-5">
-          {o.videos.length ? o.videos.map((v: Any) => <video key={v.path} className={`player ${v.format === 'short' ? 'portrait sm' : ''}`} controls preload="metadata" src={fileUrl(v.path, o.job.updated_at)} />) : <Empty>No video.</Empty>}
+          {o.videos.length ? o.videos.map((v: Any) => <video key={v.path} className={`player ${v.format === 'short' ? 'portrait sm' : ''}`} controls preload="metadata" src={fileUrl(v.play ?? v.path, o.job.updated_at)} />) : <Empty>No video.</Empty>}
           {pub.thumbnail && <div className="mt"><div className="field-l">Thumbnail</div><img className="thumb" src={fileUrl(pub.thumbnail, o.job.updated_at)} alt="Thumbnail" /></div>}
         </Card>
         <Card title="Metadata" className="span-7">

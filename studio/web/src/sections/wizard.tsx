@@ -415,7 +415,7 @@ const ApproveShare: React.FC<{nav: Nav; p: Any; reload: () => void}> = ({nav, p,
         <button key={v.path} role="tab" aria-selected={v === shown} className={`tab ${v === shown ? 'on' : ''}`} onClick={() => setFmt(i)}>
           {v.format === 'landscape' ? 'Wide 16:9' : 'Vertical 9:16'}</button>))}</div>}
       {!o ? <div className="skeleton" /> : !shown ? <div className="wempty">No finished video yet.</div> : (
-        <video key={shown.path} className={`player ${shown.format === 'short' ? 'portrait sm' : ''}`} controls preload="metadata" src={fileUrl(shown.path, bust)} />
+        <video key={shown.path} className={`player ${shown.format === 'short' ? 'portrait sm' : ''}`} controls preload="metadata" src={fileUrl(shown.play ?? shown.path, bust)} />
       )}
     </div>
   );

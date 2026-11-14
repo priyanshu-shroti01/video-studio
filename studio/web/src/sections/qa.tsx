@@ -35,7 +35,7 @@ export const PreviewQA: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) => {
       <Card title="Final video" className="span-7" actions={<>{o.videos.map((v: Any, i: number) => <button key={v.path} className={`tab ${i === fmt ? 'on' : ''}`} onClick={() => setFmt(i)}>{v.format}</button>)}<State s={o.job.qa_status} /></>}>
         {video ? (
           <>
-            <video key={video.path} className={`player ${video.format === 'short' ? 'portrait' : ''}`} controls preload="metadata" src={fileUrl(video.path, bust)} />
+            <video key={video.path} className={`player ${video.format === 'short' ? 'portrait' : ''}`} controls preload="metadata" src={fileUrl(video.play ?? video.path, bust)} />
             <div className="muted sm mt-s">{video.path} · {video.mb} MB</div>
           </>
         ) : <Empty>No final MP4 in this job.</Empty>}
