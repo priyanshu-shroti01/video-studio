@@ -51,7 +51,7 @@ def normalize_numbers(text: str) -> str:
 NUM = r"\d[\d,]*(?:\.\d+)?"
 PERIOD = r"(?:\s*(?:/|per|a|an|every)\s*(mo|month|yr|year|annum)\b|\s*(monthly|yearly|annually))?"
 RE_PRICE = [
-    re.compile(rf"(?:₹|rs\.?\s?|inr\s?)\s*({NUM})(?:\s*(?:rupees|/-))?{PERIOD}", re.I),
+    re.compile(rf"(?:₹|\brs\.?\s?|\binr\s?)\s*({NUM})(?:\s*(?:rupees|/-))?{PERIOD}", re.I),   # \b: "offers three" is no price
     re.compile(rf"\b({NUM})\s*(?:rupees|rs\b\.?|inr\b){PERIOD}", re.I),
     re.compile(rf"(?:\$|usd\s?|€|eur\s?)\s*({NUM}){PERIOD}", re.I),
 ]

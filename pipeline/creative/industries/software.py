@@ -25,12 +25,12 @@ from . import Pack
 FACT_IDS = {"pipeline": "product.pipeline", "stack": "product.stack", "qa": "evidence.qa", "concepts": "product.concepts",
             "voice": "product.voice", "render": "product.render", "llm": "product.llm", "what": "product.what",
             "self_made": "product.self_made", "architecture": "product.architecture", "workflow": "product.workflow",
-            "publishing": "product.publishing", "published": "evidence.published"}
+            "publishing": "product.publishing", "published": "evidence.published", "cost": "product.cost"}
 GATED = tuple(FACT_IDS)
 # copy naming one of these terms is only used when the brand's fact base backs it
 TERM_ROLES = {"Kokoro": "voice", "Remotion": "render", "FFmpeg": "render", "Python": "stack", "Ollama": "llm",
               "three concepts": "concepts", "quality checks": "qa", "itself": "self_made", "deterministic": "architecture",
-              "YouTube": "published"}
+              "YouTube": "published", "rupees": "cost"}
 FAMILIES = [{"id": "app", "match": None, "product": "app", "label": "Video production", "icon": "app"}]
 BANNED = ["revolutionary", "game-changing", "fully autonomous", "replaces", "perfect", "unlimited", "magic", "effortless"]
 STYLE = ("Engineering-launch voice: plain, specific, confident. Name the real component or stage on screen. "
@@ -205,6 +205,16 @@ def _footage_pill(clip_id: str, text: str, icon: str, tone: str = "brand", cues:
     return build
 
 
+def b_hook_cost(ctx, A, copy):
+    """The price promise: the line lands word by word; what it costs nothing in checks in on its spoken words."""
+    fact = _fact(ctx, "cost")
+    src = f"fact:{fact.get('id', 'product.cost')}"
+    items = [{"text": ctx.L(i["text"], src), "icon": ic("check"), "at": A.at(i.get("cues") or [], -0.1, name=f"free:{k}")}
+             for k, i in enumerate((fact.get("value") or {}).get("items") or [])]
+    head = kinetic(ctx, A, copy, "xl")
+    return [head, {"type": "checklist", "items": items, "at": items[0]["at"]}] if items else [head]
+
+
 def b_hook_self(ctx, A, copy):
     f = footage_block(ctx, A, "self")
     f["at"] = A.first_word(-0.4, "cold-open")   # a cold open shows the recording from the first frame, not a bare backdrop
@@ -214,6 +224,9 @@ def b_hook_self(ctx, A, copy):
 IND = ("software",)
 _always = lambda pf: True  # noqa: E731
 TEMPLATES = [
+    T("hook-zero-cost", "Zero rupees", "hook", IND, None, "kinetic-text", "checklist", ("spotlight", "deep"), "push-in", "energetic",
+      "fade", None, (10, 22), (2, 6), {"kinetic-text": "the price, as spoken", "pill": "what it costs nothing"}, (), (),
+      has("cost"), b_hook_cost, "The promise lands word by word, then what it needs: no subscription, no API keys."),
     T("hook-chain-progress", "The long chain", "hook", IND, None, "progress", "kinetic-text", ("spotlight", "deep"), "drift", "energetic",
       "fade", None, (9, 22), (2, 8), {"steps": ["script", "storyboard", "voice", "animation", "render"]}, (), (), _always, b_hook_chain,
       "The steps of a launch film light up one by one as they are named; the line lands beneath."),
@@ -234,7 +247,7 @@ TEMPLATES = [
       "slide-up", None, (16, 34), None, {"steps": "each stage on its spoken word", "done": ["approves", "person"]}, (), (),
       has("pipeline"), b_pipeline, "The product's real stages tick through on their spoken words, ending on human approval."),
     T("proof-local-stack", "What it runs on", "proof", IND, None, "server-stack", "pill", ("grid", "deep"), "drift", "standard",
-      "fade", None, (14, 30), None, {"nodes": "each component on its spoken name", "status": ["Mac"]}, (), (), has("stack"),
+      "fade", None, (12, 30), None, {"nodes": "each component on its spoken name", "status": ["Mac"]}, (), (), has("stack"),
       b_local_stack, "The real local components light up as they are named; the status lands on the machine."),
     T("proof-qa-counter", "It checks its own work", "proof", IND, None, "counter", "checklist", ("deep", "glow"), "push-in", "standard",
       "fade", None, (14, 32), None, {"counter": "the spoken count", "checklist": "each measured result as it is named"}, (), (),
@@ -246,7 +259,7 @@ TEMPLATES = [
       "fade", None, (16, 34), (3, 8), {"items": "each layer on its spoken name", "kinetic-text": "the exact parts, as spoken"}, (), (),
       has("architecture"), b_architecture, "The architecture principle: AI proposes, people decide, code owns the exact parts."),
     T("demo-preview-gate", "The preview gate", "demo", IND, None, "footage", "pill", ("light", "glow"), "none", "standard",
-      "slide-up", None, (16, 40), None, {"zooms": "one per beat in the brand's clip"}, (), (), clip("preview"),
+      "slide-up", None, (12, 40), None, {"zooms": "one per beat in the brand's clip"}, (), (), clip("preview"),
       _footage_pill("preview", "Checked before the render", "check", cues=("Before", "before")),
       "A real recording of the scene preview and quality gate, before the full render."),
     T("demo-render-footage", "The render, stage by stage", "demo", IND, None, "footage", "pill", ("glow", "light"), "none", "standard",
@@ -266,6 +279,14 @@ TEMPLATES = [
 
 # ---- blueprints ---------------------------------------------------------------------------------------------
 BLUEPRINTS = [
+    {"id": "teaser-zero-cost", "name": "Zero Rupees", "pattern": "promise-demo-proof-close",
+     "pattern_name": "₹0 promise → The real app → What it runs on → Watch every frame → Close",
+     "logline": "A fast teaser: the price promise, the real app making a video, the local stack that makes it free, "
+                "and the frame-by-frame preview, then the code.",
+     "slots": [("hook", ["hook-zero-cost"]), ("demo", ["demo-app-footage"]), ("proof", ["proof-local-stack"]),
+               ("demo", ["demo-preview-gate"]), ("cta", ["cta-outro"])],
+     "hook_tags": ["promise"], "music": "technology", "cta_style": "url-click",
+     "pacing": {"label": "teaser", "detail": "quick promise, two real-app beats around the proof, a short close"}},
     {"id": "whole-pipeline", "name": "The Whole Pipeline", "pattern": "question-problem-reveal-architecture-walkthrough-twist",
      "pattern_name": "Cold open on this film → The usual way → Reveal → Architecture → Every stage, in the real app → Close",
      "logline": "Open on the studio playing this very film, then explain how it is built and walk every stage of a real "
@@ -330,7 +351,13 @@ BANK: dict[str, dict[str, list[dict]]] = {
         {"id": "meet", "narration": "Meet {brand}. A brief goes in. A finished film comes out.",
          "headline": "A brief goes in. A finished film comes out."},
     ]},
+    "hook-zero-cost": {"app": [
+        {"id": "promise", "narration": "Make a product video on your Mac for zero rupees. No subscription. No API keys.",
+         "headline": "for zero rupees.", "emphasis": ["rupees."], "tags": ["promise"]},
+    ]},
     "demo-app-footage": {"app": [
+        {"id": "wizard", "narration": "Pick your website, say what you want to promote, and the studio offers three ideas "
+                                      "to choose from."},
         {"id": "brief", "narration": "Write a short brief: the product, the audience, the goal. "
                                      "The studio drafts three concepts, each one a sequence of designed scenes."},
     ]},
@@ -348,6 +375,7 @@ BANK: dict[str, dict[str, list[dict]]] = {
          "headline": "timing, layout, facts and files.", "emphasis": ["files."]},
     ]},
     "demo-preview-gate": {"app": [
+        {"id": "watch", "narration": "Before anything renders, watch every frame with the real voice and approve it."},
         {"id": "gate", "narration": "In the storyboard, every animation is tied to the word that names it. Before the voice, "
                                     "each scene renders as a quick preview. A quality gate checks it, and a person approves it."},
     ]},
@@ -360,6 +388,7 @@ BANK: dict[str, dict[str, list[dict]]] = {
                                        "A real Short reached YouTube exactly this way."},
     ]},
     "proof-local-stack": {"app": [
+        {"id": "local", "narration": "Everything runs on one Mac: Python, Kokoro, Remotion and FFmpeg, all of it local."},
         {"id": "stack", "narration": "Python orchestrates. Kokoro speaks. Remotion renders. FFmpeg masters the sound. "
                                      "All of it runs on one Mac."},
     ]},

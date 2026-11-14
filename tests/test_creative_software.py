@@ -157,3 +157,13 @@ def test_a_long_brief_still_gets_three_concepts():
     stretched = next(c for c in res["concepts"] if c["blueprint"] == "brief-to-film")
     assert "explain-architecture" in stretched["templates"]
     assert all(not [r for r in c["rules"] if r["status"] == "FAIL"] for c in res["concepts"])
+
+
+def test_rupee_pattern_needs_a_word_boundary():
+    """"the studio offers three ideas" was read as the price "Rs 3" ("offe-rs three") and rejected a concept."""
+    from pipeline.intelligence.claims import RE_PRICE, normalize_numbers
+    hits = lambda t: [m.group(0) for r in RE_PRICE for m in r.finditer(normalize_numbers(t))]  # noqa: E731
+    assert hits("the studio offers three ideas") == []
+    assert hits("it helps users 5 times faster") == []
+    for price in ("Rs 69 a month", "rs.49/mo", "₹119 per month", "INR 699", "69 rupees a month"):
+        assert hits(price), price

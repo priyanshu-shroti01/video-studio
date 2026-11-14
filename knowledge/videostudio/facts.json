@@ -567,6 +567,41 @@
    "fetched_at": "2026-11-13T21:10:10Z",
    "excerpt": "A real output: a 36.7 s YouTube Short for Shroti Host WordPress Hosting, made from a 10-line brief.",
    "volatile": false
+  },
+  {
+   "id": "product.cost",
+   "category": "product",
+   "product": "all",
+   "claim": "Video Studio costs ₹0 per video: no subscription, no API keys, no LLM account; the AI runs on the Mac",
+   "value": {
+    "title": "₹0 per video",
+    "spoken": "zero rupees",
+    "items": [
+     {
+      "text": "No subscription",
+      "cues": [
+       "subscription"
+      ]
+     },
+     {
+      "text": "No API keys",
+      "cues": [
+       "API",
+       "keys"
+      ]
+     }
+    ]
+   },
+   "keywords": [
+    "zero rupees",
+    "₹0",
+    "no subscription"
+   ],
+   "source_url": "https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/README.md",
+   "source_kind": "repository-file",
+   "fetched_at": "2026-11-14T19:25:12Z",
+   "excerpt": "₹0 per video. No subscription, no API keys, no LLM account.",
+   "volatile": false
   }
  ],
  "not_found": []
