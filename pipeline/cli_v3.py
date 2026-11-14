@@ -57,7 +57,10 @@ def register(sub) -> dict:
     x = sub.add_parser("archive", help="hide productions/jobs from lists and the dashboard; files move to output/_archive (reversible)")
     x.add_argument("--production", action="append", default=[]); x.add_argument("--job", action="append", default=[])
     x.add_argument("--all-except", action="append", default=[], metavar="PRODUCTION", help="archive everything except these productions")
-    x.add_argument("--actor", required=True, help="the person asking for it"); x.add_argument("--note", default="")
+    x.add_argument("--list", action="store_true", help="show what is in output/_archive (nothing moves)")
+    x.add_argument("--restore", action="append", default=[], metavar="PRODUCTION", help="move an archived production (and its jobs) back; never overwrites")
+    x.add_argument("--restore-job", action="append", default=[], metavar="JOB", help="move a loose archived job back")
+    x.add_argument("--actor", help="the person asking for it (required except with --list)"); x.add_argument("--note", default="")
     sub.add_parser("video-out", help="refresh video-out/ (finished videos by brand: for-review / approved)")
     b = sub.add_parser("brand", help="list brands, or onboard a new website as a draft brand")
     bs = b.add_subparsers(dest="bcmd", required=True)
@@ -234,8 +237,27 @@ def cmd_archive(a) -> int:
     from .jobs import Registry
     from .video_out import sync
     reg = Registry()
+    if a.list:
+        r = AR.list_archived(reg)
+        _print(a, r, "output/_archive/ (" + f"{r['size_mb']} MB)" + "".join(
+            f"\n  {p['id']}  {p['brand']:<12} {p['state']:<18} {p['size_mb']:>7} MB  {p['name']}"
+            + (f"  [blocked: {p['blocked']}]" if p["blocked"] else "") for p in r["productions"]) + "".join(
+            f"\n  job {j['id']}  {j['state']:<18} {j['size_mb']:>7} MB  {j['name']}" for j in r["jobs"])
+            + ("" if r["productions"] or r["jobs"] else "\n  (empty)"))
+        return 0
+    if not (a.actor or "").strip():
+        raise SystemExit("--actor is required: the name of the person asking for it")
+    if a.restore or a.restore_job:
+        res = {"productions": [AR.restore_production(p, a.actor, a.note, reg=reg) for p in a.restore],
+               "jobs": [AR.restore_job(j, a.actor, a.note, reg=reg) for j in a.restore_job]}
+        vo = sync(reg)
+        _print(a, {**res, "video_out": vo},
+               "".join(f"restored {r['production']} -> {r['restored_to']} ({len(r['jobs'])} job(s))\n" for r in res["productions"])
+               + "".join(f"restored job {r['job']} -> {r['restored_to']}\n" for r in res["jobs"])
+               + f"video-out: {len(vo['videos'])} video(s)")
+        return 0
     if not (a.production or a.job or a.all_except):
-        raise SystemExit("nothing to archive: pass --production, --job or --all-except")
+        raise SystemExit("nothing to archive: pass --production, --job or --all-except (or --list / --restore)")
     res = {"productions": [], "jobs": [], "skipped": []}
     if a.all_except:
         res = AR.archive_all_except(reg, a.all_except, a.actor, a.note)
