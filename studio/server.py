@@ -93,7 +93,7 @@ class Tasks:
                     task.update(status="done", result=res, finished_at=time.time())
             except PipelineError as e:
                 with self._lock:
-                    task.update(status="failed", error=e.to_dict(), finished_at=time.time())
+                    task.update(status="failed", error=_task_error(e), finished_at=time.time())
             except Exception as e:  # noqa: BLE001 - surfaced to the UI verbatim
                 with self._lock:
                     task.update(status="failed", finished_at=time.time(),
@@ -448,6 +448,253 @@ def brands() -> list[dict]:
     return out
 
 
+# ---- brands: add a website, review its facts ---------------------------------------------------------
+BRAND_ID_RE = r"[a-z0-9][a-z0-9_-]{0,40}"
+_FACTS_LOCK = threading.Lock()          # facts.json read-modify-write (human confirmations)
+
+
+def industries() -> list[dict]:
+    """The creative industry packs a brand can use (pipeline/creative/industries)."""
+    from pipeline.creative.industries import software, web_hosting
+    return [{"id": p.id, "name": p.name} for p in (web_hosting.PACK, software.PACK)]
+
+
+def _known_brand(bid: str) -> str:
+    from pipeline.brands import list_brands
+    if bid not in list_brands():
+        raise NotFound(f"unknown brand {bid!r}")
+    return bid
+
+
+def _brand_fetch():
+    """The fetcher brand init uses (looked up at call time so tests can stub the network)."""
+    from pipeline import brand_init
+    return brand_init._get
+
+
+def add_brand(body: dict, tasks: Tasks) -> dict:
+    """Add-a-website wizard: the same code as `video-pipeline brand init --id --site --industry [--name]`.
+    Validated here (synchronously, so the form shows the reason), then run as a background task because it
+    fetches the site. The brand is a DRAFT; it never overwrites an existing brand (init_brand refuses)."""
+    from pipeline.brand_init import init_brand
+    site = _str(body, "site", limit=300)
+    u = urllib.parse.urlparse(site if "://" in site else "https://" + site)
+    if u.scheme != "https" or not u.netloc or " " in u.netloc or "." not in u.netloc:
+        raise BadRequest("the website address must be an https:// URL, e.g. https://example.com")
+    industry = _str(body, "industry", limit=40)
+    if industry not in {p["id"] for p in industries()}:
+        raise BadRequest(f"unknown industry {industry!r} (available: {', '.join(p['id'] for p in industries())})")
+    bid = _str(body, "id", required=False, limit=41).lower()
+    if not bid:                                       # suggested from the domain: www.my-site.co.uk -> my-site
+        bid = re.sub(r"[^a-z0-9_-]", "", u.netloc.lower().removeprefix("www.").split(".")[0])[:41]
+    if not re.fullmatch(BRAND_ID_RE, bid):
+        raise BadRequest("the brand id must be lowercase letters, digits, - or _ (e.g. 'mysite')")
+    for d in (ROOT / "brands" / bid, ROOT / "public/brands" / bid, ROOT / "knowledge" / bid):
+        if d.exists():
+            raise StateError(f"a brand called {bid!r} already exists ({rel(d)}): choose another id")
+    name = _str(body, "name", required=False, limit=80) or None
+    site_url = f"https://{u.netloc}/"
+    fetch = _brand_fetch()
+
+    def run():
+        res = init_brand(bid, site_url, name, industry, fetch=fetch)
+        return {**res, "draft": brand_detail(bid)}
+    return {"brand": bid, "task": tasks.start("brand-init", bid, run)}
+
+
+def brand_detail(bid: str) -> dict:
+    """What the add-a-website result and the facts screen show for one brand: profile, colours, logo."""
+    from pipeline.brands import load_profile
+    _known_brand(bid)
+    prof = load_profile(bid)
+    theme = _read_json(ROOT / "brands" / bid / "theme.json") or {}
+    logo = (theme.get("logo") or {}).get("onDark")
+    facts = _read_json(ROOT / "knowledge" / bid / "facts.json") or {}
+    row = next((b for b in api.brand_overview(include_hidden=True) if b["id"] == bid), {})
+    return {"id": bid, "name": prof.get("name", bid), "status": prof.get("status", "ready"), "website": prof.get("website"),
+            "industry": (prof.get("creative") or {}).get("industry"), "colors": theme.get("colors", {}),
+            "colour_source": (theme.get("source") or {}).get("brandColour"),
+            "logo": f"public/{logo}" if logo else None, "fact_pages": facts.get("pages", {}),
+            "facts": len(facts.get("facts", [])), "review": row.get("review", [])}
+
+
+def _refresh_dir(bid: str) -> Path:
+    return ROOT / "output" / "facts-refresh" / bid
+
+
+def facts_view(bid: str) -> dict:
+    """knowledge/<brand>/facts.json for review, with each fact's status: `verified` (its excerpt was found on
+    its source page), `stale` / `unchecked` from the last re-check, or the file's own NEEDS_REVIEW."""
+    _known_brand(bid)
+    d = _read_json(ROOT / "knowledge" / bid / "facts.json")
+    if d is None:
+        return {"brand": bid, "exists": False, "facts": [], "not_found": [], "pages": {}, "last_refresh": None}
+    last = _read_json(_refresh_dir(bid) / "facts-refresh.json")
+    stale = set((last or {}).get("stale", []))
+    unchecked = set((last or {}).get("unchecked", []))
+    rows = []
+    for f in d.get("facts", []):
+        st = f.get("status") or "verified"
+        if st == "verified" and f.get("id") in stale:
+            st = "stale"
+        elif st == "verified" and f.get("id") in unchecked:
+            st = "unchecked"
+        rows.append({"id": f.get("id"), "category": f.get("category"), "product": f.get("product"), "plan": f.get("plan"),
+                     "claim": f.get("claim"), "value": f.get("value"), "source_url": f.get("source_url"),
+                     "excerpt": f.get("excerpt"), "fetched_at": f.get("fetched_at"), "status": st,
+                     "human_checks": f.get("human_checks", [])})
+    return {"brand": bid, "exists": True, "brand_name": d.get("brand_name"), "site": d.get("site"),
+            "fetched_at": d.get("fetched_at"), "pages": d.get("pages", {}), "facts": rows,
+            "not_found": d.get("not_found", []), "last_refresh": last}
+
+
+def refresh_facts(bid: str, tasks: Tasks) -> dict:
+    """Re-check every fact against the live website (pipeline.intelligence.facts.refresh). Reports stale facts;
+    never changes facts.json and never marks anything verified."""
+    from pipeline.intelligence import facts as F
+    _known_brand(bid)
+    fb = F.load_facts(bid)
+    if not fb.facts:
+        raise StateError("this brand has no facts to re-check yet: facts are added from the website's pages "
+                         "(see the candidate pages below) and then checked here")
+    fetcher = F.fetch                                   # looked up at call time (tests stub the network)
+    return {"task": tasks.start("facts-refresh", bid, lambda: F.refresh(fb, out_dir=_refresh_dir(bid), fetcher=fetcher))}
+
+
+def confirm_fact(bid: str, body: dict) -> dict:
+    """A PERSON says "I checked this fact on the website". Needs {confirm: true, factId, reviewer}; records the
+    reviewer, time and note on the fact (human_checks) and in the audit log. A fact whose status is
+    NEEDS_REVIEW becomes verified only through this deliberate, named confirmation; nothing here or in
+    the re-check does it automatically. Claims that were not found on the site (not_found) cannot be
+    confirmed here: a claim that is not on the website does not go into a video."""
+    from pipeline.jobs import Registry
+    from pipeline.paths import atomic_write_json
+    _known_brand(bid)
+    if body.get("confirm") is not True:
+        raise BadRequest("confirming a fact needs {\"confirm\": true} (tick \"I checked this on the website\")")
+    fid = _str(body, "factId", limit=120)
+    reviewer = _str(body, "reviewer", limit=80)
+    note = _str(body, "note", required=False, limit=1000)
+    path = ROOT / "knowledge" / bid / "facts.json"
+    with _FACTS_LOCK:
+        d = _read_json(path)
+        if d is None:
+            raise NotFound(f"knowledge/{bid}/facts.json is missing or unreadable")
+        f = next((x for x in d.get("facts", []) if x.get("id") == fid), None)
+        if f is None:
+            raise NotFound(f"no fact {fid!r} in knowledge/{bid}/facts.json")
+        at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        check = {"reviewer": reviewer, "checked_at": at, "note": note, "source_url": f.get("source_url"),
+                 "via": "studio: \"I checked this on the website\""}
+        f.setdefault("human_checks", []).append(check)
+        before = f.get("status")
+        if before == "NEEDS_REVIEW":
+            f["status"] = "verified"
+            f["verified_by"] = {"reviewer": reviewer, "at": at}
+        atomic_write_json(path, d)
+    Registry().audit(reviewer, "facts.human-check", f"{bid}:{fid}",
+                     {"note": note, "status_before": before, "status_after": f.get("status"), "source_url": f.get("source_url")})
+    return {"brand": bid, "fact": fid, "status": f.get("status") or "verified", "check": check}
+
+
+# ---- library actions -----------------------------------------------------------------------------------
+def archive(pid: str, body: dict) -> dict:
+    """Archive = move to output/_archive/ and hide from lists (pipeline.archive). Nothing is deleted. There is
+    no restore in the pipeline yet; files can be moved back by hand."""
+    from pipeline.archive import archive_production
+    from pipeline.jobs import Registry
+    if body.get("confirm") is not True:
+        raise BadRequest("archiving needs {\"confirm\": true}")
+    actor = _str(body, "actor", limit=80)
+    return _relify(archive_production(Registry(), pid, actor, _str(body, "note", required=False, limit=1000)))
+
+
+def mark_published(pid: str, body: dict) -> dict:
+    """"I posted it on…": record a post a PERSON made outside the pipeline (pipeline.publishing.mark_published,
+    which applies the publish gate). Nothing is uploaded."""
+    from pipeline import publishing
+    if body.get("confirm") is not True:
+        raise BadRequest("recording a post needs {\"confirm\": true}")
+    actor = _str(body, "actor", limit=80)
+    platform = _str(body, "platform", limit=30).lower()
+    if not publishing.PLATFORM_ID.match(platform):
+        raise BadRequest("platform must be a short lowercase name, e.g. linkedin")
+    url = _str(body, "url", limit=500)
+    if not re.match(r"^https://[^\s/]+\.[^\s]+$", url):
+        raise BadRequest("the link must be the https:// address of your post")
+    fmt = body.get("format") or None
+    if fmt is not None and fmt not in ("short", "landscape"):
+        raise BadRequest("'format' must be short or landscape")
+    return publishing.mark_published(_productions(), pid, platform, url, actor, fmt,
+                                     _str(body, "note", required=False, limit=1000))
+
+
+# ---- setup checklist -------------------------------------------------------------------------------------
+_DOCTOR_LOCK = threading.Lock()
+SETUP_HELP = {   # doctor check -> (plain label, what to do when it is not OK)
+    "node": ("Node.js (runs the video engine)", "Install Node.js 20 or newer from nodejs.org, then restart the Studio."),
+    "npm": ("npm (installs the video engine)", "npm comes with Node.js: reinstall Node.js from nodejs.org."),
+    "ffmpeg": ("ffmpeg (video and audio encoding)", "Install it with Homebrew: brew install ffmpeg"),
+    "ffprobe": ("ffprobe (reads video files)", "It comes with ffmpeg: brew install ffmpeg"),
+    "uv": ("uv (runs the Python pipeline)", "Install uv from docs.astral.sh/uv, then restart the Studio."),
+    "voice.kokoro": ("Voices downloaded (Kokoro, local)", "Download the voice models: see docs/STUDIO_GUIDE.md (voices) or ask whoever set up this Mac."),
+    "voice": ("Voices", "The voice registry could not be read: run `uv sync` in the studio folder."),
+    "edge-tts (legacy)": ("Online voice (optional)", "Optional; not needed."),
+    "remotion": ("Video engine installed", "Run `npm install` in the studio folder once."),
+    "chromium": ("Browser for rendering", "Run `npx remotion browser ensure` in the studio folder once."),
+    "encoder.videotoolbox": ("Fast hardware encoder (Apple)", "Optional: the slower software encoder is used instead."),
+    "encoder.x264": ("Software video encoder", "Reinstall ffmpeg with Homebrew: brew reinstall ffmpeg"),
+    "contract": ("Engine and pipeline versions match", "The code is out of sync: update both parts together (git pull), then rebuild."),
+    "sfx.kit": ("Sound effects kit", "Optional: run `bash scripts/sound-layer.sh kit` to add sound effects."),
+    "disk": ("Free disk space", "Free some space: archive old productions in the Library, or empty the Trash."),
+    "memory": ("Free memory", "Close other apps (browsers, Docker) before rendering."),
+    "benchmark": ("Render speed tuned for this Mac", "Optional: run `uv run video-pipeline benchmark` once for faster renders."),
+}
+
+
+def setup_checks() -> dict:
+    """The `video-pipeline doctor` checks (pipeline.cli.cmd_doctor, its JSON output) in plain language."""
+    import argparse as _ap
+    import contextlib
+    import io
+    from pipeline import cli
+    buf = io.StringIO()
+    with _DOCTOR_LOCK, contextlib.redirect_stdout(buf):
+        cli.cmd_doctor(_ap.Namespace(json=True))
+    raw = json.loads(buf.getvalue())
+    items = []
+    for c in raw.get("checks", []):
+        name = c.get("check", "")
+        if name.startswith("voice.") and name not in SETUP_HELP:
+            label, fix = f"Extra voices ({name[6:]})", "Optional: download them only if you use these voices (docs/STUDIO_GUIDE.md)."
+        else:
+            label, fix = SETUP_HELP.get(name) or SETUP_HELP.get(name.split(".")[0]) or (name, "See docs/STUDIO_GUIDE.md.")
+        status = "ok" if c.get("ok") else ("missing" if c.get("critical") else "optional")
+        items.append({"check": name, "label": label, "status": status, "critical": bool(c.get("critical")),
+                      "detail": c.get("detail"), "fix": None if c.get("ok") else fix})
+    llm = _llm_model_status()
+    if llm:
+        items.append(llm)
+    return {"ok": bool(raw.get("ok")), "host": raw.get("host"), "checks": items,
+            "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+
+
+def _llm_model_status() -> dict | None:
+    """Is the default local AI model downloaded (pipeline.intelligence.registry: Ollama store / local server)?"""
+    try:
+        from pipeline.intelligence.registry import with_local_availability
+        reg = with_local_availability()
+    except Exception:  # noqa: BLE001 - optional component
+        return None
+    m = next((x for x in reg.get("models", []) if x.get("id") == reg.get("default")), None)
+    if not m:
+        return None
+    ok = bool(m.get("local_available"))
+    return {"check": "llm.model", "label": "AI model for concepts (local, optional)", "status": "ok" if ok else "optional",
+            "critical": False, "detail": f"{m['id']} ({m.get('download_size', '?')}): {'downloaded' if ok else 'not downloaded'}",
+            "fix": None if ok else f"Optional: storyboards are built without it. To use it, install Ollama and run `ollama pull {m['id']}`."}
+
+
 # ---- HTTP --------------------------------------------------------------------------------------------
 class StudioServer(ThreadingHTTPServer):
     daemon_threads = True
@@ -473,12 +720,19 @@ class StudioServer(ThreadingHTTPServer):
 
 
 def _routes():
-    P, J, T = PID_RE, JOB_RE, TASK_RE
+    P, J, T, B = PID_RE, JOB_RE, TASK_RE, BRAND_ID_RE
     return [
         ("GET", r"/api/session", lambda h, m, b: {"ok": True, "version": api.__version__}),
         ("GET", r"/api/dashboard", lambda h, m, b: {**api.dashboard(_brand_q(h)), "tasks": h.server.tasks.list()[:20],
                                                    "failed_jobs": [j for j in jobs_list() if j["state"] == "FAILED"][:10]}),
         ("GET", r"/api/brands", lambda h, m, b: brands()),
+        ("POST", r"/api/brands", lambda h, m, b: add_brand(b, h.server.tasks)),
+        ("GET", r"/api/industries", lambda h, m, b: industries()),
+        ("GET", rf"/api/brands/({B})", lambda h, m, b: _relify(brand_detail(m[1]))),
+        ("GET", rf"/api/brands/({B})/facts", lambda h, m, b: facts_view(m[1])),
+        ("POST", rf"/api/brands/({B})/facts/refresh", lambda h, m, b: refresh_facts(m[1], h.server.tasks)),
+        ("POST", rf"/api/brands/({B})/facts/confirm", lambda h, m, b: confirm_fact(m[1], b)),
+        ("POST", r"/api/setup/check", lambda h, m, b: {"task": h.server.tasks.start("setup", "", setup_checks)}),
         ("GET", r"/api/storyboard/schema", lambda h, m, b: storyboard_schema()),
         ("GET", r"/api/productions", lambda h, m, b: productions_list()),
         ("POST", r"/api/productions", lambda h, m, b: create_production(b)),
@@ -501,6 +755,8 @@ def _routes():
         ("POST", rf"/api/productions/({P})/decision", lambda h, m, b: decide(m[1], b)),
         ("POST", rf"/api/productions/({P})/export", lambda h, m, b: export(m[1], b)),
         ("POST", rf"/api/productions/({P})/publish", lambda h, m, b: publish(m[1], b, h.server.tasks)),
+        ("POST", rf"/api/productions/({P})/archive", lambda h, m, b: archive(m[1], b)),
+        ("POST", rf"/api/productions/({P})/mark-published", lambda h, m, b: mark_published(m[1], b)),
         ("GET", r"/api/publish/status", lambda h, m, b: {p: destination_status(_brand_q(h) or "", p) for p in ("youtube", "instagram")}),
         ("GET", r"/api/assets", lambda h, m, b: _relify(api.assets(h.query.get("brand") or None))),
         ("GET", r"/api/jobs", lambda h, m, b: jobs_list()),
@@ -512,6 +768,34 @@ def _routes():
 
 
 ROUTES = [(meth, re.compile(pat + r"$"), fn) for meth, pat, fn in _routes()]
+
+
+def _error_extra(e: PipelineError) -> dict:
+    """hint / action of a pipeline error ("what to do"), when it carries them. Never raises: a broken hint
+    catalogue must not hide the error itself."""
+    try:
+        d = e.to_dict()
+    except Exception:  # noqa: BLE001
+        d = {}
+    out = {}
+    for k in ("hint", "action"):
+        v = d.get(k)
+        if v is None:
+            try:
+                v = getattr(e, k, None)
+            except Exception:  # noqa: BLE001
+                v = None
+        out[k] = v if isinstance(v, str) and v else None
+    return out
+
+
+def _task_error(e: PipelineError) -> dict:
+    base = {"code": e.code, "message": e.message, "detail": e.detail, "transient": e.transient}
+    try:
+        base.update(e.to_dict())
+    except Exception:  # noqa: BLE001
+        pass
+    return {**base, **{k: v for k, v in _error_extra(e).items() if v}}
 
 
 def _status_for(e: PipelineError) -> int:
@@ -571,8 +855,11 @@ class Handler(BaseHTTPRequestHandler):
     def _json(self, status: int, obj) -> None:
         self._send(status, json.dumps(obj, default=str, ensure_ascii=False).encode(), "application/json; charset=utf-8")
 
-    def _error(self, status: int, code: str, message: str, detail: str | None = None) -> None:
+    def _error(self, status: int, code: str, message: str, detail: str | None = None, extra: dict | None = None) -> None:
         err = {"code": code, "message": message, "detail": detail}
+        for k in ("hint", "action"):                     # "what to do" from the pipeline error, shown under the message
+            if extra and isinstance(extra.get(k), str) and extra[k]:
+                err[k] = extra[k]
         if detail:
             err["errors"] = [l for l in detail.splitlines() if l.strip()]
         self._json(status, {"error": err})
@@ -767,7 +1054,7 @@ class Handler(BaseHTTPRequestHandler):
                 body = self._body() if method in ("POST", "PUT") else {}
                 return self._json(200, fn(self, m, body))
             except PipelineError as e:
-                return self._error(_status_for(e), e.code, e.message, e.detail)
+                return self._error(_status_for(e), e.code, e.message, e.detail, _error_extra(e))
             except Exception as e:  # noqa: BLE001
                 traceback.print_exc()
                 return self._error(500, type(e).__name__, str(e) or "internal error")

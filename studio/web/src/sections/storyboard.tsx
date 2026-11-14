@@ -114,8 +114,9 @@ export const StoryboardEditor: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
     } catch (e) { setApiErr(e); } finally { setBusy(null); }
   };
 
+  const [lastTask, setLastTask] = useState<'preview' | 'render' | null>(null);
   const runTask = async (kind: 'preview' | 'render') => {
-    setBusy(kind); setApiErr(null);
+    setBusy(kind); setApiErr(null); setLastTask(kind);
     try {
       const {task} = await api.post(`/api/productions/${pid}/${kind}`);
       const t = await waitTask(task.id);
@@ -208,7 +209,8 @@ export const StoryboardEditor: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
         <Button variant="success" onClick={() => setConfirmRender(true)} disabled={dirty || !RENDERABLE.includes(p.state) || !!busy}>Render…</Button>
       </div>
       {!editable && <Alert tone="warning">The storyboard is locked while the production is <b>{p.state}</b>. {p.state === 'AWAITING_APPROVAL' ? 'Request changes in the Publishing Center to edit it again.' : ''}</Alert>}
-      <ErrorBox error={apiErr} title={errors.length ? `Validation failed — ${errors.length} problem(s)` : 'Request failed'} onDismiss={() => setApiErr(null)} />
+      <ErrorBox error={apiErr} title={errors.length ? `Validation failed — ${errors.length} problem(s)` : 'Request failed'} onDismiss={() => setApiErr(null)}
+        actions={dirty ? undefined : {'rebuild-preview': () => void runTask('preview'), ...(lastTask === 'preview' ? {retry: () => void runTask('preview')} : {})}} />
       {errors.length > 0 && !apiErr && (
         <div className="alert alert-danger"><div className="alert-h"><strong>{errors.length} validation error(s)</strong></div>
           <ul className="errlist">{errors.map((e, i) => <li key={i}><button className="linkbtn" onClick={() => { const s = sceneOfError(e); if (s != null) setSel(s); }}><code>{e}</code></button></li>)}</ul></div>

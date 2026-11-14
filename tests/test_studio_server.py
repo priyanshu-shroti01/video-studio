@@ -349,3 +349,206 @@ def test_brief_keeps_the_generate_components_option(studio):
     from pipeline import api
     assert api.Productions().get(p["id"])["brief"]["components"] == "generate"
     assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "components": "random"}})[0] == 400
+
+
+# ---- Phase 2: add a website, facts review, library actions, setup -------------------------------------
+FAKE_HOME = (b'<html><head><title>Zed Tools | Home</title><meta name="theme-color" content="#3366ff"></head>'
+             b'<body><a href="/pricing">Pricing</a><a href="/features">Features</a><p>Zed Pro costs $9 a month.</p></body></html>')
+
+
+@pytest.fixture
+def temp_brand(monkeypatch):
+    """A brand id whose files are removed afterwards (brand init writes into brands/, public/brands/, knowledge/)."""
+    from pipeline import brand_init
+    bid = f"zzst{uuid.uuid4().hex[:6]}"
+    calls = []
+
+    def fake_get(url, timeout=30.0):
+        calls.append(url)
+        return FAKE_HOME, "text/html"
+    monkeypatch.setattr(brand_init, "_get", fake_get)        # never reach the network
+    yield bid, calls
+    for d in (ROOT / "brands" / bid, ROOT / "public/brands" / bid, ROOT / "knowledge" / bid, ROOT / "output/facts-refresh" / bid):
+        shutil.rmtree(d, ignore_errors=True)
+
+
+NEW_POSTS = ["/api/brands", "/api/brands/shrotihost/facts/refresh", "/api/brands/shrotihost/facts/confirm",
+             "/api/setup/check", "/api/productions/P20260101-000000-abcde/archive",
+             "/api/productions/P20260101-000000-abcde/mark-published"]
+
+
+def test_new_write_endpoints_keep_the_security_rules(studio):
+    srv, _ = studio
+    for path in NEW_POSTS:
+        assert req(srv, "POST", path, {}, cookie=False)[0] == 401, path
+        assert req(srv, "POST", path, {}, headers={"Origin": "https://evil.example"})[0] == 403, path
+        assert req(srv, "POST", path, {}, headers={"Sec-Fetch-Site": "cross-site"})[0] == 403, path
+        assert req(srv, "POST", path, b"{}", ctype="text/plain")[0] == 415, path
+    for path in ("/api/industries", "/api/brands/shrotihost", "/api/brands/shrotihost/facts"):
+        assert req(srv, "GET", path, cookie=False)[0] == 401, path
+    assert req(srv, "GET", "/api/brands/../etc/facts")[0] == 404
+    assert req(srv, "GET", "/api/brands/nosuchbrand/facts")[0] == 404
+
+
+def test_add_a_website_runs_brand_init_as_a_task(studio, temp_brand):
+    srv, _ = studio
+    bid, calls = temp_brand
+    st, _, inds, _ = req(srv, "GET", "/api/industries")
+    assert st == 200 and {"web-hosting", "software"} <= {i["id"] for i in inds}
+    for body in ({"industry": "software"},                                         # no site
+                 {"site": "http://zed.example", "industry": "software"},           # not https
+                 {"site": "https://zed.example", "industry": "bakery"},            # unknown pack
+                 {"site": "https://zed.example", "industry": "software", "id": "Bad Id!"},
+                 {"site": "https://zed.example", "industry": "software", "id": "../x"}):
+        assert req(srv, "POST", "/api/brands", body)[0] == 400, body
+    assert req(srv, "POST", "/api/brands", {"site": "https://shrotihost.in", "industry": "web-hosting", "id": "shrotihost"})[0] == 409
+    assert calls == []                                                             # refused before any fetch
+
+    st, _, js, _ = req(srv, "POST", "/api/brands", {"site": "zed.example", "industry": "software", "id": bid, "name": "Zed Tools"})
+    assert st == 200 and js["brand"] == bid, js
+    t = _wait(srv, js["task"]["id"])
+    assert t["status"] == "done" and t["kind"] == "brand-init", t
+    r = t["result"]
+    assert r["brand"] == bid and r["draft"]["status"] == "draft" and r["draft"]["colors"]["brand"].lower() == "#3366ff"
+    assert r["draft"]["logo"].startswith("public/brands/") and "pricing" in r["draft"]["fact_pages"]
+    assert calls and calls[0] == "https://zed.example/"
+    st, _, f, _ = req(srv, "GET", f"/api/brands/{bid}/facts")
+    assert st == 200 and f["exists"] and f["facts"] == []                          # nothing invented from the page
+    assert req(srv, "POST", f"/api/brands/{bid}/facts/refresh", {})[0] == 409      # nothing to re-check yet
+    assert req(srv, "POST", "/api/brands", {"site": "zed.example", "industry": "software", "id": bid})[0] == 409
+
+
+def test_facts_review_never_verifies_by_itself(studio, temp_brand, monkeypatch):
+    srv, _ = studio
+    bid, _ = temp_brand
+    from pipeline.intelligence import facts as F
+    st, _, js, _ = req(srv, "POST", "/api/brands", {"site": "zed.example", "industry": "software", "id": bid})
+    assert _wait(srv, js["task"]["id"])["status"] == "done"
+    path = ROOT / "knowledge" / bid / "facts.json"
+    d = json.loads(path.read_text())
+    base = {"category": "price", "product": "all", "value": {"amount": 9}, "keywords": [], "source_kind": "visible-text",
+            "source_url": "https://zed.example/", "fetched_at": "2026-11-14T00:00:00Z", "volatile": False}
+    d["facts"] = [{**base, "id": "pro.price", "claim": "Zed Pro costs $9 a month", "excerpt": "Zed Pro costs $9 a month."},
+                  {**base, "id": "pro.gone", "claim": "Zed Pro has 99 seats", "excerpt": "99 seats included"},
+                  {**base, "id": "pro.draft", "claim": "Zed Pro is $9", "excerpt": "Zed Pro costs $9", "status": "NEEDS_REVIEW"}]
+    path.write_text(json.dumps(d))
+    monkeypatch.setattr(F, "fetch", lambda url, timeout=45.0: FAKE_HOME.decode())
+
+    st, _, js, _ = req(srv, "POST", f"/api/brands/{bid}/facts/refresh", {})
+    assert st == 200
+    t = _wait(srv, js["task"]["id"])
+    assert t["status"] == "done" and t["result"]["stale"] == ["pro.gone"], t
+    st, _, f, _ = req(srv, "GET", f"/api/brands/{bid}/facts")
+    status = {x["id"]: x["status"] for x in f["facts"]}
+    assert status == {"pro.price": "verified", "pro.gone": "stale", "pro.draft": "NEEDS_REVIEW"}, status   # excerpt found, still NOT verified
+    assert json.loads(path.read_text())["facts"] == d["facts"]                     # the re-check never edits facts.json
+
+    url = f"/api/brands/{bid}/facts/confirm"
+    for body in ({"factId": "pro.draft", "reviewer": "Priyanshu"},                 # no deliberate confirm
+                 {"factId": "pro.draft", "reviewer": "Priyanshu", "confirm": "true"},
+                 {"factId": "pro.draft", "reviewer": "  ", "confirm": True},       # reviewer required
+                 {"factId": "pro.draft", "confirm": True},
+                 {"reviewer": "Priyanshu", "confirm": True}):
+        assert req(srv, "POST", url, body)[0] == 400, body
+    assert req(srv, "POST", url, {"factId": "nope", "reviewer": "Priyanshu", "confirm": True})[0] == 404
+    assert json.loads(path.read_text())["facts"] == d["facts"]
+
+    st, _, js, _ = req(srv, "POST", url, {"factId": "pro.draft", "reviewer": "Priyanshu", "note": "seen on the home page", "confirm": True})
+    assert st == 200 and js["status"] == "verified", js
+    saved = {x["id"]: x for x in json.loads(path.read_text())["facts"]}
+    assert saved["pro.draft"]["status"] == "verified" and saved["pro.draft"]["verified_by"]["reviewer"] == "Priyanshu"
+    assert saved["pro.draft"]["human_checks"][0]["note"] == "seen on the home page"
+    assert "human_checks" not in saved["pro.price"] and "status" not in saved["pro.gone"]      # only the clicked fact changed
+    from pipeline.jobs import Registry
+    with Registry().conn() as c:
+        rows = c.execute("SELECT actor, action, subject FROM audit_log WHERE action='facts.human-check'").fetchall()
+    assert [tuple(r) for r in rows] == [("Priyanshu", "facts.human-check", f"{bid}:pro.draft")]
+
+
+def test_archive_needs_a_name_and_hides_the_production(studio, monkeypatch):
+    srv, base = studio
+    import pipeline.archive as A
+    monkeypatch.setattr(A, "ARCHIVE_DIR", base / "_archive")
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "name": "to-archive", "brief": {"product": "NVMe hosting"}})
+    pid = p["id"]
+    url = f"/api/productions/{pid}/archive"
+    assert req(srv, "POST", url, {"actor": "Priyanshu"})[0] == 400                 # no confirm
+    assert req(srv, "POST", url, {"confirm": True})[0] == 400                      # no name
+    assert req(srv, "POST", url, {"confirm": True, "actor": ""})[0] == 400
+    st, _, js, _ = req(srv, "POST", url, {"confirm": True, "actor": "Priyanshu", "note": "old test"})
+    assert st == 200 and js["moved_to"].startswith("output/"), js
+    assert pid not in {x["id"] for x in req(srv, "GET", "/api/productions")[2]}
+    assert (base / "_archive" / "productions").exists()
+
+
+def test_i_posted_it_on_records_a_person_s_post_after_approval_only(studio, monkeypatch):
+    srv, base = studio
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "name": "posted",
+                                                         "brief": {"product": "NVMe hosting", "format": "short", "duration_seconds": 30}})
+    pid = p["id"]
+    url = f"/api/productions/{pid}/mark-published"
+    good = {"platform": "linkedin", "url": "https://www.linkedin.com/posts/x-123", "actor": "Priyanshu", "confirm": True}
+    for bad in ({**good, "actor": ""}, {**good, "confirm": False}, {**good, "url": "http://x.example/p"},
+                {**good, "url": "not a link"}, {**good, "platform": "Linked In!"}, {**good, "format": "square"}):
+        assert req(srv, "POST", url, bad)[0] == 400, bad
+    st, _, js, _ = req(srv, "POST", url, good)
+    assert st == 409, js                                                           # not approved: the publish gate refuses
+    assert req(srv, "PUT", f"/api/productions/{pid}/storyboard", {"storyboard": STORYBOARD})[0] == 200
+    _simulate_completed_job(base, pid)
+    st, _, m, _ = req(srv, "POST", f"/api/productions/{pid}/package", {})
+    d = req(srv, "GET", f"/api/productions/{pid}")[2]
+    for f in d["flags"]:
+        if f["status"] == "open":
+            req(srv, "POST", f"/api/productions/{pid}/flags/{f['id']}/resolve", {"reviewer": "Priyanshu", "note": "checked"})
+    assert req(srv, "POST", f"/api/productions/{pid}/approve", {"reviewer": "Priyanshu", "packageHash": m["package_hash"]})[0] == 200
+    st, _, js, _ = req(srv, "POST", url, good)
+    assert st == 200 and js["state"] == "PUBLISHED" and js["platform"] == "linkedin", js
+    assert req(srv, "POST", url, good)[0] == 409                                   # no duplicate record
+    d = req(srv, "GET", f"/api/productions/{pid}")[2]
+    assert d["published"] is True and [x["remote_id"] for x in d["publications"] if x["status"] == "PUBLISHED"] == [good["url"]]
+
+
+def test_setup_checklist_explains_each_doctor_check(studio, monkeypatch):
+    srv, _ = studio
+    from pipeline import cli
+    import pipeline.intelligence.registry as R
+
+    def fake_doctor(a):
+        assert a.json is True
+        print(json.dumps({"ok": False, "host": {"model": "test"}, "checks": [
+            {"check": "ffmpeg", "ok": True, "critical": True, "detail": "ffmpeg 9"},
+            {"check": "chromium", "ok": False, "critical": True, "detail": "missing"},
+            {"check": "voice.kokoro", "ok": False, "critical": True, "detail": "2/18 files ['MISSING']"},
+            {"check": "benchmark", "ok": False, "critical": False, "detail": "not run yet"}]}))
+        return 1
+    monkeypatch.setattr(cli, "cmd_doctor", fake_doctor)
+    monkeypatch.setattr(R, "with_local_availability", lambda *a, **k: {"default": "m:1", "models": [{"id": "m:1", "local_available": False}]})
+    st, _, js, _ = req(srv, "POST", "/api/setup/check", {})
+    assert st == 200
+    t = _wait(srv, js["task"]["id"])
+    assert t["status"] == "done", t
+    checks = {c["check"]: c for c in t["result"]["checks"]}
+    assert t["result"]["ok"] is False
+    assert checks["ffmpeg"]["status"] == "ok" and checks["ffmpeg"]["fix"] is None
+    assert checks["chromium"]["status"] == "missing" and "remotion browser ensure" in checks["chromium"]["fix"]
+    assert checks["voice.kokoro"]["status"] == "missing" and checks["voice.kokoro"]["label"].startswith("Voices")
+    assert checks["benchmark"]["status"] == "optional"
+    assert checks["llm.model"]["status"] == "optional" and "ollama pull m:1" in checks["llm.model"]["fix"]
+
+
+def test_errors_carry_hint_and_action(studio, monkeypatch):
+    srv, _ = studio
+
+    class Hinted(PipelineError):
+        code = "PREVIEW_STALE"
+
+        def to_dict(self):
+            return {**super().to_dict(), "hint": "The storyboard changed since the preview.", "action": "rebuild-preview"}
+    monkeypatch.setattr(api, "approve_preview", lambda pid, r, n: (_ for _ in ()).throw(Hinted("preview is out of date")))
+    monkeypatch.setattr(api, "generate_concepts", lambda pid: (_ for _ in ()).throw(Hinted("model busy")))
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "NVMe hosting"}})
+    st, _, js, _ = req(srv, "POST", f"/api/productions/{p['id']}/approve-preview", {"reviewer": "Priyanshu"})
+    assert st == 400 and js["error"]["hint"].startswith("The storyboard") and js["error"]["action"] == "rebuild-preview", js
+    st, _, js, _ = req(srv, "POST", f"/api/productions/{p['id']}/concepts", {})
+    t = _wait(srv, js["task"]["id"])
+    assert t["status"] == "failed" and t["error"]["action"] == "rebuild-preview" and t["error"]["hint"], t

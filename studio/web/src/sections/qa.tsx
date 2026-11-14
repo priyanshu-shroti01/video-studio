@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Any, api, fileUrl} from '../api';
+import {Any, api, fileUrl, runTask} from '../api';
 import {Alert, Badge, Button, Card, Empty, ErrorBox, KV, Pre, State, Table, toast, useApi, useLocal} from '../ui';
 import type {Nav} from '../app';
 
@@ -166,6 +166,11 @@ const PreviewGate: React.FC<{pid: string; p: Any; onChange: () => void}> = ({pid
       onChange();
     } catch (x) { setErr(x); } finally { setBusy(false); }
   };
+  const rebuild = async () => {          // offered when the error says the preview is out of date
+    setBusy(true); setErr(null);
+    try { await runTask(`/api/productions/${pid}/preview`); toast('success', 'New preview ready: look at it again before approving'); onChange(); }
+    catch (x) { setErr(x); } finally { setBusy(false); }
+  };
   return (
     <div className="grid">
       <Card title="Storyboard preview" className="span-8" actions={<span className="muted sm">one still per scene · estimated timing, no voice</span>}>
@@ -188,7 +193,7 @@ const PreviewGate: React.FC<{pid: string; p: Any; onChange: () => void}> = ({pid
               <input value={reviewer} onChange={(e) => setReviewer(e.target.value)} placeholder="Full name" /></label>
             <label className="field"><span className="field-l">Note (optional)</span>
               <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="What you checked" /></label>
-            {err ? <ErrorBox error={err} onDismiss={() => setErr(null)} /> : null}
+            {err ? <ErrorBox error={err} onDismiss={() => setErr(null)} actions={{'rebuild-preview': () => void rebuild(), retry: () => void approve()}} /> : null}
             <Button variant="primary" busy={busy} disabled={blocked || !reviewer.trim()} onClick={approve}>Approve preview for rendering</Button>
             {g.status === 'FAIL' && <div className="muted sm mt-s">The gate failed: fix the storyboard and build a new preview first.</div>}
           </>

@@ -16,7 +16,7 @@ const FUNNEL: {state: string; label: string; human?: boolean}[] = [
 const OTHER = ['QA_COMPLETE', 'PUBLISHING', 'CHANGES_REQUESTED', 'REJECTED', 'FAILED', 'CANCELLED'];
 const ACTION_LABEL: Record<string, string> = {
   'review-preview': 'Review preview', 'fix-storyboard': 'Fix storyboard', approve: 'Review & decide', revise: 'Revise',
-  failed: 'Open monitor', ready: 'Open publishing', 'brand-setup': 'Open brand',
+  failed: 'Open monitor', ready: 'Open publishing', 'brand-setup': 'Review brand',
 };
 const iso = (s?: string | null) => (s ? Date.parse(s) / 1000 : null);
 
@@ -37,7 +37,7 @@ export const Dashboard: React.FC<{nav: Nav}> = ({nav}) => {
   const shown = nav.brand ? brands.filter((b) => b.id === nav.brand) : brands;
   const open = (it: Any) => {
     if (it.production) nav.setPid(it.production);
-    if (it.kind === 'brand-setup') nav.setBrand(it.brand);
+    if (it.kind === 'brand-setup') { nav.setBrand(it.brand); nav.go('brands', it.brand); return; }
     nav.go(it.action, it.action === 'monitor' ? undefined : it.production ?? undefined);
   };
   const BrandTag: React.FC<{id?: string}> = ({id}) => {
@@ -90,7 +90,7 @@ export const Dashboard: React.FC<{nav: Nav}> = ({nav}) => {
         )}
       </Card>
 
-      <Card title="Brands" className="span-5" actions={<span className="muted sm"><code>video-pipeline brand init</code> adds a site</span>}>
+      <Card title="Brands" className="span-5" actions={<a href="#/brands">+ Add a website · facts →</a>}>
         {shown.length === 0 ? <Empty>No brands.</Empty> : (
           <Table cols={['Brand', 'Verified facts', 'Publishing accounts']}>
             {shown.map((b) => (

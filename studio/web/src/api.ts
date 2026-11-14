@@ -9,12 +9,17 @@ export class ApiError extends Error {
   code: string;
   detail: string | null;
   errors: string[];
-  constructor(status: number, code: string, message: string, detail: string | null, errors: string[]) {
+  /** Plain "what to do" sentence and a suggested action id ("retry", "rebuild-preview", …) from the pipeline. */
+  hint: string | null;
+  action: string | null;
+  constructor(status: number, code: string, message: string, detail: string | null, errors: string[], hint: string | null = null, action: string | null = null) {
     super(message);
     this.status = status;
     this.code = code;
     this.detail = detail;
     this.errors = errors;
+    this.hint = hint;
+    this.action = action;
   }
 }
 
@@ -39,7 +44,7 @@ async function call<T>(method: string, path: string, body?: unknown): Promise<T>
   }
   if (!res.ok) {
     const err = data?.error ?? {};
-    throw new ApiError(res.status, err.code ?? `HTTP_${res.status}`, err.message ?? (text || res.statusText), err.detail ?? null, err.errors ?? []);
+    throw new ApiError(res.status, err.code ?? `HTTP_${res.status}`, err.message ?? (text || res.statusText), err.detail ?? null, err.errors ?? [], err.hint ?? null, err.action ?? null);
   }
   return data as T;
 }
@@ -57,7 +62,7 @@ export const fileUrl = (rel: string | null | undefined, bust?: string | number) 
 export const servable = (rel: string) => rel.startsWith('output/') || rel.startsWith('public/');
 
 export type Task = {id: string; kind: string; production: string; status: 'running' | 'done' | 'failed';
-  started_at: number; finished_at: number | null; result: Any; error: {code: string; message: string; detail?: string | null} | null};
+  started_at: number; finished_at: number | null; result: Any; error: {code: string; message: string; detail?: string | null; hint?: string | null; action?: string | null} | null};
 
 /** Poll a background task until it finishes. */
 export async function waitTask(id: string, onTick?: (t: Task) => void, intervalMs = 1200): Promise<Task> {
@@ -67,4 +72,12 @@ export async function waitTask(id: string, onTick?: (t: Task) => void, intervalM
     if (t.status !== 'running') return t;
     await new Promise((r) => setTimeout(r, intervalMs));
   }
+}
+
+/** Start-and-wait helper for task endpoints: throws the task's error (with hint/action) if it failed. */
+export async function runTask<T = Any>(path: string, body: unknown = {}, onTick?: (t: Task) => void, intervalMs = 1200): Promise<T> {
+  const r = await api.post<{task: Task}>(path, body);
+  const t = await waitTask(r.task.id, onTick, intervalMs);
+  if (t.status === 'failed') throw Object.assign(new ApiError(0, t.error?.code ?? 'TASK_FAILED', t.error?.message ?? 'failed', t.error?.detail ?? null, [], t.error?.hint ?? null, t.error?.action ?? null));
+  return t.result as T;
 }

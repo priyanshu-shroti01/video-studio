@@ -103,8 +103,9 @@ const Concepts: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) => {
   const res = p.concepts;
   const concepts: Any[] = res?.concepts ?? [];
   const needs: Any[] = res?.brief_claims?.needs_review ?? [];
+  const [last, setLast] = useState<{kind: 'concepts' | 'select'; body: Any} | null>(null);
   const run = async (kind: 'concepts' | 'select', body: Any = {}) => {
-    setBusy(kind === 'select' ? body.conceptId : kind); setErr(null);
+    setBusy(kind === 'select' ? body.conceptId : kind); setErr(null); setLast({kind, body});
     try {
       const {task} = await api.post(`/api/productions/${pid}/${kind}`, body);
       const t = await waitTask(task.id);
@@ -124,7 +125,7 @@ const Concepts: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) => {
           {Object.entries(p.brief ?? {}).filter(([k]) => !['brand_id'].includes(k)).map(([k, v]) => <span key={k} className="chip"><b>{k.replace('_seconds', '')}</b> {String(v)}</span>)}
         </div>
         {busy === 'concepts' && <Alert tone="info"><Spinner label=" Generating concepts with the local model — this waits for the scheduler if a render is running." /></Alert>}
-        <ErrorBox error={err} title="The creative engine failed" />
+        <ErrorBox error={err} title="The creative engine failed" actions={last ? {retry: () => void run(last.kind, last.body)} : undefined} />
         {err ? <Alert tone="warning" title="You can still continue">The creative engine is optional. Use <b>Write storyboard manually</b> to start from a template in the Storyboard Editor.</Alert> : null}
       </Card>
 

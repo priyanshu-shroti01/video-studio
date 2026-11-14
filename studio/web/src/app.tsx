@@ -8,6 +8,9 @@ import {AssetLibrary} from './sections/assets';
 import {RenderMonitor} from './sections/monitor';
 import {PreviewQA} from './sections/qa';
 import {PublishingCenter} from './sections/publish';
+import {Brands} from './sections/brands';
+import {Library} from './sections/library';
+import {Setup} from './sections/setup';
 
 export type Route = {section: string; arg?: string};
 const SECTIONS: {key: string; label: string; icon: string; needsProd?: boolean}[] = [
@@ -18,6 +21,9 @@ const SECTIONS: {key: string; label: string; icon: string; needsProd?: boolean}[
   {key: 'monitor', label: 'Render Monitor', icon: '◷'},
   {key: 'qa', label: 'Preview & QA', icon: '✓', needsProd: true},
   {key: 'publish', label: 'Publishing', icon: '↗', needsProd: true},
+  {key: 'library', label: 'Library', icon: '▤'},
+  {key: 'brands', label: 'Websites & facts', icon: '◎'},
+  {key: 'setup', label: 'Setup', icon: '⚙'},
 ];
 
 function parseHash(): Route {
@@ -59,7 +65,7 @@ export const App: React.FC = () => {
     const k = (e: KeyboardEvent) => {
       if (isTyping(e) || e.metaKey || e.ctrlKey || e.altKey) return;
       const n = Number(e.key);
-      if (n >= 1 && n <= SECTIONS.length) { e.preventDefault(); go(SECTIONS[n - 1].key); }
+      if (n >= 1 && n <= Math.min(9, SECTIONS.length)) { e.preventDefault(); go(SECTIONS[n - 1].key); }
       if (e.key === '?') setHelp((h) => !h);
     };
     window.addEventListener('keydown', k);
@@ -83,6 +89,9 @@ export const App: React.FC = () => {
       case 'monitor': body = <RenderMonitor nav={nav} jobArg={route.arg} />; break;
       case 'qa': body = <PreviewQA key={pid} nav={nav} pid={pid} />; break;
       case 'publish': body = <PublishingCenter key={pid} nav={nav} pid={pid} />; break;
+      case 'library': body = <Library nav={nav} />; break;
+      case 'brands': body = <Brands nav={nav} arg={route.arg} />; break;
+      case 'setup': body = <Setup />; break;
       default: body = <Dashboard nav={nav} />;
     }
   }
@@ -97,7 +106,7 @@ export const App: React.FC = () => {
         <nav className="nav" aria-label="Sections">
           {SECTIONS.map((s, i) => (
             <a key={s.key} href={`#/${s.key}`} className={`nav-i ${route.section === s.key ? 'active' : ''}`} aria-current={route.section === s.key ? 'page' : undefined}>
-              <span className="nav-ic" aria-hidden>{s.icon}</span><span>{s.label}</span><kbd>{i + 1}</kbd>
+              <span className="nav-ic" aria-hidden>{s.icon}</span><span>{s.label}</span>{i < 9 && <kbd>{i + 1}</kbd>}
             </a>
           ))}
         </nav>
@@ -135,7 +144,7 @@ export const App: React.FC = () => {
       </main>
       <Dialog open={help} title="Keyboard shortcuts" onClose={() => setHelp(false)}>
         <table className="tbl"><tbody>
-          {SECTIONS.map((s, i) => <tr key={s.key}><td><kbd>{i + 1}</kbd></td><td>{s.label}</td></tr>)}
+          {SECTIONS.slice(0, 9).map((s, i) => <tr key={s.key}><td><kbd>{i + 1}</kbd></td><td>{s.label}</td></tr>)}
           <tr><td><kbd>⌘/Ctrl</kbd>+<kbd>S</kbd></td><td>Save storyboard (validates)</td></tr>
           <tr><td><kbd>J</kbd> / <kbd>K</kbd></td><td>Next / previous scene</td></tr>
           <tr><td><kbd>Alt</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd></td><td>Move scene up / down</td></tr>

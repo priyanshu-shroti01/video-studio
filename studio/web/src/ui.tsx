@@ -78,21 +78,32 @@ export const Progress: React.FC<{value: number; tone?: Tone}> = ({value, tone = 
 export const Spinner: React.FC<{label?: string}> = ({label}) => <span className="spinner-wrap"><span className="spinner" />{label}</span>;
 
 // ---- errors --------------------------------------------------------------------------------------
-export const ErrorBox: React.FC<{error: unknown; title?: string; onDismiss?: () => void}> = ({error, title, onDismiss}) => {
-  if (!error) return null;
-  const e = error as ApiError & {detail?: string};
-  const lines: string[] = e.errors?.length ? e.errors : e.detail ? String(e.detail).split('\n').filter(Boolean) : [];
-  return (
-    <div className="alert alert-danger" role="alert">
-      <div className="alert-h">
-        <strong>{title ?? 'Error'}{e.code ? <code className="ml">{e.code}</code> : null}</strong>
-        {onDismiss && <button className="btn-x" onClick={onDismiss} aria-label="Dismiss">×</button>}
+const list = (lines: string[]) => <ul className="errlist">{lines.slice(0, 80).map((l, i) => <li key={i}><code>{l}</code></li>)}</ul>;
+const ACTION_LABELS: Record<string, string> = {'rebuild-preview': 'Build a new preview', retry: 'Try again'};
+
+/** An API or task error. A `hint` (plain "what to do") shows under the message; when the error suggests an
+ * `action` ("retry", "rebuild-preview") and the screen passes a handler for it, the matching button appears. */
+export const ErrorBox: React.FC<{error: unknown; title?: string; onDismiss?: () => void; actions?: Partial<Record<string, () => void>>}> =
+  ({error, title, onDismiss, actions}) => {
+    if (!error) return null;
+    const e = error as ApiError & {detail?: string; hint?: string | null; action?: string | null};
+    const lines: string[] = e.errors?.length ? e.errors : e.detail ? String(e.detail).split('\n').filter(Boolean) : [];
+    const act = e.action && actions?.[e.action] ? {id: e.action, fn: actions[e.action]!} : null;
+    return (
+      <div className="alert alert-danger" role="alert">
+        <div className="alert-h">
+          <strong>{title ?? 'Error'}{e.code ? <code className="ml">{e.code}</code> : null}</strong>
+          {onDismiss && <button className="btn-x" onClick={onDismiss} aria-label="Dismiss">×</button>}
+        </div>
+        <div>{e.message ?? String(error)}</div>
+        {e.hint && <div className="err-hint"><b>What to do:</b> {e.hint}</div>}
+        {act && <div className="mt-s"><button className="btn btn-primary" onClick={act.fn}>{ACTION_LABELS[act.id] ?? act.id}</button></div>}
+        {lines.length > 0 && (e.hint
+          ? <details className="mt-s"><summary className="sm muted">Technical details</summary>{list(lines)}</details>
+          : list(lines))}
       </div>
-      <div>{e.message ?? String(error)}</div>
-      {lines.length > 0 && <ul className="errlist">{lines.slice(0, 80).map((l, i) => <li key={i}><code>{l}</code></li>)}</ul>}
-    </div>
-  );
-};
+    );
+  };
 
 export const Alert: React.FC<{tone?: Tone; title?: React.ReactNode; children?: React.ReactNode}> = ({tone = 'info', title, children}) => (
   <div className={`alert alert-${tone}`}>{title && <div className="alert-h"><strong>{title}</strong></div>}{children}</div>
