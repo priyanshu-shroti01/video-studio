@@ -1655,6 +1655,80 @@
    "fetched_at": "2026-11-13T14:11:15Z",
    "excerpt": "Free daily backups Included Often a paid add-on",
    "volatile": false
+  },
+  {
+   "id": "from_price",
+   "category": "price",
+   "product": "all",
+   "plan": null,
+   "claim": "Prices start from ₹49/mo",
+   "value": {
+    "amount": 49,
+    "currency": "INR",
+    "period": "month",
+    "from": true
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-14T18:22:59Z",
+   "excerpt": "Shroti Host is an Indian web hosting and development company: NVMe hosting from ₹49/mo, same price on renewal.",
+   "volatile": false,
+   "status": "verified",
+   "verified_by": {
+    "reviewer": "Priyanshu Shroti",
+    "at": "2026-11-14T18:22:59Z"
+   },
+   "human_checks": [
+    {
+     "reviewer": "Priyanshu Shroti",
+     "checked_at": "2026-11-14T18:22:59Z",
+     "note": "",
+     "source_url": "https://shrotihost.in/",
+     "via": "studio: suggested fact, \"I checked this on the website\" (excerpt re-checked on the page)"
+    }
+   ],
+   "origin": {
+    "candidate": "c90934b0bca9",
+    "extracted_by": "rules"
+   }
+  },
+  {
+   "id": "launch.price.monthly",
+   "category": "price",
+   "product": "all",
+   "plan": "Launch",
+   "claim": "Launch plan costs ₹49, billed monthly",
+   "value": {
+    "amount": 49,
+    "currency": "INR",
+    "billing": "monthly",
+    "period": "month"
+   },
+   "keywords": [],
+   "source_url": "https://shrotihost.in/",
+   "source_kind": "visible-text",
+   "fetched_at": "2026-11-14T18:23:07Z",
+   "excerpt": "Launch Start something great. ₹49 Billed monthly · excl. taxes",
+   "volatile": false,
+   "status": "verified",
+   "verified_by": {
+    "reviewer": "Priyanshu Shroti",
+    "at": "2026-11-14T18:23:07Z"
+   },
+   "human_checks": [
+    {
+     "reviewer": "Priyanshu Shroti",
+     "checked_at": "2026-11-14T18:23:07Z",
+     "note": "",
+     "source_url": "https://shrotihost.in/",
+     "via": "studio: suggested fact, \"I checked this on the website\" (excerpt re-checked on the page)"
+    }
+   ],
+   "origin": {
+    "candidate": "c0b744d0bb27",
+    "extracted_by": "rules"
+   }
   }
  ],
  "not_found": [
