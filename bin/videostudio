@@ -1,0 +1,241 @@
+#!/usr/bin/env bash
+# videostudio: open and manage the local Video Studio.
+#
+#   videostudio            start the Studio (if it is not running) and open it in your browser
+#   videostudio stop       stop the Studio
+#   videostudio status     is it running?
+#   videostudio logs       show the Studio's recent messages (add -f to keep watching)
+#   videostudio doctor     check that everything Video Studio needs is installed
+#   videostudio update     download the latest version (your videos, projects and brands are kept)
+#   videostudio help       this text
+#
+# Environment: VIDEOSTUDIO_HOME (install folder; default: the folder this script lives in, else
+# ~/VideoStudio), VIDEOSTUDIO_PORT (default 8765), VIDEOSTUDIO_NO_BROWSER=1 (start without opening it),
+# VIDEOSTUDIO_INSTALL_URL (installer used by `update`).
+set -euo pipefail
+
+INSTALL_URL=${VIDEOSTUDIO_INSTALL_URL:-https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/install.sh}
+PORT=${VIDEOSTUDIO_PORT:-8765}
+URL="http://127.0.0.1:$PORT/"
+START_TIMEOUT=${VIDEOSTUDIO_START_TIMEOUT:-60}
+
+# Resolve the install folder: env, else the folder above this script (following the ~/.local/bin symlink).
+resolve_home() {
+  if [[ -n ${VIDEOSTUDIO_HOME:-} ]]; then
+    printf '%s\n' "${VIDEOSTUDIO_HOME%/}"
+    return
+  fi
+  local src=${BASH_SOURCE[0]} dir
+  while [[ -L $src ]]; do
+    dir="$(cd -P "$(dirname "$src")" && pwd)"
+    src="$(readlink "$src")"
+    [[ $src == /* ]] || src="$dir/$src"
+  done
+  dir="$(cd -P "$(dirname "$src")/.." && pwd)"
+  if [[ -f $dir/pyproject.toml ]]; then
+    printf '%s\n' "$dir"
+  else
+    printf '%s\n' "$HOME/VideoStudio"
+  fi
+}
+
+APP_HOME="$(resolve_home)"
+STATE_DIR="$APP_HOME/.pipeline/studio"
+PID_FILE="$STATE_DIR/studio.pid"
+LOG_FILE="$STATE_DIR/studio.log"
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+
+say() { printf '%s\n' "$*"; }
+
+usage() { sed -n 2,13p "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+
+# The pid we started, if that process is still alive.
+our_pid() {
+  [[ -f $PID_FILE ]] || return 1
+  local pid
+  pid="$(tr -dc '0-9' <"$PID_FILE")"
+  [[ -n $pid ]] && kill -0 "$pid" 2>/dev/null || return 1
+  # After a restart the number may belong to another program: only trust it if it is ours.
+  ps -p "$pid" -o command= 2>/dev/null | grep -q 'video-pipeline studio' || return 1
+  printf '%s\n' "$pid"
+}
+
+# Does anything answer HTTP on the Studio port?
+answering() {
+  local code
+  code="$(curl -s -o /dev/null -m 2 -w '%{http_code}' "$URL" 2>/dev/null || true)"
+  [[ -n $code && $code != 000 ]]
+}
+
+need_install() {
+  if [[ ! -f $APP_HOME/pyproject.toml ]]; then
+    say "Video Studio is not installed in $APP_HOME."
+    say "Install it with:"
+    say "  curl -fsSL https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/install.sh | bash"
+    exit 1
+  fi
+  if ! command -v uv >/dev/null 2>&1; then
+    say "The uv tool is missing. Run the install command again (see docs/INSTALL.md)."
+    exit 1
+  fi
+}
+
+open_browser() {
+  if [[ ${VIDEOSTUDIO_NO_BROWSER:-0} == 1 ]]; then
+    say "Video Studio is at $URL"
+    return
+  fi
+  say "Opening $URL"
+  open "$URL" 2>/dev/null || say "Open this address in your browser: $URL"
+}
+
+cmd_start() {
+  if our_pid >/dev/null || answering; then
+    say "Video Studio is already running."
+    open_browser
+    return 0
+  fi
+  need_install
+  if [[ ! -f $APP_HOME/studio/web/dist/app.js ]]; then
+    say "Warning: the Studio app has not been built yet. Run the install command again to finish setting up."
+  fi
+  mkdir -p "$STATE_DIR"
+  say "Starting Video Studio..."
+  printf '\n=== %s: starting Video Studio on port %s ===\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$PORT" >>"$LOG_FILE"
+  (
+    cd "$APP_HOME"
+    exec nohup uv run video-pipeline studio --port "$PORT" </dev/null >>"$LOG_FILE" 2>&1
+  ) &
+  local pid=$!
+  printf '%s\n' "$pid" >"$PID_FILE"
+  local waited=0
+  until answering; do
+    if ! kill -0 "$pid" 2>/dev/null; then
+      rm -f "$PID_FILE"
+      say "Video Studio could not start. The last messages were:"
+      tail -n 20 "$LOG_FILE" | sed 's/^/  /'
+      say "Full log: $LOG_FILE   (try: videostudio doctor)"
+      return 1
+    fi
+    if (( waited >= START_TIMEOUT * 2 )); then
+      say "Video Studio is taking long to start. Check: videostudio logs"
+      return 1
+    fi
+    sleep 0.5
+    waited=$((waited + 1))
+  done
+  say "Video Studio is running. To stop it later: videostudio stop"
+  open_browser
+}
+
+# Stop a process and its children (uv run -> python).
+kill_tree() {
+  local pid=$1 sig=${2:-TERM} child
+  for child in $(pgrep -P "$pid" 2>/dev/null || true); do
+    kill_tree "$child" "$sig"
+  done
+  kill "-$sig" "$pid" 2>/dev/null || true
+}
+
+cmd_stop() {
+  local pid
+  if ! pid="$(our_pid)"; then
+    rm -f "$PID_FILE"
+    if answering; then
+      say "Something else is running on port $PORT (not started with videostudio); leaving it alone."
+      say "Stop it in the Terminal window where it was started (press Control-C)."
+      return 1
+    fi
+    say "Video Studio is not running."
+    return 0
+  fi
+  say "Stopping Video Studio..."
+  kill_tree "$pid" TERM
+  local _
+  for _ in $(seq 1 20); do
+    kill -0 "$pid" 2>/dev/null || break
+    sleep 0.5
+  done
+  if kill -0 "$pid" 2>/dev/null; then
+    kill_tree "$pid" KILL
+  fi
+  rm -f "$PID_FILE"
+  say "Stopped."
+}
+
+cmd_status() {
+  local pid
+  if pid="$(our_pid)"; then
+    if answering; then
+      say "Video Studio is running (pid $pid) at $URL"
+    else
+      say "Video Studio is starting (pid $pid); it will be at $URL"
+    fi
+    return 0
+  fi
+  if answering; then
+    say "Something is running at $URL, but it was not started with videostudio."
+    return 0
+  fi
+  say "Video Studio is not running. Start it with: videostudio"
+  return 3
+}
+
+cmd_logs() {
+  if [[ ! -f $LOG_FILE ]]; then
+    say "No log yet ($LOG_FILE). Start the Studio with: videostudio"
+    return 0
+  fi
+  if [[ ${1:-} == -f || ${1:-} == --follow ]]; then
+    say "Showing new messages as they come (press Control-C to stop watching)."
+    tail -n 50 -f "$LOG_FILE"
+  else
+    tail -n 200 "$LOG_FILE"
+    say ""
+    say "(log file: $LOG_FILE)"
+  fi
+}
+
+cmd_doctor() {
+  need_install
+  cd "$APP_HOME"
+  uv run video-pipeline doctor
+}
+
+cmd_update() {
+  if [[ -d $APP_HOME/.git ]]; then
+    say "$APP_HOME is a Git checkout: update it with git (the installer will not overwrite it)."
+    return 1
+  fi
+  local was_running=0 a
+  for a in "$@"; do [[ $a == --dry-run || $a == -n ]] && was_running=-1; done
+  if [[ $was_running == 0 ]] && our_pid >/dev/null; then
+    was_running=1
+    cmd_stop
+  fi
+  say "Downloading the latest installer..."
+  local script
+  script="$(curl -fsSL "$INSTALL_URL")" || { say "Could not download the installer. Check the internet connection."; return 1; }
+  VIDEOSTUDIO_HOME="$APP_HOME" bash -c "$script" videostudio-install "$@"
+  if [[ $was_running == 1 ]]; then
+    cmd_start
+  fi
+}
+
+main() {
+  local cmd=${1:-start}
+  [[ $# -gt 0 ]] && shift
+  case "$cmd" in
+    start|open) cmd_start ;;
+    stop) cmd_stop ;;
+    restart) cmd_stop && cmd_start ;;
+    status) cmd_status ;;
+    logs|log) cmd_logs "$@" ;;
+    doctor) cmd_doctor ;;
+    update|upgrade) cmd_update "$@" ;;
+    help|-h|--help) usage ;;
+    *) say "Unknown command: $cmd"; usage; return 2 ;;
+  esac
+}
+
+main "$@"

@@ -5,6 +5,8 @@
 **Turn a product brief into a branded, narrated, animated and fact-checked marketing video, entirely on your Mac.**
 Local AI, multiple brands, and a person approving every step that matters.
 
+**₹0 per video. No subscription, no API keys, no LLM account. The AI runs on your Mac.**
+
 <img src="docs/images/demo-opening.gif" width="250" alt="Opening of the WordPress Hosting Short: hook, terminal errors, logo reveal">&nbsp;&nbsp;
 <img src="docs/images/demo-wordpress-short.gif" width="250" alt="One-click WordPress install, plan comparison and the ₹69 plan card">
 
@@ -17,7 +19,7 @@ The voice, captions, music, animation and QA all ran locally; a person approved 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Remotion](https://img.shields.io/badge/Remotion-4-0B84F3)
 ![Local AI](https://img.shields.io/badge/AI-100%25%20local-6d5efc)
-![License](https://img.shields.io/badge/license-All%20rights%20reserved-lightgrey)
+[![License: PolyForm Shield 1.0.0](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0%20(source--available)-lightgrey)](LICENSE)
 
 </div>
 
@@ -35,6 +37,28 @@ to someone else's servers. This studio does the whole job on one laptop, at no r
 | 🎬 **Designed, then checked** | Professionally composed scene templates own layout and animation. An opt-in component generator designs new scene graphics, scored by the same layout, sync and fact rules. AI drafts copy only inside validated slots. |
 | 🧑‍⚖️ **Accountable** | No expensive render, approval or publish happens without a named person's decision, bound to the exact files by SHA-256. |
 | 🏷️ **Multi-brand** | One studio for many websites. Each brand's logos, facts, voice and social accounts are strictly isolated. |
+
+## Why not just ask ChatGPT for a video?
+
+AI video generators (Sora in ChatGPT, Veo, Runway, Kling and others) make striking, cinematic footage. For a product
+video, a marketer still runs into a few problems:
+
+- **Cost.** They are paid by subscription or by credits per clip. Video Studio costs ₹0 per video and needs no API key.
+- **Your real product.** A generator invents a product that looks plausible. Video Studio shows screen recordings of
+  your real app or website.
+- **Prices and claims.** Text inside generated frames is often wrong or garbled, and nothing checks it. Here every
+  number is checked against the brand's own site, and the finished file is read back with OCR, digit by digit.
+- **Your brand.** Generators approximate logos and colours. Video Studio uses the brand's real logo, colours, fonts
+  and the right pronunciation of its name.
+- **A whole video.** Instead of short clips to stitch together, you get a complete 30 s to 3 min video with voice,
+  music and captions, in both 9:16 and 16:9.
+- **Editing.** You can change one line or one scene and keep the rest, instead of regenerating and hoping.
+- **Privacy and sign-off.** Your brief and assets stay on your Mac, and a named person approves the exact file
+  before it is published.
+
+Where they are better: the look. Generated footage is photographic and Video Studio's motion graphics are not, and
+template-built scenes can look alike from one video to the next. You can use both: clips from any AI video tool can
+be imported as `footage` scenes.
 
 ## Results
 
@@ -217,6 +241,21 @@ Each brand gets its own folders:
 
 ## Quick start
 
+Open the Terminal app on your Mac (Apple silicon) and paste these two commands:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/install.sh | bash
+videostudio
+```
+
+The second command opens the Studio at http://127.0.0.1:8765/ in your browser. You don't need VS Code, Git or any
+developer tools. The first install downloads about 4 GB (the local AI model, voices and a browser for rendering), so
+allow some time on a slow connection. Later, `videostudio` opens it, `videostudio stop` closes it and
+`videostudio update` updates it. Step-by-step help: [docs/INSTALL.md](docs/INSTALL.md).
+
+<details>
+<summary>For developers</summary>
+
 ```bash
 # install (once)
 brew install ffmpeg uv node ollama
@@ -245,6 +284,8 @@ uv run video-pipeline publish --id $P --platform youtube --actor "Your Name" --c
 
 To use the Studio instead, run `uv run video-pipeline studio --open`. To keep things tidy, `video-pipeline archive --all-except $P`
 hides the rest, and its files move to `output/_archive/` (reversible).
+
+</details>
 
 ## Performance
 
@@ -292,18 +333,24 @@ The render contract is versioned (`CONTRACT_VERSION` in `src/engine/types.ts` �
 | Using it | [STUDIO_GUIDE](docs/STUDIO_GUIDE.md) · [QA_GUIDE](docs/QA_GUIDE.md) · [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) |
 | Publishing | [PUBLISHING_APPROVAL](docs/PUBLISHING_APPROVAL.md) · [SOCIAL_PUBLISHING](docs/SOCIAL_PUBLISHING.md) · [SOCIAL_SETUP](docs/SOCIAL_SETUP.md) |
 | Local AI and voice | [LOCAL_AI](docs/LOCAL_AI.md) · [LOCAL_TTS](docs/LOCAL_TTS.md) |
-| Brand and policy | [BRANDING](docs/BRANDING.md) · [WATERMARK_POLICY](docs/WATERMARK_POLICY.md) · [SECURITY](SECURITY.md) · [LICENSING](docs/LICENSING.md) |
+| Brand and policy | [BRANDING](docs/BRANDING.md) · [WATERMARK_POLICY](docs/WATERMARK_POLICY.md) · [SECURITY](SECURITY.md) · [NOTICE](NOTICE.md) · [LICENSING](docs/LICENSING.md) |
 | Results | [CREATIVE_COMPARISON](docs/reports/CREATIVE_COMPARISON.md) · [BENCHMARK](docs/reports/BENCHMARK_REPORT_V030.md) · [CHANGELOG](CHANGELOG.md) |
 
 ## License
 
-**Copyright © 2026 Priyanshu Shroti. All rights reserved.** This is proprietary software: you may view it on
-GitHub, but you may not copy, modify, distribute or use it without written permission. See [LICENSE](LICENSE).
+Video Studio is free and source-available under the [PolyForm Shield License 1.0.0](LICENSE). Copyright © 2026
+Priyanshu Shroti.
+
+In short: anyone, including a business, may use it for free to make their own videos and may change it for their
+own use. You may not sell it, offer it as a hosted service or use it to build a competing product. That summary is
+not the licence; [LICENSE](LICENSE) is. [NOTICE.md](NOTICE.md) explains it in plain language and lists the
+third-party terms.
 
 ## Third-party licenses and credits
 
-Third-party components keep their own licenses ([details](docs/LICENSING.md)):
-- **Remotion** is free only for individuals and companies with up to 3 employees.
+Third-party components keep their own licenses ([NOTICE.md](NOTICE.md), [details](docs/LICENSING.md)):
+- **Remotion** is free only for individuals, non-profits and companies with up to 3 employees. A larger company
+  needs a paid Remotion Company License, even though Video Studio itself is free.
 - **Piper and espeak-ng** are GPL-3.0, which is fine for private use but matters if this is ever distributed.
 
 Music and sound effects are CC0 (credited per video). The WordPress icon is from [Simple Icons](https://simpleicons.org)
