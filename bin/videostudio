@@ -44,6 +44,9 @@ STATE_DIR="$APP_HOME/.pipeline/studio"
 PID_FILE="$STATE_DIR/studio.pid"
 LOG_FILE="$STATE_DIR/studio.log"
 export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+# Same Python as the installer (uv would otherwise pick the newest one, e.g. Homebrew's python@3.15, for the
+# helper scripts the Studio runs with `uv run`).
+export UV_PYTHON="${VIDEOSTUDIO_PYTHON:-3.14}"
 
 say() { printf '%s\n' "$*"; }
 

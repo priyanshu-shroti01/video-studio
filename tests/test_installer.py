@@ -154,6 +154,39 @@ def test_dry_run_skips_steps_with_a_matching_marker(tmp_path):
     assert sorted(p.name for p in markers.iterdir()) == ["model.done", "studio.done"]
 
 
+def test_dry_run_reruns_steps_whose_output_is_gone(tmp_path):
+    """The browser lives in node_modules (wiped by `npm ci`) and the voices in models/: a marker alone is not
+    enough. The Python step's key includes the pinned Python version (an older marker without it reruns)."""
+    home = tmp_path / "home"
+    app = home / "VideoStudio"
+    markers = app / ".pipeline/install"
+    markers.mkdir(parents=True)
+    (app / ".venv").mkdir()
+    py = next(line.split('"')[1] for line in INSTALL.read_text().splitlines() if line.startswith("DEFAULT_PYTHON="))
+    # Without the code downloaded, file_key gives "none": these markers match the keys of this dry run.
+    for name in ("browser", "voices"):
+        (markers / f"{name}.done").write_text("none\n")
+    (markers / "uv.done").write_text(f"none-py{py}\n")
+    r = subprocess.run(["bash", str(INSTALL), "--dry-run"], env=_env(home), capture_output=True, text=True,
+                       timeout=60)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "would run: npx --yes remotion browser ensure" in r.stdout.split("[6/12]")[1].split("[7/12]")[0]
+    assert "Already done, skipping." in r.stdout.split("[7/12]")[1].split("[8/12]")[0]
+    assert "registry fetch" in r.stdout.split("[8/12]")[1].split("[9/12]")[0]
+    (markers / "uv.done").write_text("none\n")                       # marker from before the Python pin
+    r = subprocess.run(["bash", str(INSTALL), "--dry-run"], env=_env(home), capture_output=True, text=True,
+                       timeout=60)
+    assert "would run: uv sync" in r.stdout.split("[7/12]")[1].split("[8/12]")[0]
+
+
+def test_python_is_pinned_for_uv(tmp_path):
+    """uv would otherwise pick the newest Python on the Mac (Homebrew's ollama brings python@3.15, which
+    onnxruntime has no wheels for). Installer and launcher must agree on the version."""
+    py = next(line.split('"')[1] for line in INSTALL.read_text().splitlines() if line.startswith("DEFAULT_PYTHON="))
+    assert 'export UV_PYTHON="${VIDEOSTUDIO_PYTHON:-$DEFAULT_PYTHON}"' in INSTALL.read_text()
+    assert f'export UV_PYTHON="${{VIDEOSTUDIO_PYTHON:-{py}}}"' in LAUNCHER.read_text()
+
+
 # ------------------------------------------------------------------------- helper functions (sourced)
 
 def _source(app_home: Path, body: str) -> subprocess.CompletedProcess:
@@ -277,6 +310,44 @@ def test_backup_user_data(tmp_path):
     assert len(backups) == 1
     listing = subprocess.run(["tar", "-tzf", str(backups[0])], capture_output=True, text=True).stdout
     assert "brands/acme/brand.json" in listing
+
+
+def test_sound_tool_is_refetched_only_when_the_pinned_commit_changed(tmp_path):
+    app = tmp_path / "VS"
+    sl = app / "skills/opus-sound-layer"
+    body = 'DRY_RUN=1\ndo_soundkit | grep -c "would download the sound tool" || true'
+
+    def downloads() -> bool:
+        r = _source(app, body)
+        assert r.returncode == 0, r.stdout + r.stderr
+        return r.stdout.strip() == "1"
+
+    assert downloads()                                              # not there yet
+    (sl / "scripts").mkdir(parents=True)
+    (sl / "scripts/sfx.py").write_text("")
+    assert not downloads()                                          # a copy without a marker: a developer's clone
+    (sl / ".installed-commit").write_text("0000000\n")
+    assert downloads()                                              # installed by an older installer: update it
+    commit = next(line.split('"')[1] for line in INSTALL.read_text().splitlines()
+                  if line.startswith("SOUND_LAYER_COMMIT="))
+    (sl / ".installed-commit").write_text(commit + "\n")
+    assert not downloads()
+
+
+def test_backup_user_data_keeps_only_the_newest(tmp_path):
+    app = tmp_path / "VS"
+    (app / "brands").mkdir(parents=True)
+    backups = app / ".pipeline/backups"
+    backups.mkdir(parents=True)
+    old = [f"user-data-2026010{i}-000000.tar.gz" for i in range(1, 8)]
+    for name in old:
+        (backups / name).write_text("old")
+    r = _source(app, "backup_user_data")
+    assert r.returncode == 0, r.stdout + r.stderr
+    left = sorted(p.name for p in backups.iterdir())
+    assert len(left) == 5
+    assert left[:4] == old[-4:]                                       # the oldest are removed first
+    assert left[4].startswith("user-data-") and left[4] not in old  # the new one is kept
 
 
 # ---------------------------------------------------------------------------------------------- launcher

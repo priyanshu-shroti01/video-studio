@@ -14,6 +14,7 @@
 #   VIDEOSTUDIO_DRY_RUN=1     same as --dry-run
 #   VIDEOSTUDIO_VERBOSE=1     same as --verbose (show every command's output, not only the log)
 #   VIDEOSTUDIO_TARBALL_URL   where to download the code from (default: GitHub main branch)
+#   VIDEOSTUDIO_PYTHON        Python version for the Python parts (default 3.14; uv downloads it if needed)
 #
 # Everything lives in functions and `main` is called on the last line, so the whole script is read
 # before anything runs (important when it is piped from curl).
@@ -27,6 +28,9 @@ SOUND_LAYER_REPO="Bodila51/opus-sound-layer"
 SOUND_LAYER_COMMIT="52ac266a24b7dfd3cd06a28c34d5af360a8d7586"
 BREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
 BREW_PACKAGES=(ffmpeg uv node ollama)
+# Python for the Python parts. Pinned: left alone, uv picks the newest Python it finds, and Homebrew's ollama
+# pulls in python@3.15, for which onnxruntime (voices) has no wheels yet. uv downloads this version if needed.
+DEFAULT_PYTHON="3.14"
 
 # Top-level folders that hold the user's own work: files already there are never replaced.
 USER_DATA_DIRS=(output video-out projects brands knowledge .pipeline)
@@ -34,6 +38,7 @@ USER_DATA_DIRS=(output video-out projects brands knowledge .pipeline)
 USER_DATA_SUBDIRS=(public/brands audio/music)
 # Folders that mix code (updated) with user/generated files (kept): merged file by file, never wiped.
 MERGE_DIRS=(public audio)
+BACKUPS_KEPT=5
 
 STEP_TOTAL=12
 STEP_NO=0
@@ -112,7 +117,11 @@ xlong() {
     return
   fi
   local t0=$SECONDS tick rc=0
-  (while sleep 30; do printf '      still working (%d min so far)...\n' $(((SECONDS - t0) / 60)); done) &
+  (while sleep 30; do
+    local s=$((SECONDS - t0))
+    if ((s < 60)); then printf '      still working (%d seconds so far)...\n' "$s"
+    else printf '      still working (%d min so far)...\n' $((s / 60)); fi
+  done) &
   tick=$!
   x "$@" || rc=$?
   kill "$tick" 2>/dev/null || true
@@ -334,6 +343,13 @@ backup_user_data() {
   mkdir -p "$APP_HOME/.pipeline/backups"
   tar -czf "$APP_HOME/.pipeline/backups/user-data-$ts.tar.gz" -C "$APP_HOME" "${dirs[@]}"
   info "Backed up your brands, facts and projects to .pipeline/backups/user-data-$ts.tar.gz"
+  # Every run (also a retry after a failed step) makes one; keep the newest BACKUPS_KEPT (names sort by time).
+  local old=() f
+  for f in "$APP_HOME"/.pipeline/backups/user-data-*.tar.gz; do [[ -f $f ]] && old+=("$f"); done
+  while [[ ${#old[@]} -gt $BACKUPS_KEPT ]]; do
+    rm -f "${old[0]}"
+    old=("${old[@]:1}")
+  done
 }
 
 download_code() {
@@ -388,7 +404,11 @@ do_model() {
   return "$rc"
 }
 do_soundkit() {
-  if [[ ! -f $APP_HOME/skills/opus-sound-layer/scripts/sfx.py ]]; then
+  local sl=$APP_HOME/skills/opus-sound-layer
+  # Download when missing, or when an earlier install fetched another pinned commit (recorded in
+  # .installed-commit). A copy without that file (a developer's own clone) is left alone.
+  if [[ ! -f $sl/scripts/sfx.py ]] \
+    || { [[ -f $sl/.installed-commit ]] && [[ "$(cat "$sl/.installed-commit")" != "$SOUND_LAYER_COMMIT" ]]; }; then
     local url="https://codeload.github.com/$SOUND_LAYER_REPO/tar.gz/$SOUND_LAYER_COMMIT"
     if [[ $DRY_RUN == 1 ]]; then
       say "      [dry-run] would download the sound tool (MIT licence): $url"
@@ -398,8 +418,9 @@ do_soundkit() {
       rm -rf "$tmp" && mkdir -p "$tmp/src" || return 1
       x curl -fL --retry 3 -sS -o "$tmp/sl.tar.gz" "$url" || return 1
       x tar -xzf "$tmp/sl.tar.gz" -C "$tmp/src" --strip-components 1 || return 1
-      mkdir -p "$APP_HOME/skills" && rm -rf "$APP_HOME/skills/opus-sound-layer" || return 1
-      mv "$tmp/src" "$APP_HOME/skills/opus-sound-layer" || return 1
+      printf '%s\n' "$SOUND_LAYER_COMMIT" >"$tmp/src/.installed-commit"
+      mkdir -p "$APP_HOME/skills" && rm -rf "${sl:?}" || return 1
+      mv "$tmp/src" "$sl" || return 1
       rm -rf "$tmp"
     fi
   fi
@@ -411,25 +432,26 @@ setup_steps() {
   local h=$APP_HOME
   if [[ $DRY_RUN == 0 ]]; then cd "$h"; fi
 
-  step "Installing the video engine (about 5 minutes)"
+  step "Installing the video engine (about 120 MB, a few minutes)"
   resumable npm "$(file_key "$h" package-lock.json package.json scripts/patch-remotion-loopback.mjs)" \
     node_modules/.bin/remotion do_npm
 
-  step "Downloading the browser that draws the videos (about 150 MB)"
-  resumable browser "$(file_key "$h" package-lock.json)" "" do_browser
+  # The browser lives inside node_modules, so it is gone whenever the video engine is reinstalled.
+  step "Downloading the browser that draws the videos (about 140 MB)"
+  resumable browser "$(file_key "$h" package-lock.json)" node_modules/.remotion/chrome-headless-shell do_browser
 
   step "Installing the Python parts"
-  resumable uv "$(file_key "$h" uv.lock pyproject.toml)" .venv do_uv
+  resumable uv "$(file_key "$h" uv.lock pyproject.toml)-py$UV_PYTHON" .venv do_uv
 
   step "Downloading the voices (about 840 MB)"
-  resumable voices "$(file_key "$h" pipeline/voice/registry.json)" "" do_voices
+  resumable voices "$(file_key "$h" pipeline/voice/registry.json)" models/voice/kokoro/model.onnx do_voices
 
   LLM_MODEL="$(sed -n 's/^DEFAULT_MODEL = "\(.*\)".*/\1/p' "$h/pipeline/intelligence/providers.py" 2>/dev/null | head -1 || true)"
   LLM_MODEL=${LLM_MODEL:-$DEFAULT_LLM_MODEL}
   step "Downloading the local AI writing model ($LLM_MODEL, about 2.5 GB)"
   resumable model "$LLM_MODEL" "" do_model
 
-  step "Building the sound effects kit"
+  step "Building the sound effects kit (about 600 small downloads, a few minutes)"
   resumable soundkit "$SOUND_LAYER_COMMIT" audio/kit/catalog.json do_soundkit optional
 
   step "Building the Studio app"
@@ -505,6 +527,7 @@ main() {
   trap on_exit EXIT
   # Tools installed earlier but not yet on PATH in this shell.
   export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+  export UV_PYTHON="${VIDEOSTUDIO_PYTHON:-$DEFAULT_PYTHON}"
 
   say "Video Studio installer"
   if [[ $DRY_RUN == 1 ]]; then

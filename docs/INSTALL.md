@@ -7,7 +7,7 @@ installs everything, and one that opens the app.
 
 - a Mac with Apple silicon (M1 or newer). On an Intel Mac it installs, but making videos is slow;
 - a recent version of macOS (13 Ventura or newer);
-- about 6 GB of free disk space, plus room for your videos;
+- about 7 GB of free disk space, plus room for your videos;
 - an internet connection (only while installing; after that, everything runs on your Mac);
 - the password you use to log in to the Mac.
 
@@ -44,22 +44,33 @@ Nothing else needs your input.
 
 ### How long it takes
 
-Usually 20 to 60 minutes, depending on your internet speed. It downloads about 4 GB in total:
+Usually 15 to 60 minutes, depending on your internet speed, plus the Homebrew step if Homebrew is new on your Mac.
+It downloads about 4 GB in total. Measured on an M1 Pro with a connection of about 30 Mbit/s (4 MB/s), with
+Homebrew and its tools already installed:
 
-| Part | Size |
-|---|---|
-| Voices (read your scripts aloud, on your Mac) | about 840 MB |
-| AI writing model (writes video ideas, on your Mac) | about 2.5 GB |
-| Browser that draws the videos | about 150 MB |
-| Video engine and Python parts | about 500 MB |
-| Homebrew tools (ffmpeg, node, uv, Ollama), if missing | a few hundred MB |
+| Step | Download | Space used | Time measured |
+|---|---|---|---|
+| Video engine (`npm ci`) | about 120 MB | about 320 MB | 45 s |
+| Browser that draws the videos | about 140 MB | about 460 MB | 35 s |
+| Python parts (and Python 3.14 itself, if missing) | about 130 MB | about 290 MB + 75 MB for Python | 30 s |
+| Voices (read your scripts aloud, on your Mac) | about 670 MB | about 840 MB | 2 min 45 s to 3 min |
+| AI writing model (writes video ideas, on your Mac) | about 2.5 GB | about 2.5 GB | about 10 min at 4 MB/s (not timed) |
+| Sound effects kit (about 600 small files) | not measured | about 200 MB | 3 to 4 min |
+| Studio app, `videostudio` command | nothing | 1 MB | 1 s |
+| Homebrew tools (ffmpeg, node, uv, Ollama), if missing | a few hundred MB | not measured | 5 to 15 min (not timed) |
 
-While a long step runs, the installer prints `still working (N min so far)...` every 30 seconds.
+Without the AI model and the Homebrew step, the install took about 9 minutes. The `VideoStudio` folder ends up at
+about 2.1 GB; download caches (`~/.cache/uv`, `~/.npm`) add about 0.9 GB, and the AI model (kept by Ollama in
+`~/.ollama`) 2.5 GB.
+
+While a long step runs, the installer prints `still working (30 seconds so far)...`, then
+`still working (N min so far)...`, every 30 seconds.
 
 ### If the internet drops or something fails
 
 Run the same install command again. Finished steps are skipped (it says `Already done, skipping.`), so it
-continues where it stopped. If it still fails, it prints the path of a log file, for example
+continues where it stopped. When everything is already installed, running it again takes a few seconds. If it still
+fails, it prints the path of a log file, for example
 `~/VideoStudio/.pipeline/install/logs/install-20261114-101500.log`. Send that file to whoever helps you with
 Video Studio.
 
@@ -104,7 +115,8 @@ Everything lives in the **VideoStudio** folder in your home folder (in Finder: *
 Updating (`videostudio update`, or running the install command again) replaces only the program files. It never
 replaces anything in `output/`, `video-out/`, `projects/`, `brands/`, `knowledge/`, `.pipeline/`,
 `public/brands/` or `audio/music/`. It only adds new example files that you don't have yet. Before each update it also
-saves a copy of your brands, facts and projects in `.pipeline/backups/`.
+saves a copy of your brands, facts, projects, brand logos and music in `.pipeline/backups/` (about 25 MB each; the
+newest 5 are kept).
 
 ## Uninstalling
 
@@ -116,7 +128,8 @@ saves a copy of your brands, facts and projects in `.pipeline/backups/`.
 4. Remove the command: in Terminal, type `rm ~/.local/bin/videostudio`.
 5. Optional, to free more space:
    - the AI model: `ollama rm qwen3:4b-instruct-2507-q4_K_M` (about 2.5 GB);
-   - download caches: delete `~/.cache/uv` and `~/.npm` (they are recreated if needed);
+   - download caches: delete `~/.cache/uv` and `~/.npm` (about 0.9 GB; they are recreated if needed);
+   - the Python that uv downloaded, if nothing else uses it: `~/.local/share/uv/python` (about 75 MB);
    - the tools, if nothing else uses them: `brew uninstall ffmpeg uv node ollama`.
 6. Optional: the installer added a line starting with `export PATH="$HOME/.local/bin` to the file `.zprofile` in
    your home folder (under a line saying `# Added by the Video Studio installer`). You can delete those lines. They do no harm
@@ -153,11 +166,18 @@ much longer to make.
 - See what the installer would do, without changing anything:
   `curl -fsSL …/install.sh | bash -s -- --dry-run` (or `VIDEOSTUDIO_DRY_RUN=1`).
 - `--verbose` (or `VIDEOSTUDIO_VERBOSE=1`) shows every command's output on screen, not only in the log.
+- `VIDEOSTUDIO_TARBALL_URL` downloads the code from somewhere else (also `file:///path/to/main.tar.gz`, a tarball
+  with one top folder, like GitHub's); `VIDEOSTUDIO_INSTALL_URL` does the same for the installer that
+  `videostudio update` runs.
+- The Python parts use Python 3.14 (`VIDEOSTUDIO_PYTHON` changes it, for the installer and the `videostudio`
+  command alike). It is pinned because uv otherwise picks the newest Python on the Mac, and Homebrew's `ollama`
+  brings in `python@3.15`, for which `onnxruntime` (the voices) has no packages yet. uv downloads 3.14 if needed.
 - `VIDEOSTUDIO_HOME=/some/folder` installs somewhere other than `~/VideoStudio`. The `videostudio` command finds
   its folder through the `~/.local/bin/videostudio` link.
 - Finished steps are recorded in `~/VideoStudio/.pipeline/install/*.done`. Each file holds a key: a hash of
-  `package-lock.json` for the video engine, of `uv.lock` for the Python parts, the model name for the AI model,
-  and so on. A step runs again when its key changes or its output is missing. Delete a `.done` file to force that
+  `package-lock.json` for the video engine, of `uv.lock` and the Python version for the Python parts, the model name
+  for the AI model, and so on. A step runs again when its key changes or its output is missing (for example the
+  browser, which lives in `node_modules/`, is fetched again whenever the video engine is reinstalled). Delete a `.done` file to force that
   step to run again.
 - The Studio's process id and log are in `~/VideoStudio/.pipeline/studio/` (`studio.pid`, `studio.log`).
   `VIDEOSTUDIO_PORT` changes the port, and `VIDEOSTUDIO_NO_BROWSER=1` starts the Studio without opening the browser.
