@@ -12,13 +12,14 @@ from __future__ import annotations
 
 import json
 import re
+import os
 import shutil
 import time
 from pathlib import Path
 
 from .paths import ROOT, atomic_write_json, atomic_write_text
 
-OUT = ROOT / "video-out"
+OUT = Path(os.environ["VIDEO_PIPELINE_VIDEO_OUT"]) if os.environ.get("VIDEO_PIPELINE_VIDEO_OUT") else ROOT / "video-out"
 INDEX = OUT / ".index.json"
 FOLDER = {"AWAITING_APPROVAL": "for-review", "APPROVED": "approved", "PUBLISHING": "approved", "PUBLISHED": "approved"}
 README = """# video-out
@@ -72,6 +73,10 @@ def sync(reg=None) -> dict:
     want = wanted(reg)
     idx = _index()
     added, removed = [], []
+    # video-out belongs to ONE registry. A sync from another registry (a test, a second checkout) may add copies but
+    # never removes the copies this folder lists: those belong to the registry that made them.
+    owner = str(Path(reg.path).resolve())
+    foreign = bool(idx.get("registry")) and idx["registry"] != owner
     for relp, info in want.items():
         dst, src = OUT / relp, Path(info["src"])
         if not src.exists():
@@ -82,7 +87,7 @@ def sync(reg=None) -> dict:
             shutil.copy2(src, tmp)
             tmp.replace(dst)
             added.append(relp)
-    for relp in list(idx.get("files", {})):
+    for relp in ([] if foreign else list(idx.get("files", {}))):
         if relp not in want:                       # only files we created
             f = OUT / relp
             if f.exists():
@@ -93,7 +98,9 @@ def sync(reg=None) -> dict:
                     d.rmdir()                       # drop empty folders only
                 except OSError:
                     pass
-    atomic_write_json(INDEX, {"updated_at": time.time(), "files": want})
+    if foreign:                                    # keep the owner's index; only report what was added
+        return {"dir": "video-out", "videos": sorted(want), "added": added, "removed": [], "foreign_registry": True}
+    atomic_write_json(INDEX, {"updated_at": time.time(), "registry": owner, "files": want})
     return {"dir": "video-out", "videos": sorted(want), "added": added, "removed": removed}
 
 

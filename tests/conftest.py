@@ -8,6 +8,16 @@ import pytest
 from pipeline import procs
 
 
+@pytest.fixture(autouse=True)
+def _private_video_out(tmp_path, monkeypatch):
+    """No test may touch the real video-out/ (an archive test once emptied it via the server's refresh)."""
+    from pipeline import video_out as VO
+    d = tmp_path / "video-out"
+    monkeypatch.setenv("VIDEO_PIPELINE_VIDEO_OUT", str(d))          # subprocesses (CLI tests) inherit this
+    monkeypatch.setattr(VO, "OUT", d)
+    monkeypatch.setattr(VO, "INDEX", d / ".index.json")
+
+
 @pytest.fixture
 def registry(tmp_path, monkeypatch):
     """A private SQLite registry per test (never touches .pipeline/registry.db)."""

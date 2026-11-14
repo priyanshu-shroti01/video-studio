@@ -85,3 +85,26 @@ def test_video_out_folders_follow_the_approval_state(registry, ws):
     r = VO.sync(registry)
     assert r["videos"] == [] and mine.read_text() == "keep me"   # only our own copies are removed
     assert json.loads(VO.INDEX.read_text())["files"] == {}
+
+
+def test_a_sync_from_another_registry_never_removes_the_owners_copies(tmp_path, monkeypatch):
+    """A test or second checkout syncing with its own registry must not wipe the real video-out copies."""
+    from pipeline import video_out as VO
+    from pipeline.jobs import Registry
+    d = tmp_path / "vo"
+    monkeypatch.setattr(VO, "OUT", d)
+    monkeypatch.setattr(VO, "INDEX", d / ".index.json")
+    owner = Registry(tmp_path / "owner.db")
+    other = Registry(tmp_path / "other.db")
+    d.mkdir()
+    keep = d / "brand" / "approved" / "film.mp4"
+    keep.parent.mkdir(parents=True)
+    keep.write_bytes(b"copy")
+    import json
+    (d / ".index.json").write_text(json.dumps({"registry": str((tmp_path / "owner.db").resolve()),
+                                               "files": {"brand/approved/film.mp4": {"src": "x"}}}))
+    res = VO.sync(other)
+    assert keep.exists() and res["removed"] == [] and res.get("foreign_registry")
+    assert json.loads((d / ".index.json").read_text())["files"]          # owner's index untouched
+    res = VO.sync(owner)                                                 # the owner may prune its own copies
+    assert not keep.exists() and res["removed"] == ["brand/approved/film.mp4"]
