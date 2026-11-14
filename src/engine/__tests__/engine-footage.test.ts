@@ -294,3 +294,36 @@ describe('footage: video headers', () => {
     expect(collectFootageNeedingDuration(fLand as unknown as RenderProps)).toEqual([CLIP]);
   });
 });
+
+describe('staged entrance: alone and centred first, then to its place before the message enters', () => {
+  const scene = (msgAt: number, layout: 'split' | 'stack' = 'split'): Scene => ({
+    ...(FL.scenes[0] as Scene), layout, splitAt: 1, splitRatio: 0.66,
+    blocks: [{type: 'footage', asset: 'shared/fixtures/footage-sample.mp4', at: 0.3} as unknown as Block,
+             {type: 'pill', text: 'Recorded in the real app', tone: 'brand', at: msgAt} as unknown as Block],
+  });
+  it('a late message stages the recording: centred and larger, then exactly its final box', () => {
+    for (const p of [FL, FS]) {
+      const env = makeEnv(p);
+      const P = planScene(env, scene(3.0, p.format === 'landscape' ? 'split' : 'stack'));
+      expect(P.stage).toBeDefined();
+      const st = P.stage!;
+      const from = st.from[0];
+      const f = P.layout.boxes[0];
+      expect(Object.keys(st.from)).toEqual(['0']);                         // only the early block moves
+      expect(st.t1).toBeLessThanOrEqual(P.appear[1]);                      // the move ends before the message enters
+      expect(st.t0).toBeGreaterThan(P.appear[0]);                          // after it was seen alone
+      expect(from.scale).toBeGreaterThanOrEqual(f.scale);                  // at least as large as its final size
+      const cx = from.x + (f.designW * from.scale) / 2;
+      if (p.format === 'landscape') {
+        expect(Math.abs(cx - DIMENSIONS.landscape.width / 2)).toBeLessThan(2);  // centred, while its final box is on the left
+        expect(f.x + f.w / 2).toBeLessThan(DIMENSIONS.landscape.width / 2 - 100);
+      }
+      expect(from.x).toBeGreaterThanOrEqual(0);
+      expect(from.x + f.designW * from.scale).toBeLessThanOrEqual(DIMENSIONS[p.format].width + 1e-6);
+    }
+  });
+  it('blocks that enter together, or a message that follows quickly, are not staged', () => {
+    expect(planScene(makeEnv(FL), scene(0.35)).stage).toBeUndefined();
+    expect(planScene(makeEnv(FL), scene(0.9)).stage).toBeUndefined();
+  });
+});

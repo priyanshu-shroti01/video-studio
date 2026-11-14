@@ -58,10 +58,16 @@ const SceneView: React.FC<{scene: Scene; env: Env}> = ({scene, env}) => {
             const filters = [e.blurY > 0 ? `url(#${motionBlurFilterId(e.blurY)})` : '', e.blur > 0.05 ? `blur(${e.blur.toFixed(2)}px)` : ''].filter(Boolean).join(' ');
             style = {transform: `scale(${box.scale}) translateY(${e.dy}px)${sc}`, opacity: e.opacity * exitFactor(t, b.exitAt), filter: filters || undefined};
           }
+          // staged entrance: alone and centred first, then glide to the final place before the later blocks enter
+          const st = P.stage?.from[i];
+          const sp0 = st ? EASE.inOutCubic(Math.min(1, Math.max(0, (t - P.stage!.t0) / (P.stage!.t1 - P.stage!.t0)))) : 1;
+          const left = st ? mix(st.x, box.x, sp0) : box.x;
+          const top = st ? mix(st.y, box.y, sp0) : box.y;
+          if (st && style.transform) style.transform = style.transform.replace(`scale(${box.scale})`, `scale(${mix(st.scale, box.scale, sp0)})`);
           return (
             <div
               key={b.id ?? i}
-              style={{position: 'absolute', left: box.x, top: box.y, width: box.designW, height: box.designH, transformOrigin: '0 0', ...style}}
+              style={{position: 'absolute', left, top, width: box.designW, height: box.designH, transformOrigin: '0 0', ...style}}
             >
               <BlockView
                 block={b}

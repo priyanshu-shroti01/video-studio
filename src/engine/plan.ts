@@ -5,9 +5,9 @@
 import {aspectEnv, brandBarRect, planWatermark, rectsIntersect, WatermarkPlan} from './branding';
 import {DIMENSIONS, isV2} from './contract';
 import {AspectEnv, Rect} from './geometry';
-import {captionBandTop, FORMAT_SPEC, firstInternalTime, LayoutOpts, layoutScene, SceneLayout} from './layout';
+import {Box, captionBandTop, FORMAT_SPEC, firstInternalTime, LayoutOpts, layoutScene, SceneLayout} from './layout';
 import {backdropOf, isPolished, splitPanel} from './look';
-import {appearTime} from './motion/durations';
+import {appearTime, DUR, LEAD} from './motion/durations';
 import {cameraReserve} from './motion/transitions';
 import {MotionPreset, presetFor} from './motion/presets';
 import {BackdropKind, Block, RenderProps, Scene} from './types';
@@ -48,6 +48,50 @@ export type ScenePlan = {
   cy: number;
   /** v2b: the scene's backdrop ('glow' when unset) */
   backdrop: BackdropKind;
+  /** staged entrance: the blocks that appear first are shown alone (centred, as large as the area allows), then move
+   *  to their final place during [t0, t1], just before the later blocks enter. Undefined when not staged. */
+  stage?: StagePlan;
+};
+
+/** Per early block: where it starts (absolute px) and how much larger than its final box it is. */
+export type StagePlan = {t0: number; t1: number; from: Record<number, {x: number; y: number; scale: number}>};
+
+/** Staging rules (seconds / ratios). */
+export const STAGE = {
+  /** the early blocks must be on screen alone at least this long */
+  minSolo: 1.0,
+  /** blocks appearing within this of the first one belong to the early group */
+  group: 0.35,
+  /** move duration (shortened when the solo time is short) */
+  move: DUR.slower,
+  /** a solo layout this close to the final one (scale ratio and centre distance) is not worth a move */
+  minScale: 1.06,
+  minShift: 40,
+} as const;
+
+/** Where the early group sits when it is alone, mapped onto the FINAL design boxes (content keeps its geometry: the
+ *  block is drawn at its final design size and only translated + scaled). */
+export const stagePlan = (layout: SceneLayout, solo: SceneLayout, idx: number[], appear: number[], t2: number): StagePlan | undefined => {
+  const first = Math.min(...idx.map((i) => appear[i]));
+  const t1 = t2 - LEAD.card;
+  const t0 = Math.max(first + STAGE.minSolo * 0.6, t1 - STAGE.move);
+  if (t1 - t0 < 0.25) return undefined;
+  const from: StagePlan['from'] = {};
+  let worthIt = false;
+  idx.forEach((i, k) => {
+    const f: Box = layout.boxes[i];
+    const s: Box = solo.boxes[k];
+    // fit the final design box inside the solo box (keeps aspect even if the solo column was a different width)
+    const scale = Math.min(s.w / f.designW, s.h / f.designH);
+    const w = f.designW * scale;
+    const h = f.designH * scale;
+    const x = s.x + (s.w - w) / 2;
+    const y = s.y + (s.h - h) / 2;
+    const shift = Math.hypot(x + w / 2 - (f.x + f.w / 2), y + h / 2 - (f.y + f.h / 2));
+    if (scale / f.scale >= STAGE.minScale || shift >= STAGE.minShift) worthIt = true;
+    from[i] = {x, y, scale};
+  });
+  return worthIt ? {t0, t1, from} : undefined;
 };
 
 /** When each block appears: explicit `at`, else its first internal time, else the scene stagger. */
@@ -113,7 +157,25 @@ export const planScene = (env: Env, scene: Scene): ScenePlan => {
     if (bar && env.brandBar) ceilingY = Math.max(ceilingY, env.brandBar.y + env.brandBar.h + 14);
   }
   const appear = blockAppear(scene, preset);
+  let stage: StagePlan | undefined;
+  if (v2 && env.polish && scene.blocks.length > 1) {
+    const first = Math.min(...appear);
+    const idx = scene.blocks.map((_, i) => i).filter((i) => appear[i] <= first + STAGE.group);
+    const later = scene.blocks.map((_, i) => i).filter((i) => !idx.includes(i));
+    const t2 = later.length ? Math.min(...later.map((i) => appear[i])) : Infinity;
+    if (later.length && t2 - first >= STAGE.minSolo) {
+      const opts: LayoutOpts = {reserveX: reserve.x, reserveY: reserve.y, hero: true};
+      if (backdropOf(scene) === 'split') {
+        const sp = splitPanel(props.format, width, env.height);
+        if (props.format === 'short') opts.topMin = sp.contentTop;
+        else opts.leftMin = sp.contentLeft;
+      }
+      const solo = layoutScene({...scene, layout: 'stack', blocks: idx.map((i) => scene.blocks[i])}, props.format, props.captions, bar, env.aspects, opts);
+      stage = stagePlan(layout, solo, idx, appear, t2);
+    }
+  }
   return {
+    stage,
     layout,
     bar,
     preset,

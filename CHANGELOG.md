@@ -3,6 +3,10 @@
 ## Unreleased
 
 ### Added
+- **Staged entrances:** a recording or diagram that appears before its message is first shown alone, centred, then
+  moves to its place (sideways in 16:9, up in 9:16) just before the message enters, so it never waits off to one
+  side for text that hasn't arrived.
+- **Studio:** the dashboard opens at `http://127.0.0.1:8765/` in any browser, with no session token in the URL.
 - **`production mark-published`** records a post a person made outside the pipeline (e.g. LinkedIn): same approval
   and hash gate as `publish`, nothing uploaded, production moves to PUBLISHED, audited with the person's name.
 - **Optional blueprint slots** keep three concepts for long briefs (a ~110 s brief used to get two).

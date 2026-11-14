@@ -178,6 +178,12 @@ silhouette over the Shorts `split` band.
 - **Portrait proportions:** in a column < 1000 design px (Shorts) `dashboard` (620 → 820), `chart` (560 → 740),
   `price-compare` rows (100 → 120) and `feature-compare` rows (92 → 112) get taller, so width-limited cards fill the frame.
 - `kinetic-text` emphasis is an underline below the baseline (the v2 marker bar sat on the glyphs).
+- **Staged entrance:** when a scene's first block(s) appear at least 1 s before the next one, they are first shown
+  alone: centred and as large as the content area allows (a stack layout of only those blocks). Then, just before
+  the next block enters, they glide (ease in-out, up to 0.8 s) to their final box, sliding sideways in a 16:9 split or
+  up in a 9:16 stack and scaling as needed. The block is drawn at its final design size and only translated and
+  scaled, so its content and the QA layout manifest (which uses the final layout) are unchanged
+  (`plan.ts STAGE / stagePlan`).
 - **Weighted split (16:9):** `layout: 'split'` with `splitAt` and `splitRatio` (0.3–0.7, default 0.5) gives the left
   column that share of the content width. `splitRatio` is a preference: the narrower column always keeps its content's
   minimum width (`minContentW`: a pill's single line; wrapping text needs none). The creative director splits every
