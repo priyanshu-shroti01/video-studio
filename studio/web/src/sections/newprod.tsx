@@ -19,10 +19,10 @@ const BriefForm: React.FC<{nav: Nav}> = ({nav}) => {
     e.preventDefault();
     setBusy(true); setErr(null);
     try {
-      const {brand: _b, name, duration_seconds, duration_flexible, also_other, ...rest} = f;
+      const {brand: _b, name, duration_seconds, duration_flexible, also_other, generate, ...rest} = f;
       const other = rest.format === 'landscape' ? 'short' : 'landscape';
       const brief: Record<string, unknown> = {...rest, ...(duration_flexible ? {duration_flexible: true} : {}),
-        ...(also_other ? {formats: [rest.format, other]} : {})};
+        ...(also_other ? {formats: [rest.format, other]} : {}), ...(generate ? {components: 'generate'} : {})};
       const brand = brandId;
       const p = await api.post('/api/productions', {brand, name: name || undefined,
         brief: {...brief, duration_seconds: Number(duration_seconds)}});
@@ -51,6 +51,8 @@ const BriefForm: React.FC<{nav: Nav}> = ({nav}) => {
               <label className="check"><input type="checkbox" checked={f.duration_flexible === 'yes'} onChange={(e) => setF({...f, duration_flexible: e.target.checked ? 'yes' : ''})} /> Let the story set the length</label></Field>
             <Field label="Also render" hint="An extra, separately composed format">
               <label className="check"><input type="checkbox" checked={f.also_other === 'yes'} onChange={(e) => setF({...f, also_other: e.target.checked ? 'yes' : ''})} /> {f.format === 'landscape' ? 'Short 9:16' : 'Landscape 16:9'}</label></Field>
+            <Field label="Visuals" hint="Opt-in: design new scene graphics, kept only where they beat the template on layout, sync and legibility">
+              <label className="check"><input type="checkbox" checked={f.generate === 'yes'} onChange={(e) => setF({...f, generate: e.target.checked ? 'yes' : ''})} /> Generate new components</label></Field>
             <Field label="Goal"><select value={f.goal} onChange={set('goal')}>{GOALS.map((g) => <option key={g}>{g}</option>)}</select></Field>
             <Field label="Tone"><input maxLength={120} value={f.tone ?? ''} onChange={set('tone')} placeholder="confident, warm, no hype" /></Field>
             <Field label="Voice" hint="Local voice id (e.g. am_michael, bm_george) or leave blank for the preset default"><input maxLength={60} value={f.voice ?? ''} onChange={set('voice')} /></Field>

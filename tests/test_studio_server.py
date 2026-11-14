@@ -320,3 +320,14 @@ def test_brief_keeps_flexible_length_and_extra_format(studio):
     assert brief["duration_flexible"] is True and brief["formats"] == ["short", "landscape"]
     assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "formats": ["square"]}})[0] == 400
     assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "duration_flexible": "yes"}})[0] == 400
+
+
+def test_brief_keeps_the_generate_components_option(studio):
+    """The New Production form's "Generate new components" sends components: "generate"; the server keeps it."""
+    srv, base = studio
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "name": "gen-brief",
+                                                         "brief": {"product": "NVMe hosting", "format": "short", "components": "generate"}})
+    assert st == 200, p
+    from pipeline import api
+    assert api.Productions().get(p["id"])["brief"]["components"] == "generate"
+    assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "components": "random"}})[0] == 400
