@@ -1,4 +1,4 @@
-# Licensing (v0.4.0)
+# Licensing (v0.5.0)
 
 **This project's own code is source-available under the PolyForm Shield License 1.0.0.** Copyright (c) 2026
 Priyanshu Shroti. Anyone may use it, businesses included; nobody may use it to compete (for example by selling it or

@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 — 2026-11-15
+
+Usable without a terminal: a two-command install, a redesigned Studio with a guided "Create a video" wizard, and
+videos with current caption styles, transitions and effects, 60 fps and 4K. The repository is now under PolyForm
+Shield 1.0.0.
 
 ### Added
 - **Studio redesign:** a Home page of video cards with plain statuses, a six-step "Create a video" wizard, and one
