@@ -3,6 +3,10 @@
 ## Unreleased
 
 ### Added
+- **`production mark-published`** records a post a person made outside the pipeline (e.g. LinkedIn): same approval
+  and hash gate as `publish`, nothing uploaded, production moves to PUBLISHED, audited with the person's name.
+- **Optional blueprint slots** keep three concepts for long briefs (a ~110 s brief used to get two).
+- **Studio:** "Generate new components" on the New Production form.
 - **Self-launch film.** Video Studio's own 96-second launch film, made through the pipeline with real Studio
   footage and generated components, approved in both formats (production `P20261114-031556-9adf5`).
   - New `videostudio` brand: original logo, theme, verified facts and pronunciation.

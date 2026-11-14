@@ -106,6 +106,20 @@ duplicate upload of the same video to the same platform, re-hashes the file righ
 records every attempt in `publications` and the audit log, and returns what was sent. A production stays
 publishable to the other platform after its first upload (`PUBLISHED` + still-valid approval).
 
+## Posts made by a person (LinkedIn and others)
+
+When a person posts an approved video somewhere the pipeline does not upload to (for example LinkedIn), record it:
+
+```bash
+uv run video-pipeline production mark-published --id <P> --platform linkedin --url https://… --actor "Your Name" \
+  [--format short|landscape] [--note "…"]
+```
+
+Nothing is uploaded. The same gate as `publish` applies: a valid approval, QA PASS/WARN and, with `--format`, the
+approved file's hash. Without `--format` the record is bound to the approval's package hash. The production moves
+to PUBLISHED, the publication (platform, URL, content hash) is stored, and the audit log names the person. A second
+record of the same content on the same platform is refused.
+
 ## MCP server
 
 Run it as `uv run video-pipeline-mcp` (stdio; logs on stderr; stdout is the protocol). To use it from an MCP client,

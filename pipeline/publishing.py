@@ -24,6 +24,7 @@ Never exercised against the real services by the automated tests (fake transport
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import time
 import urllib.error
@@ -40,7 +41,7 @@ from .social.brandcfg import AccountMismatch, NotConfigured, read_secrets, secre
 
 SECRETS = STATE_DIR / "secrets"
 PUBLISH_FROM = ("APPROVED", "PUBLISHED")       # PUBLISHED: another platform may still receive the approved video
-__all__ = ["NotConfigured", "AccountMismatch", "gate", "export", "publish", "YouTubeAdapter"]
+__all__ = ["NotConfigured", "AccountMismatch", "gate", "export", "publish", "mark_published", "YouTubeAdapter"]
 
 
 def gate(prod: Productions, pid: str, platform: str, fmt: str) -> dict:
@@ -394,3 +395,45 @@ def publish(prod: Productions, pid: str, platform: str, fmt: str, *, confirm: bo
         except Exception as e:  # noqa: BLE001 - the video is up; report, don't fail
             result["thumbnail"] = {"set": False, "reason": str(e)[:200]}
     return result
+
+
+PLATFORM_ID = re.compile(r"^[a-z][a-z0-9-]{1,29}$")
+
+
+def mark_published(prod: Productions, pid: str, platform: str, url: str, actor: str, fmt: str | None = None,
+                   note: str = "") -> dict:
+    """Record a publication a PERSON made outside the pipeline (e.g. a LinkedIn post). Nothing is uploaded.
+
+    The same gate as `publish` applies: a valid approval, QA PASS/WARN and, with `fmt`, the approved file's hash.
+    Without `fmt` the record is bound to the approval's package hash. Refuses a duplicate record for the same
+    platform and content. Moves an APPROVED production to PUBLISHED and audits who recorded it."""
+    if not actor or not actor.strip():
+        raise ApprovalError("recording a publication needs the name of the person who published it (--actor)")
+    if not PLATFORM_ID.match(platform or ""):
+        raise ApprovalError("platform must be a short lowercase id, e.g. linkedin")
+    if not re.match(r"^https://[^\s/]+\.[^\s]+$", url or ""):
+        raise ApprovalError("url must be the https link of the published post")
+    if fmt:
+        g = gate(prod, pid, platform, fmt)
+        h, approval = g["content_hash"], g["approval"]
+    else:
+        p = prod.get(pid)
+        if p["state"] not in PUBLISH_FROM:
+            raise ApprovalError(f"production is {p['state']}: only an APPROVED production can be recorded as published")
+        approval = prod.check_approval(pid)
+        if not approval or not approval["valid"]:
+            raise ApprovalError("approval is missing or was invalidated by a content change; re-review required")
+        h = approval["package_hash"]
+    with prod.reg.conn() as c:
+        dup = c.execute("SELECT id FROM publications WHERE production_id=? AND platform=? AND content_hash=? AND status='PUBLISHED'",
+                        (pid, platform, h)).fetchone()
+    if dup:
+        raise ApprovalError(f"already recorded as published on {platform} (publication #{dup['id']})")
+    rid = _record(prod, pid, platform, "PUBLISHED", approval["id"], h, remote_id=url)
+    if prod.get(pid)["state"] == "APPROVED":          # the same path as an upload: APPROVED -> PUBLISHING -> PUBLISHED
+        prod.transition(pid, "PUBLISHING", actor=actor, note=f"{platform}: recording a post made by a person")
+        prod.transition(pid, "PUBLISHED", actor=actor, note=f"{platform}: {url} (published by a person, recorded)")
+    prod.reg.audit(actor, f"publish.{platform}.recorded", pid, {"url": url, "format": fmt, "hash": h, "note": note,
+                                                                "uploaded_by_pipeline": False})
+    return {"publication": rid, "platform": platform, "url": url, "format": fmt, "content_hash": h,
+            "state": prod.get(pid)["state"]}

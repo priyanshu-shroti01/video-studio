@@ -139,3 +139,34 @@ def test_publish_at_and_thumbnail(sw):
     st = fake.bodies[0]["status"]
     assert st["publishAt"] == "2099-01-01T10:00:00+05:30" and st["privacyStatus"] == "private"
     assert res["thumbnail"] == {"set": True} and any("thumbnails" in u for _, u in fake.calls)
+
+
+def test_a_post_made_by_a_person_is_recorded_without_uploading(sw):
+    """e.g. the reviewer posts the approved film on LinkedIn: the pipeline records it, uploads nothing."""
+    pid, out = make_production(sw)
+    with pytest.raises(ApprovalError):                       # not approved yet
+        publishing.mark_published(sw.prod, pid, "linkedin", "https://lnkd.in/p/abc", actor="Test Person")
+    M.draft(sw.prod, pid, provider="template")
+    approve(sw, pid)
+    for bad in ({"platform": "LinkedIn!"}, {"url": "http://x.y/z"}, {"url": "not a url"}, {"actor": " "}):
+        kw = {"platform": "linkedin", "url": "https://lnkd.in/p/abc", "actor": "Test Person", **bad}
+        with pytest.raises(ApprovalError):
+            publishing.mark_published(sw.prod, pid, kw["platform"], kw["url"], actor=kw["actor"])
+    res = publishing.mark_published(sw.prod, pid, "linkedin", "https://lnkd.in/p/abc", actor="Test Person", fmt="short")
+    assert res["state"] == "PUBLISHED" and res["url"] == "https://lnkd.in/p/abc"
+    with pytest.raises(ApprovalError):                       # no duplicate record for the same content
+        publishing.mark_published(sw.prod, pid, "linkedin", "https://lnkd.in/p/abc", actor="Test Person", fmt="short")
+    with sw.prod.reg.conn() as c:
+        row = c.execute("SELECT platform, status, remote_id FROM publications WHERE production_id=?", (pid,)).fetchone()
+        audit = c.execute("SELECT actor, action FROM audit_log WHERE subject=? AND action LIKE 'publish.%'", (pid,)).fetchall()
+    assert tuple(row) == ("linkedin", "PUBLISHED", "https://lnkd.in/p/abc")
+    assert [tuple(a) for a in audit] == [("Test Person", "publish.linkedin.recorded")]
+
+
+def test_recording_refuses_a_changed_file(sw):
+    pid, out = _ready(sw)
+    v = out / "video/final-short.mp4"
+    v.write_bytes(v.read_bytes() + b"\x00")
+    with pytest.raises(ApprovalError):
+        publishing.mark_published(sw.prod, pid, "linkedin", "https://lnkd.in/p/abc", actor="Test Person", fmt="short")
+    assert sw.prod.get(pid)["state"] != "PUBLISHED"

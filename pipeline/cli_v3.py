@@ -23,6 +23,11 @@ def register(sub) -> dict:
     x = ps.add_parser("approve-preview"); x.add_argument("--id", required=True); x.add_argument("--reviewer", required=True)
     x.add_argument("--note", default="")
     x = ps.add_parser("list"); x.add_argument("--limit", type=int, default=20)
+    x = ps.add_parser("mark-published", help="record a post a person made outside the pipeline (nothing is uploaded)")
+    x.add_argument("--id", required=True); x.add_argument("--platform", required=True, help="e.g. linkedin")
+    x.add_argument("--url", required=True); x.add_argument("--actor", required=True, help="the person who published it")
+    x.add_argument("--format", choices=["short", "landscape"], help="the approved file that was posted (optional)")
+    x.add_argument("--note", default="")
 
     r = sub.add_parser("review", help="list or resolve review flags")
     rs = r.add_subparsers(dest="rcmd", required=True)
@@ -102,6 +107,12 @@ def cmd_production(a) -> int:
         _print(a, res, f"preview: {res['contact_sheet']} ({len(res['stills'])} stills, {res['seconds']}s)\n"
                        f"quality gate: {g['status']}\n" + "\n".join(f"  {c['status']:<4} {c['id']}: {c['detail'][:140]}"
                                                                    for c in g["checks"]))
+    elif a.pcmd == "mark-published":
+        from . import publishing
+        from .productions import Productions
+        res = publishing.mark_published(Productions(), a.id, a.platform, a.url, a.actor, a.format, a.note)
+        _print(a, res, f"recorded: published on {res['platform']} by {a.actor} ({res['url']}); state {res['state']}. "
+                       "Nothing was uploaded.")
     elif a.pcmd == "approve-preview":
         res = api.approve_preview(a.id, a.reviewer, a.note)
         _print(a, res, f"preview approved by {a.reviewer} (gate {res['gate']}); full render allowed for this storyboard")
