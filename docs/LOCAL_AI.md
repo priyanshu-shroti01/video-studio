@@ -43,6 +43,8 @@ verified by Ollama on pull. Candidates considered are listed in `pipeline/intell
 
 ```bash
 brew install ollama                                   # no service is installed or started
+# Normally you never run these: concepts and concept selection start the runtime when needed and stop it after
+# (only if they started it), and a render stops a pipeline-started runtime first. For development:
 python -m pipeline.intelligence runtime start         # loopback-only server, env below, pid in models/llm/runtime/
 python -m pipeline.intelligence runtime status
 python -m pipeline.intelligence runtime stop          # stops only a server the pipeline started

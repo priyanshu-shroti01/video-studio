@@ -3,6 +3,27 @@
 ## Unreleased
 
 ### Added
+- **Studio redesign:** a Home page of video cards with plain statuses, a six-step "Create a video" wizard, and one
+  design system across every page (spacing and type scales, aligned control heights, flat monochrome surfaces, one
+  accent, no gradients or glows; Host Grotesk and Lucide icons vendored). See docs/STUDIO_GUIDE.md.
+- **Suggested facts:** adding a website proposes prices, plans and features with the verbatim text they were found
+  in (kept locally, not in facts.json); a named person confirms each one, after a re-check on the live page.
+- **Archive restore:** Library → Archived, `video-pipeline archive --list` and `--restore <P> --actor "<name>"`.
+- **Preview with the real voice:** "Use the real voice" records the narration locally, so the frame-accurate preview
+  plays with sound and exactly the render's timing (estimated timing was about 15% long on a 96 s film).
+- **Readable screen recordings:** `footage` can fill the 9:16 frame, zoom to a named UI region and show magnified
+  callouts; the new `footage.legibility` QA check fails a 9:16 video whose recorded text renders below a
+  phone-readable size; `capture_studio.mjs` records at a larger UI scale.
+- **Licence:** PolyForm Shield 1.0.0 (source-available), with a plain-language NOTICE.md.
+
+### Fixed
+- **Fresh-Mac install:** Homebrew's Ollama pulls in Python 3.15, which onnxruntime (the voice engine) has no build
+  for; the installer and launcher now pin Python 3.14. Also: resume checks for the browser and voice steps, sound
+  kit updates, and backup pruning.
+- **Tests could empty the real `video-out/` folder** (the Studio's archive refresh ran against a test registry).
+  Tests now get a private folder, and `video-out` only prunes copies when the registry that made them asks.
+- **Studio videos played silently in VS Code's browser** (it has no AAC decoder): in-app players now use a copy with
+  Opus audio; downloads and approved files are unchanged.
 - **Effects** (engine contract unchanged, additive; docs/MOTION.md#effects). Storyboards without effects render
   byte-identical.
   - **Transitions:** whip-pan, zoom-through, push or swipe, iris, light leak, and a short glitch of at most 6 frames.
@@ -50,7 +71,6 @@
 - **Self-launch film.** Video Studio's own 96-second launch film, made through the pipeline with real Studio
   footage and generated components, approved in both formats (production `P20261114-031556-9adf5`).
   - New `videostudio` brand: original logo, theme, verified facts and pronunciation.
-  - Reports in `docs/reports/SELF_LAUNCH_*.md`; LinkedIn post text in `docs/launch/`.
 - **`footage` block** (engine, CONTRACT_VERSION unchanged, additive): real video clips such as screen recordings of a
   product's UI, in `browser` (default), `laptop`, `phone` or no (`none`) chrome.
   - Frame-accurate and always muted (`OffthreadVideo` frozen at the computed clip time): clip time =

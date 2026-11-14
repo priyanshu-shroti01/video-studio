@@ -8,9 +8,13 @@ functions.
 ## Launch
 
 ```bash
-uv run python -m studio.build            # once, and after changing studio/web/src (esbuild -> studio/web/dist)
+videostudio                              # after install.sh: starts the Studio and opens your browser (stop / status / update / doctor)
+uv run python -m studio.build            # developers: after changing studio/web/src (esbuild -> studio/web/dist)
 uv run video-pipeline studio --open      # or: uv run python -m studio.server  (--port 8765 default · --open · --new-token)
 ```
+
+Use Chrome or Safari. VS Code's built-in browser has no AAC decoder and may block audio: the Studio's players use a
+copy with Opus audio (`output/_play/`), but that browser can still stay silent.
 
 Open `http://127.0.0.1:8765/` in any browser on this Mac (`--open` does it for you); no token is needed. Opening the
 address yourself signs that browser in with an HttpOnly, SameSite=Strict cookie; a page that another website opens
@@ -61,13 +65,16 @@ fixed line heights; controls 32/40/48 high; radii 8/12/16), Host Grotesk and Gei
 
 | # | Section | What it does |
 |---|---|---|
-| 1 | Dashboard | brand filter chips with production counts; stats (needs you, productions, jobs, disk incl. archive, memory/swap); **Needs your attention** queue; **Brands** overview; **Pipeline** funnel and recent productions; jobs; system (scheduler queue, benchmark render defaults, Studio tasks) |
-| 2 | New Production | brief form (brand, product, price, audience, format, duration, goal, tone, voice, CTA, request/notes, production name) → create → generate 3 concepts (comparison + fact-check) → select one. If the creative engine fails, the error is shown and **Write storyboard manually** still works |
-| 3 | Storyboard | scene list (duration estimate at 2.33 words/s, the measured local-voice rate), forms for common block fields + JSON per block, cues/SFX JSON, add/duplicate/reorder/remove scenes, Validate, Save (⌘S, server-side validation with every error path), history, **Low-cost preview** (stills + contact sheet + quality gate), Render… |
-| 4 | Asset Library | brand filter, category, search, licence/attribution/usage; image previews and audio players for files under `public/` and `output/` |
-| 5 | Render Monitor | stage pipeline, progress, chunk table (fps, tabs, RSS, swap Δ, page-outs), memory, scheduler queue, live log tail, events, errors, request cancel |
-| 6 | Preview & QA | before the render: the **preview review panel**; after it: final MP4 per format, voiceover, contact sheet, captions, audio report, QA checks grouped FAIL/WARN/PASS, branding/visual QA, claims and pronunciation, review flags with resolve (reviewer + note) |
-| 7 | Publishing | "Nothing has been published" until a PUBLISHED record exists; video, thumbnail, metadata, transcript, credits, platform metadata, package hash, Approve / Request changes / Reject, Export (approved only), Publish (approved only, type the production id), the brand's publishing status |
+| 1 | Home | your videos as cards (still, brand, shape, last change, plain status, next step); click a card to continue |
+| 2 | Create a video | the six-step wizard: website → what to promote → pick an idea → review (preview, quality gate, approve with your name) → make the video (progress, stop, retry) → approve & share (downloads, title/description, "I posted it on…") |
+| 3 | Library | Productions and Archived lists; "I posted it on…", Archive…, Restore… (each with your name) |
+| 4 | Websites & facts | add a website; verified facts with their source text; suggested facts to confirm or reject; re-check against the site |
+| 5 | Overview *(Advanced)* | brand filter chips, stats (needs you, productions, jobs, disk, memory/swap), the **Needs your attention** queue, brands, pipeline funnel, jobs, scheduler |
+| 6 | Storyboard *(Advanced)* | scene list, block forms + JSON, cues/SFX, Validate, Save (⌘S), history, **Low-cost preview** stills + quality gate, **Watch every frame** (the real engine in the browser: play, scrub, ±1 frame / ±1 s, loop a scene, both formats; **Use the real voice** records the narration locally for sound and exact timing; voice only, music and effects come with the render), Render… |
+| 7 | Preview & QA *(Advanced)* | before the render: the preview review panel; after it: final video per format (with sound), voiceover, contact sheet, captions, audio report, QA checks, claims and pronunciation, review flags |
+| 8 | Publishing *(Advanced)* | video, thumbnail, metadata, transcript, package hash, Approve / Request changes / Reject, Export, Publish (type the production id), the brand's publishing status |
+| 9 | Render Monitor *(Advanced)* | stages, progress, chunk table, memory, scheduler queue, log tail, cancel |
+| – | Brief form, Asset Library, Setup *(Advanced)* | the full brief form (incl. Quality and "Generate new components"); assets with licences; a plain checklist of what's installed |
 
 **Library → Archived** lists what is in `output/_archive/` (state when archived, size) and **Restore…** moves a production (with its render jobs) or a loose job back, with your name; it refuses if the original folder exists again (never overwrites). CLI: `video-pipeline archive --list` / `archive --restore P --actor "Name"`.
 

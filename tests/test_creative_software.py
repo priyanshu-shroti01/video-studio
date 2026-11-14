@@ -100,7 +100,7 @@ def test_schema_accepts_split_ratio_in_range_only():
 
 def test_repo_sources_are_read_locally_and_cannot_escape(tmp_path):
     from pipeline.intelligence.facts import fetch
-    assert "Self-launch film" in fetch("repo:docs/reports/SELF_LAUNCH_AUDIT.md")
+    assert "Video Studio" in fetch("repo:README.md")
     with pytest.raises(ValueError):
         fetch("repo:../outside.txt")
 

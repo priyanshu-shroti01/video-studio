@@ -43,3 +43,10 @@ docs/reports/CREATIVE_REGRESSION_ANALYSIS.md
 knowledge/*/build_facts.py
 projects/*/briefs/*-39.json
 projects/*/briefs/*-hybrid.json
+
+# internal working docs and data: kept locally, never published
+docs/PRODUCT_PLAN.md
+docs/reports/SELF_LAUNCH_*.md
+docs/launch/
+studio/PRODUCT.md
+knowledge/*/candidates.json

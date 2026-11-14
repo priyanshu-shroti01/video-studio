@@ -127,11 +127,6 @@ gates as any other video. It runs 96 seconds, in 9:16 and 16:9.
 - **A person approved it.** The reviewer watched and listened to it in both formats and recorded approval
   (hash-bound), then posted it on LinkedIn: **[watch the launch film](https://lnkd.in/p/gTd-psxr)**.
 
-The full record, from audit and iterations to scores and evidence, is in
-[SELF_LAUNCH_AUDIT](docs/reports/SELF_LAUNCH_AUDIT.md),
-[SELF_LAUNCH_CREATIVE_REVIEW](docs/reports/SELF_LAUNCH_CREATIVE_REVIEW.md) and
-[SELF_LAUNCH_PRODUCTION_EVIDENCE](docs/reports/SELF_LAUNCH_PRODUCTION_EVIDENCE.md).
-
 ## How it works
 
 ```mermaid
@@ -151,13 +146,18 @@ flowchart LR
    - Templates own composition, animation and every on-screen label.
    - Numbers come only from the brand's verified facts.
    - A local LLM (Qwen3-4B) may draft copy only inside validated slots, with a hand-written copy bank as the fallback.
+     The model starts when it's needed and stops before rendering, so it never competes with a render for memory.
 3. **Preview + quality gate.**
-   - One still per scene renders in seconds.
+   - One still per scene renders in seconds, and the Storyboard page plays the whole storyboard in the real engine:
+     scrub, step frame by frame or loop a scene, with the real local voice and exact timing once you press
+     "Use the real voice".
    - The gate rejects empty or repetitive scenes, scenes without a hero visual, invented labels, unverified numbers,
      overflowing text, and narration that runs over a frozen screen.
    - **A person approves the preview before the full render.**
 4. **Render.**
    - A local voice (Kokoro) speaks the script; Python resolves every animation to the exact word that names it.
+   - Quality presets: Standard (1080p, 30 fps), Smooth (1080p, 60 fps) or Ultra (4K, 60 fps).
+   - Memory, disk and OCR are checked first; problems come back as a plain sentence with what to do next.
    - Remotion renders in parallel headless Chromium tabs; FFmpeg mixes voice, licensed music and sound effects.
 5. **QA on the actual file.** Container, full decode, black or frozen frames, loudness and peaks, caption timing,
    measured A/V offset, narration sync, layout, digit-exact OCR of prices and URLs, and brand presence.
@@ -172,9 +172,21 @@ flowchart LR
 ## The engine
 
 32 animated block types and 6 backdrops (glow, spotlight, grid, split, light, deep). Every block works in 9:16 and 16:9.
-Two of them are new: `footage` plays real screen recordings in a browser, laptop or phone frame, with word-anchored
-zooms; `composition` draws scenes that the component generator designs from primitives (cards, rings, connectors,
-icons, counted numbers).
+
+- **Real product footage.** `footage` plays screen recordings in a browser, laptop or phone frame, or filling the
+  frame on 9:16, with zooms and magnified callouts on the word that names each detail. A QA check measures that the
+  recorded text is readable on a phone.
+- **Generated components.** `composition` draws scenes that the component generator designs from primitives (cards,
+  rings, connectors, icons, counted numbers); a design is kept only when it beats the template.
+- **Captions in today's styles:** Pop (1–3 big words, the spoken word springs in the brand colour), Highlight,
+  Karaoke and Minimal, plus Classic. They stay clear of the Shorts and Reels buttons and switch to dark ink on light
+  backgrounds.
+- **Transitions and effects:** whip pan, push, zoom-through, iris, light leak and glitch; punch-zoom, shake, flash,
+  confetti burst, hand-drawn circles, cursor clicks and 3D tilt. The director picks them by mood and uses them
+  sparingly, cuts can snap to the music's beat, and flashes stay within the 3-per-second safety limit.
+- **Staged entrances.** A recording or diagram that appears before its text starts alone and centred, then moves to
+  its place as the text arrives.
+- **60 fps and 4K** through the quality presets.
 
 <p align="center"><img src="docs/images/engine-landscape.jpg" width="900" alt="Landscape scenes: logo, kinetic title, plan card, one-click install, server rack, outro"></p>
 <p align="center"><img src="docs/images/engine-short.jpg" width="900" alt="The same blocks laid out for 9:16 Shorts"></p>
@@ -187,16 +199,26 @@ timings before any voice is recorded:
 
 ## The Studio
 
-A local web app on `127.0.0.1` covers the whole workflow. It has a brand filter, a "needs your attention" queue,
-preview review, QA, approvals and confirmed publishing.
+A local web app at `http://127.0.0.1:8765/` (any browser on the Mac, no login token) covers the whole workflow without
+a terminal.
 
-<p align="center"><img src="docs/images/studio-dashboard.jpg" width="900" alt="Studio dashboard"></p>
+- **Home:** your videos as cards with a still and a plain status ("Needs your review", "Ready to post", "Posted on
+  LinkedIn").
+- **Create a video:** a six-step wizard (website → what to promote → pick one of three ideas → review → make the
+  video → approve and share).
+- **Websites & facts:** add a website; the Studio suggests prices, plans and features with the exact text it found
+  them in, and a named person confirms each one.
+- **Library:** archive and restore productions, and record "I posted it on…" for posts you made yourself.
+- **Storyboard (Advanced):** edit scenes and watch every frame before rendering.
+- **Setup:** a plain checklist of what's installed.
 
 <table>
-<tr><td><img src="docs/images/studio-qa.jpg" alt="Preview & QA: 43 checks passed, review flags resolved by a named reviewer"></td>
-<td><img src="docs/images/studio-publishing.jpg" alt="Publishing: approved package, metadata, YouTube publication"></td></tr>
-<tr><td align="center"><sub>Preview &amp; QA: automated checks plus the human sign-offs</sub></td>
-<td align="center"><sub>Publishing: the approved package and where it went</sub></td></tr>
+<tr><td><img src="docs/images/studio-home.jpg" alt="Home: video cards with status"></td>
+<td><img src="docs/images/studio-create.jpg" alt="Create a video: step 1, pick the website"></td></tr>
+<tr><td align="center"><sub>Home</sub></td><td align="center"><sub>Create a video</sub></td></tr>
+<tr><td><img src="docs/images/studio-share.jpg" alt="Your video is ready: downloads, title and description, I posted it on"></td>
+<td><img src="docs/images/studio-facts.jpg" alt="Websites and facts: verified facts and claims not found on the site"></td></tr>
+<tr><td align="center"><sub>Approve and share</sub></td><td align="center"><sub>Websites and facts</sub></td></tr>
 </table>
 
 ## Publishing
@@ -257,10 +279,10 @@ allow some time on a slow connection. Later, `videostudio` opens it, `videostudi
 <summary>For developers</summary>
 
 ```bash
-# install (once)
+# install (once) from a clone; uses Python 3.14 (onnxruntime has no 3.15 build yet)
 brew install ffmpeg uv node ollama
 npm ci --legacy-peer-deps && npx remotion browser ensure
-uv sync
+UV_PYTHON=3.14 uv sync
 uv run python -m pipeline.voice.registry fetch                      # local voices (~840 MB, checksummed)
 uv run python -m pipeline.intelligence runtime start && ollama pull qwen3:4b-instruct-2507-q4_K_M
 bash scripts/sound-layer.sh kit && uv run python -m studio.build
@@ -271,19 +293,19 @@ uv run video-pipeline doctor
 # brief → video
 uv run video-pipeline production create   --brief projects/shrotihost/briefs/wordpress-hosting-69.json
 P=P2026…                                                    # the production ID printed by create
-uv run python -m pipeline.intelligence runtime start
-uv run video-pipeline production concepts --id $P          # 3 concepts → concepts/concepts.md
+uv run video-pipeline production concepts --id $P          # 3 concepts → concepts/concepts.md (starts/stops the local model)
 uv run video-pipeline production select   --id $P --concept c1
-uv run python -m pipeline.intelligence runtime stop
 uv run video-pipeline production preview  --id $P          # scene stills + quality gate
 uv run video-pipeline production approve-preview --id $P --reviewer "Your Name"
 uv run video-pipeline production render   --id $P --wait   # → video-out/<brand>/for-review/
 uv run video-pipeline approve --id $P --reviewer "Your Name"
 uv run video-pipeline publish --id $P --platform youtube --actor "Your Name" --confirm
+uv run video-pipeline production mark-published --id $P --platform linkedin --url https://… --actor "Your Name"  # a post you made yourself
 ```
 
-To use the Studio instead, run `uv run video-pipeline studio --open`. To keep things tidy, `video-pipeline archive --all-except $P`
-hides the rest, and its files move to `output/_archive/` (reversible).
+The Studio: `bin/videostudio` (or `uv run video-pipeline studio --open`). To keep things tidy,
+`video-pipeline archive --all-except $P` moves the rest to `output/_archive/`; `video-pipeline archive --list` and
+`--restore $P --actor "Your Name"` bring them back.
 
 </details>
 
@@ -308,10 +330,11 @@ pipeline/            orchestrator: CLI, productions, jobs, scheduler, timeline, 
   voice/ visual_qa/  local TTS + alignment; OCR, layout and branding checks
 src/engine/          Remotion engine: Storyboard composition, 32 blocks, backdrops, motion tokens
 studio/              local web Studio (Python server + React frontend)
+install.sh bin/      one-command installer and the `videostudio` launcher
 brands/ knowledge/   per-brand profiles and verified facts
 projects/<brand>/    briefs and hand-authored projects
-docs/                guides; docs/reports/ = benchmarks, audits, creative reviews; docs/launch/ = launch texts
-scripts/             tooling, incl. capture_studio.mjs (records real footage of the running Studio)
+docs/                guides; docs/reports/ = benchmarks and creative comparisons
+scripts/             tooling, incl. capture_studio.mjs (records real footage of the running Studio; plans in capture-plans/)
 tests/               pytest (unit, integration, e2e) + vitest
 ```
 
@@ -330,7 +353,7 @@ The render contract is versioned (`CONTRACT_VERSION` in `src/engine/types.ts` �
 | Topic | Read |
 |---|---|
 | Architecture | [ARCHITECTURE](docs/ARCHITECTURE.md) · [CREATIVE_SYSTEM](docs/CREATIVE_SYSTEM.md) · [MOTION](docs/MOTION.md) |
-| Using it | [STUDIO_GUIDE](docs/STUDIO_GUIDE.md) · [QA_GUIDE](docs/QA_GUIDE.md) · [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) |
+| Using it | [INSTALL](docs/INSTALL.md) · [STUDIO_GUIDE](docs/STUDIO_GUIDE.md) · [QA_GUIDE](docs/QA_GUIDE.md) · [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) |
 | Publishing | [PUBLISHING_APPROVAL](docs/PUBLISHING_APPROVAL.md) · [SOCIAL_PUBLISHING](docs/SOCIAL_PUBLISHING.md) · [SOCIAL_SETUP](docs/SOCIAL_SETUP.md) |
 | Local AI and voice | [LOCAL_AI](docs/LOCAL_AI.md) · [LOCAL_TTS](docs/LOCAL_TTS.md) |
 | Brand and policy | [BRANDING](docs/BRANDING.md) · [WATERMARK_POLICY](docs/WATERMARK_POLICY.md) · [SECURITY](SECURITY.md) · [NOTICE](NOTICE.md) · [LICENSING](docs/LICENSING.md) |
