@@ -788,3 +788,14 @@ def test_brief_keeps_the_quality_preset(studio):
     from pipeline import api
     assert api.Productions().get(p["id"])["brief"]["quality"] == "smooth"
     assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "quality": "8k"}})[0] == 400
+
+
+def test_header_values_with_line_breaks_are_refused_and_static_names_are_bounded(studio):
+    srv, _ = studio
+    import pytest
+    h = S.Handler.__new__(S.Handler)
+    with pytest.raises(ValueError):
+        h._headers(200, "text/plain\r\nX-Evil: 1", 0)
+    with pytest.raises(ValueError):
+        h._headers(200, "text/plain", 0, {"Content-Disposition": "inline\nSet-Cookie: x=1"})
+    assert req(srv, "GET", "/static/" + "-" * 5000 + ".js")[0] == 404

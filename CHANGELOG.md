@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- **"Zero Rupees" teaser blueprint** (software pack): a 30–35 s film — the ₹0 promise, the real app, the local stack
+  and the frame-by-frame preview — backed by a new `product.cost` fact taken verbatim from the README.
+
+### Fixed
+- **Code-scanning hardening (CodeQL):** the Studio server refuses any response header value that contains a line
+  break, and checks a static file name's length before matching it. Neither was exploitable (header values were
+  built from fixed types and numbers; the name regex is anchored), but both now hold by construction.
+- **A word ending in "rs" followed by a number read as a rupee price** ("offers three ideas" → "Rs 3"), which
+  rejected a whole concept as an unverified claim. The pattern now needs a word boundary.
+
 ## 0.5.0 — 2026-11-15
 
 Usable without a terminal: a two-command install, a redesigned Studio with a guided "Create a video" wizard, and

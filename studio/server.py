@@ -986,6 +986,10 @@ class Handler(BaseHTTPRequestHandler):
             self.log_message("%s %s", self.command, code)
 
     def _headers(self, status: int, ctype: str, length: int, extra: dict | None = None, csp: str = PAGE_CSP):
+        # no header value may carry a line break (response splitting), whatever it was built from
+        for v in (ctype, csp, *(extra or {}).values()):
+            if v is not None and ("\r" in str(v) or "\n" in str(v)):
+                raise ValueError("refusing a header value with a line break")
         self.send_response(status)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(length))
@@ -1126,7 +1130,7 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, idx.read_bytes(), "text/html; charset=utf-8", {"Set-Cookie": cookie} if cookie else None)
 
     def _static(self, name: str) -> None:
-        if not re.fullmatch(r"[A-Za-z0-9_-]+\.(js|css|map)", name):
+        if len(name) > 100 or not re.fullmatch(r"[A-Za-z0-9_-]+\.(js|css|map)", name):   # length first: no slow regex
             return self._text(404, "not found")
         f = (DIST_DIR / name).resolve()
         if f.parent != DIST_DIR.resolve() or not f.is_file():
