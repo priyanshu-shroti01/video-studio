@@ -165,15 +165,15 @@ const ProductionPicker: React.FC<{prods: Any[]; onPick: (p: string) => void}> = 
 );
 
 /** Shown when the Studio server stopped or this tab's session is not valid. Pages keep their last data and
- * reconnect by themselves when the server is back (the session token survives Studio restarts). */
+ * reconnect by themselves when the server is back (the session cookie survives Studio restarts). */
 const ConnectionBanner: React.FC<{error: unknown}> = ({error}) => {
   if (!error) return null;
   const status = (error as Any)?.status;
   return (
     <div className="conn-banner" role="status">
       {status === 401 || status === 403 ? (
-        <><strong>Not signed in to this Studio.</strong> Open the link printed in the terminal where the Studio is running
-          (<code>uv run video-pipeline studio --open</code> opens it for you).</>
+        <><strong>Not signed in to this Studio.</strong> <a href="/">Reload the Studio</a> (or open{' '}
+          <code>{window.location.origin}/</code> in this browser).</>
       ) : (
         <><strong>The Studio server is not running.</strong> Start it again with <code>uv run video-pipeline studio</code>;
           this page reconnects by itself.</>

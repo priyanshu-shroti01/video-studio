@@ -12,7 +12,10 @@ uv run python -m studio.build            # once, and after changing studio/web/s
 uv run video-pipeline studio --open      # or: uv run python -m studio.server  (--port 8765 default · --open · --new-token)
 ```
 
-The server prints `http://127.0.0.1:8765/?token=…`. Open that exact URL (`--open` does it for you): the token is
+Open `http://127.0.0.1:8765/` in any browser on this Mac (`--open` does it for you); no token is needed. Opening the
+address yourself signs that browser in with an HttpOnly, SameSite=Strict cookie; a page that another website opens
+does not, and Host/Origin checks refuse other sites' requests. Scripts can still use the token (`/?token=…` or
+`Authorization: Bearer`): it is
 exchanged for an HttpOnly cookie and removed from the address bar. The token is stored in
 `.pipeline/studio/session-token` (mode 0600) and **survives restarts**, so open tabs keep working after the Studio
 is restarted. `--new-token` rotates it and signs out every open tab.

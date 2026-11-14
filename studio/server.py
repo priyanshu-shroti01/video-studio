@@ -3,9 +3,12 @@
     uv run python -m studio.server [--port 8765] [--open]
 
 Security model (local, single user):
-  * binds 127.0.0.1 only; a random session token is printed once and exchanged for an HttpOnly,
-    SameSite=Strict cookie (the token is never logged and the URL is redirected to drop it);
-  * every /api, /files and /static request needs that cookie (or `Authorization: Bearer <token>`);
+  * binds 127.0.0.1 only. Opening http://127.0.0.1:<port>/ directly (typed, bookmarked or opened by the
+    launcher: Sec-Fetch-Site "none"/"same-origin", or a browser that sends no fetch metadata) issues the
+    session cookie (HttpOnly, SameSite=Strict), so the dashboard opens in any browser without a token
+    in the URL. A navigation started by another website (Sec-Fetch-Site "cross-site"/"same-site") gets
+    no cookie. `/?token=…` still works, and `Authorization: Bearer <token>` serves scripts;
+  * every /api, /files and /static request needs that cookie (or the bearer token);
   * the Host header must be 127.0.0.1:<port> or localhost:<port> (DNS-rebinding defence), and a
     present Origin / Sec-Fetch-Site must be this origin;
   * POST/PUT bodies must be `application/json` (no form posts, so no CSRF via HTML forms), <= 4 MB;
@@ -461,7 +464,7 @@ class StudioServer(ThreadingHTTPServer):
 
     @property
     def url(self) -> str:
-        return f"http://127.0.0.1:{self.port}/?token={self.token}"
+        return f"http://127.0.0.1:{self.port}/"
 
     def start_background(self) -> threading.Thread:
         t = threading.Thread(target=self.serve_forever, name="studio-http", daemon=True)
@@ -597,6 +600,10 @@ class Handler(BaseHTTPRequestHandler):
     def _host_ok(self) -> bool:
         return (self.headers.get("Host") or "").strip().lower() in self.server.allowed_hosts
 
+    def _direct_navigation(self) -> bool:
+        """The user opened the Studio themselves (address bar, bookmark, launcher), not another website."""
+        return self.headers.get("Sec-Fetch-Site") in (None, "none", "same-origin") and self._origin_ok()
+
     def _origin_ok(self) -> bool:
         origin = self.headers.get("Origin")
         if origin is not None and origin not in self.server.allowed_origins:
@@ -643,8 +650,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._index()
         if not self._authed():
             if path.startswith("/api/"):
-                return self._error(401, "UNAUTHORIZED", "missing or invalid session token: open the URL printed by the Studio")
-            return self._text(401, "Unauthorized: open the URL printed in the terminal (it contains the session token).")
+                return self._error(401, "UNAUTHORIZED", f"not signed in: open http://127.0.0.1:{self.server.port}/ in this browser")
+            return self._text(401, f"Not signed in: open http://127.0.0.1:{self.server.port}/ in this browser.")
         if method in ("POST", "PUT"):
             if not self._origin_ok():
                 return self._error(403, "CROSS_ORIGIN", "cross-origin requests are refused")
@@ -666,12 +673,15 @@ class Handler(BaseHTTPRequestHandler):
                 return self._text(403, "Invalid token. Use the URL printed by the Studio when it started.")
             cookie = f"{COOKIE}={self.server.token}; HttpOnly; SameSite=Strict; Path=/"
             return self._send(303, b"", "text/plain", {"Location": "/", "Set-Cookie": cookie})
+        cookie = None
         if not self._authed():
-            return self._text(401, "Unauthorized: open the URL printed in the terminal (it contains the session token).")
+            if not self._direct_navigation():
+                return self._text(403, f"Open the Studio by typing http://127.0.0.1:{self.server.port}/ in your browser.")
+            cookie = f"{COOKIE}={self.server.token}; HttpOnly; SameSite=Strict; Path=/"
         idx = WEB_DIR / "index.html"
         if not (DIST_DIR / "app.js").exists():
             return self._text(503, "The Studio frontend is not built. Run: uv run python -m studio.build")
-        self._send(200, idx.read_bytes(), "text/html; charset=utf-8")
+        self._send(200, idx.read_bytes(), "text/html; charset=utf-8", {"Set-Cookie": cookie} if cookie else None)
 
     def _static(self, name: str) -> None:
         if not re.fullmatch(r"[A-Za-z0-9_-]+\.(js|css|map)", name):

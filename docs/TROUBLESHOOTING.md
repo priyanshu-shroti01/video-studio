@@ -23,7 +23,7 @@ review flags.
 | Symptom | Cause | Fix |
 |---|---|---|
 | Banner **"The Studio server is not running"** | The Studio process stopped (closed terminal, Ctrl-C, reboot) | `uv run video-pipeline studio`. The page keeps its last data and reconnects by itself; the session token survives restarts |
-| Banner **"Not signed in to this Studio"** (or `401 UNAUTHORIZED`) | This browser has no valid session cookie: first visit, the token was rotated with `--new-token`, or the stored token file was not private (it is then replaced) | Open the link printed in the terminal (`uv run video-pipeline studio --open` opens it for you) |
+| Banner **"Not signed in to this Studio"** (or `401 UNAUTHORIZED`) | This browser has no valid session cookie (for example the token was rotated with `--new-token`) | Open `http://127.0.0.1:8765/` in the browser's address bar; that signs the browser in |
 | "Dashboard unavailable" with no banner | An error from the service layer | Read the error box; the CLI equivalent (`video-pipeline production show`, `status`) shows the same detail |
 
 ## Publishing

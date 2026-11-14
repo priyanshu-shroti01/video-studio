@@ -61,9 +61,27 @@ def req(srv, method, path, body=None, *, cookie=True, host=None, ctype="applicat
 
 
 # ---- authentication ------------------------------------------------------------------------------
+def test_opening_the_address_signs_in_without_a_token_but_other_sites_cannot(studio):
+    """The dashboard opens in any browser at http://127.0.0.1:<port>/ (no token in the URL). A navigation that
+    another website starts gets no cookie, and the API stays closed without the cookie."""
+    srv, _ = studio
+    assert srv.url == f"http://127.0.0.1:{srv.port}/" and "token" not in srv.url
+    for site in (None, "none"):
+        st, h, _, _ = req(srv, "GET", "/", cookie=False, headers={"Sec-Fetch-Site": site} if site else None)
+        assert st in (200, 503)
+        ck = h.get("Set-Cookie", "")
+        assert f"{S.COOKIE}={srv.token}" in ck and "HttpOnly" in ck and "SameSite=Strict" in ck
+    for site in ("cross-site", "same-site"):
+        st, h, _, _ = req(srv, "GET", "/", cookie=False, headers={"Sec-Fetch-Site": site})
+        assert st == 403 and "Set-Cookie" not in h
+    st, h, _, _ = req(srv, "GET", "/", cookie=False, headers={"Origin": "https://evil.example"})
+    assert st == 403 and "Set-Cookie" not in h
+    assert req(srv, "GET", "/api/dashboard", cookie=False)[0] == 401
+    assert req(srv, "GET", "/", cookie=False, host="evil.example")[0] == 421
+
+
 def test_token_is_exchanged_for_httponly_samesite_cookie(studio):
     srv, _ = studio
-    assert req(srv, "GET", "/", cookie=False)[0] == 401
     assert req(srv, "GET", "/?token=wrong", cookie=False)[0] == 403
     st, h, _, _ = req(srv, "GET", f"/?token={srv.token}", cookie=False)
     assert st == 303 and h["Location"] == "/"
