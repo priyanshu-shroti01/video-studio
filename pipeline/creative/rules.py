@@ -155,7 +155,7 @@ def _strings(o, path=""):
 
 
 # ---- sync (estimated timings, the same estimate the preview stills use) -----------------------------------
-def _resolved(sb: dict) -> list[tuple[dict, SceneTiming, list[dict]]]:
+def _resolved(sb: dict, fps: int = 30) -> list[tuple[dict, SceneTiming, list[dict]]]:
     tm = estimated_timing(sb)
     words = [Word(w["text"], w["start"], w["end"]) for w in tm["words"]]
     spans = tm["scene_spans"]
@@ -166,7 +166,7 @@ def _resolved(sb: dict) -> list[tuple[dict, SceneTiming, list[dict]]]:
         sw = [w for w in words if spans[k][0] - 1e-3 <= w.start <= spans[k][1] + 1e-3]
         st = SceneTiming(sc["id"], round(starts[k], 3), round(ends[k], 3), spans[k][0], spans[k][1], sw)
         R = Resolver(st, sc.get("cues", {}))
-        out.append((sc, st, [resolve_block(b, R, i, 30) for i, b in enumerate(sc["blocks"])]))
+        out.append((sc, st, [resolve_block(b, R, i, fps) for i, b in enumerate(sc["blocks"])]))
     return out
 
 
@@ -241,10 +241,11 @@ MAX_EMPTY_OPEN = 0.6     # s: beyond this a scene that shows only its backdrop i
 FAIL_EMPTY_OPEN = 2.0    # s: beyond this it is rejected (QA's black-frame check is the backstop for dark backdrops)
 
 
-def sync_report(sb: dict) -> dict:
-    """Per scene: largest narration stretch without a visual event, and numbers drawn > 0.3 s before spoken."""
+def sync_report(sb: dict, fps: int = 30) -> dict:
+    """Per scene: largest narration stretch without a visual event, and numbers drawn > 0.3 s before spoken.
+    `fps` is the project's frame rate (quality preset): frame-quantised times (keystrokes) resolve as rendered."""
     scenes, gaps_bad, early, empty_open = [], [], [], []
-    for sc, st, blocks in _resolved(sb):
+    for sc, st, blocks in _resolved(sb, fps):
         pts, iv = [], []
         for b in blocks:
             _events(b, pts, iv)
@@ -415,7 +416,8 @@ def check_rules(sb: dict, *, pf=None, claims: dict | None = None, labels: dict |
             R.append(_rule("layout-fit", "no text overflow in the engine layout manifest", not layout,
                            "; ".join(f"{o['scene']}.{o['type']} {o['text'][:28]!r} {o['estWidth']}>{o['maxWidth']}px" for o in layout[:4])))
     if not errs:
-        sy = sync or sync_report(sb)
+        from ..quality import of_brief
+        sy = sync or sync_report(sb, fps=of_brief(brief).fps)
         R.append(_rule("sync-gaps", f"≤ {DESIGN_GAP} s (estimated; QA limit {MAX_SILENT_GAP} s) of narration without a visual event", not sy["gap_violations"],
                        "; ".join(sy["gap_violations"][:4])))
         ov = sy.get("open_violations") or []

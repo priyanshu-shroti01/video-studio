@@ -29,10 +29,15 @@ BRIEF_SCHEMA = {
         "duration_flexible": {"type": "boolean"},   # let the story set the length (hybrid engine: up to the Shorts limit)
         # hybrid engine: "generate" lets the composer design new scene graphics (docs/CREATIVE_SYSTEM.md); default "templates"
         "components": {"type": "string", "enum": ["templates", "generate"]},
+        # render quality preset (pipeline/quality.py): standard 1080p30 (default) | smooth 1080p60 | ultra 4K60
+        "quality": {"type": "string", "enum": ["standard", "smooth", "ultra"]},
         "goal": {"type": "string", "maxLength": 60},
         "cta": {"type": "string", "maxLength": 60},
         "tone": {"type": "string", "maxLength": 120},
         "voice": {"type": "string", "maxLength": 60},
+        # caption look for this video (pipeline/captions.py STYLES); default: brand creative.captions.style -> format
+        "captions": {"type": "object", "additionalProperties": False, "properties": {
+            "style": {"type": "string", "enum": ["classic", "pop", "highlight", "karaoke", "minimal"]}}},
         "request": {"type": "string", "maxLength": 2000},
         "requirements": {"type": "array", "items": {"type": "string", "enum": REQUIREMENTS}},
         "platform": {"type": "string", "maxLength": 40},

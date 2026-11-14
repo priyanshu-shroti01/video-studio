@@ -11,7 +11,8 @@
  */
 import {DIMENSIONS} from './contract';
 import {LogoSpec, Rect, specWidth, TextSpec} from './geometry';
-import {geomFootage} from './geometry-footage';
+import {activeCallouts, geomFootage, zoomSettleTimes} from './geometry-footage';
+import {captionMetrics} from './captions';
 import {captionBandTop, FORMAT_SPEC} from './layout';
 import {makeEnv, planScene} from './plan';
 import {blockContent} from './texts';
@@ -36,7 +37,22 @@ export type ManifestText = {
 export type ManifestLogo = {variant: LogoSpec['variant']; bbox: Rect; aspect: number; expectedAspect: number};
 /** A video viewport (footage block): the drawn clip rect (output px, settled, before the camera; zooms happen inside
  *  it), its aspect and the clip's intrinsic aspect (equal: the clip is never distorted). */
-export type ManifestMedia = {role: 'media'; kind: 'video'; asset: string; frame: string; bbox: Rect; aspect: number; expectedAspect: number};
+export type ManifestMedia = {
+  role: 'media';
+  kind: 'video';
+  asset: string;
+  frame: string;
+  bbox: Rect;
+  aspect: number;
+  /** frame fit: the clip's aspect; fill fit: the viewport's own (a cover crop of the clip, never distorted) */
+  expectedAspect: number;
+  fit?: 'frame' | 'fill';
+  clipAspect?: number;
+  /** times at which each zoom move has settled (visual QA samples the footage there) */
+  settle?: number[];
+  /** callout panels (output px, settled) and when each is up */
+  callouts?: {bbox: Rect; from: number; to: number; mag: number}[];
+};
 export type ManifestBlock = {
   index: number;
   type: string;
@@ -68,8 +84,9 @@ export const buildManifest = (props: RenderProps): LayoutManifest => {
   const {width, height} = DIMENSIONS[props.format];
   const spec = FORMAT_SPEC[props.format];
   const bandTop = captionBandTop(props.format, props.captions);
-  const capBottom = height - height * props.captions.bottomFrac;
-  const capW = width * props.captions.maxWidthFrac;
+  const capM = captionMetrics(props.format, props.captions);       // classic: H·bottomFrac and W·maxWidthFrac, as before
+  const capBottom = height - capM.bottom;
+  const capW = capM.maxW;
   const captionBand = props.captions.enabled
     ? {x: (width - capW) / 2, y: bandTop, w: capW, h: capBottom - bandTop}
     : {x: 0, y: bandTop, w: width, h: height - bandTop};
@@ -109,7 +126,18 @@ export const buildManifest = (props: RenderProps): LayoutManifest => {
       if (b.type === 'footage') {
         const g = geomFootage(b, box.designW, env.aspects);
         const sr = g.screen;
-        out.media = [{role: 'media', kind: 'video', asset: b.asset, frame: g.frame, bbox: rect({x: box.x + sr.x * k, y: box.y + sr.y * k, w: sr.w * k, h: sr.h * k}), aspect: r3(sr.w / sr.h), expectedAspect: r3(g.aspect)}];
+        const fill = g.fit === 'fill';
+        const md: ManifestMedia = {role: 'media', kind: 'video', asset: b.asset, frame: fill ? 'fill' : g.frame, bbox: rect({x: box.x + sr.x * k, y: box.y + sr.y * k, w: sr.w * k, h: sr.h * k}), aspect: r3(sr.w / sr.h), expectedAspect: r3(fill ? sr.w / sr.h : g.aspect)};
+        if (fill) Object.assign(md, {fit: 'fill' as const, clipAspect: r3(g.aspect)});
+        if (b.zooms?.length) md.settle = zoomSettleTimes(b.zooms).map(r3);
+        if (b.callouts?.length) {
+          md.callouts = activeCallouts(b, sr.w, sr.h, g.aspect, g.win, P.visible[i].to).map((wd) => {
+            const c = wd.rects;
+            const pr = c.panel;
+            return {bbox: rect({x: box.x + (sr.x + pr.x) * k, y: box.y + (sr.y + pr.y) * k, w: pr.w * k, h: pr.h * k}), from: r3(wd.from), to: r3(wd.to), mag: r3(c.mag)};
+          });
+        }
+        out.media = [md];
       }
       return out;
     });

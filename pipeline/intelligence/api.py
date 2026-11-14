@@ -76,6 +76,16 @@ def _brief_flags_md(bc: dict) -> str:
     return "\n## Brief claims needing owner review\n" + "\n".join(f"- **{c['text']}** — {c.get('reason', '')}" for c in bc["needs_review"]) + "\n"
 
 
+def _default_captions(project: dict, brief: dict) -> None:
+    from ..brands import load_profile
+    from ..captions import apply_default_style
+    try:
+        prof = load_profile(brief["brand_id"])
+    except Exception:  # noqa: BLE001 - unknown / draft brand: format default
+        prof = {}
+    apply_default_style(project, prof, brief)
+
+
 def _theme_preset(brief: dict) -> tuple[dict | None, dict | None, str]:
     preset_name = "shorts" if brief.get("format") == "short" else "landscape"
     th = pr = None
@@ -128,6 +138,8 @@ def build_storyboard(brief: dict, concept: dict, *, request: str | None = None, 
                "storyboard": sb, "audio": {"music": None}, "publishing": plan["publishing"]}
     if b.get("voice") and re.match(r"^[A-Za-z]{2,3}-[A-Za-z]{2,4}-[A-Za-z]+Neural$", b["voice"]):
         project["voice"] = {"voice": b["voice"]}
+    _default_captions(project, b)                       # NEW production: caption style brief -> brand -> format
+    plan["captions"]["style"] = project["captions"]["style"]
     reports = {"path": r["path"], "check": {k: v for k, v in chk.items() if k != "claims"}, "claims": chk["claims"],
                "brief_claims": brief_claims, "review": review, "creative_plan": plan, "fixes": r["fixes"], "log": r["log"],
                "brief": b, "brief_warnings": warnings, "concept": concept, "provider": prov.info() if prov else {"provider": "none"},

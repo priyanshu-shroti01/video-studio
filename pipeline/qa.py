@@ -50,7 +50,9 @@ class Expect:
     placed_sfx: int = 0
     caption_bottom_frac: float | None = None
     min_caption_bottom_frac: float = 0.0
+    caption_window: float = 0.0          # reading-speed window for word-synced caption styles (captions.reading_window)
     branding_present: bool = True
+    scale: int = 1                  # render scale (quality "ultra" = 2): pixels = design size x scale
 
 
 def ffprobe(path: Path) -> dict:
@@ -90,6 +92,7 @@ def structural(path: Path, ex: Expect) -> tuple[list[Check], dict]:
         cs.append(Check("stream.audio", "structure", PASS if a else FAIL, True, "present" if a else "missing"))
     if v:
         w, h = FORMATS[ex.fmt]
+        w, h = w * ex.scale, h * ex.scale
         ok = (v["width"], v["height"]) == (w, h)
         sar = v.get("sample_aspect_ratio", "1:1")
         cs.append(Check("video.resolution", "structure", PASS if ok else FAIL, True,
@@ -206,7 +209,10 @@ def audio_checks(path: Path, ex: Expect) -> tuple[list[Check], dict]:
     return cs, rep
 
 
-def caption_checks(srt: Path | None, ass: Path | None, audio_dur: float, words: list[dict], max_cps: float) -> list[Check]:
+def caption_checks(srt: Path | None, ass: Path | None, audio_dur: float, words: list[dict], max_cps: float,
+                   window: float = 0.0) -> list[Check]:
+    """`window` > 0 (word-synced caption styles, captions.reading_window): reading speed over consecutive cues
+    spanning ≥ window s instead of per cue; 0 keeps the classic per-cue check."""
     cs = []
     if srt is None:
         return [Check("captions.present", "captions", FAIL, True, "no caption file")]
@@ -221,9 +227,15 @@ def caption_checks(srt: Path | None, ass: Path | None, audio_dur: float, words: 
     overlap = [i + 1 for i in range(1, len(cues)) if cues[i][0] < cues[i - 1][1] - 1e-3]
     cs.append(Check("captions.no_overlap", "captions", FAIL if overlap else PASS, True,
                     f"overlapping cues: {overlap}" if overlap else "no overlaps"))
-    fast = [(i + 1, round(len(t) / max(b - a, 1e-3))) for i, (a, b, t) in enumerate(cues) if len(t) / max(b - a, 1e-3) > max_cps]
+    if window > 0:
+        from .captions import window_cps
+        fast = [(i + 1, round(c)) for i, c in window_cps(cues, window) if c > max_cps]
+        scope = f" over ≥{window:.1f}s windows"
+    else:
+        fast = [(i + 1, round(len(t) / max(b - a, 1e-3))) for i, (a, b, t) in enumerate(cues) if len(t) / max(b - a, 1e-3) > max_cps]
+        scope = ""
     cs.append(Check("captions.reading_speed", "captions", WARN if fast else PASS, False,
-                    f"faster than {max_cps:.0f} chars/s: {fast[:5]}" if fast else f"all ≤ {max_cps:.0f} chars/s"))
+                    f"faster than {max_cps:.0f} chars/s{scope}: {fast[:5]}" if fast else f"all ≤ {max_cps:.0f} chars/s{scope}"))
     text_words = " ".join(t for _, _, t in cues).split()
     cs.append(Check("captions.complete", "captions", PASS if len(text_words) == len(words) else FAIL, True,
                     f"{len(text_words)} caption words vs {len(words)} spoken"))
@@ -235,7 +247,7 @@ def caption_checks(srt: Path | None, ass: Path | None, audio_dur: float, words: 
     return cs
 
 
-def previews(path: Path, out_dir: Path, scene_starts: list[float], dur: float, w: int, h: int) -> dict:
+def previews(path: Path, out_dir: Path, scene_starts: list[float], dur: float, w: int, h: int, fps: float = 30) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     frames_dir = out_dir / "frames"
     frames_dir.mkdir(exist_ok=True)
@@ -251,7 +263,7 @@ def previews(path: Path, out_dir: Path, scene_starts: list[float], dur: float, w
     cols = 6 if h > w else 4
     rows = math.ceil(n / cols)
     sheet = out_dir / "contact-sheet.jpg"
-    step = max(dur / n, 1 / 30)
+    step = max(dur / n, 1 / fps)
     procs.run(["ffmpeg", "-v", "error", "-y", "-i", str(path), "-vf",
                f"fps=1/{step:.3f},scale={360 if h > w else 480}:-2,tile={cols}x{rows}:padding=8:color=white",
                "-frames:v", "1", "-q:v", "3", str(sheet)], timeout=300)
@@ -273,9 +285,9 @@ def run_qa(video: Path, ex: Expect, *, srt: Path | None, ass: Path | None, words
         if any(s["codec_type"] == "audio" for s in info.get("streams", [])):
             ac, audio_rep = audio_checks(video, ex)
             checks += ac
-        checks += caption_checks(srt, ass, ex.duration, words, max_cps)
+        checks += caption_checks(srt, ass, ex.duration, words, max_cps, window=ex.caption_window)
         w, h = FORMATS[ex.fmt]
-        prev = previews(video, previews_dir, ex.scene_starts, dur, w, h)
+        prev = previews(video, previews_dir, ex.scene_starts, dur, w, h, fps=ex.fps)
     failed = [c for c in checks if c.status == FAIL and c.critical]
     status = FAIL if failed else (WARN if any(c.status != PASS for c in checks) else PASS)
     report = {"video": str(video), "format": ex.fmt, "status": status, "seconds": round(time.time() - t0, 1),

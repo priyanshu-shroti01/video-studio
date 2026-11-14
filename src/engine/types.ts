@@ -14,6 +14,9 @@ export const CONTRACT_VERSION = 2;
 export const SUPPORTED_CONTRACT_VERSIONS: readonly number[] = [1, 2];
 
 export type Format = 'short' | 'landscape';
+/** footage: how the clip fills its block, and a normalised region of the clip (0..1, top-left origin) */
+export type FootageFit = 'frame' | 'fill';
+export type FootageRegion = {x: number; y: number; w: number; h: number};
 export type Tone = 'text' | 'muted' | 'brand' | 'danger' | 'success' | 'warning' | 'info';
 
 /** A spoken word, absolute seconds on the final timeline. `text` is the SCRIPT token (keeps punctuation/casing). */
@@ -37,12 +40,21 @@ export type Theme = {
   background: {style: 'dots-glow' | 'plain'; glowA: string; glowB: string};
   caption: {highlight: string; box: string; text: string; dim: string};
   radius: {card: number; pill: number};
+  /** effects, optional per brand (brands/<id>/theme.json): subtle animated film grain over the picture (opacity ≤ 0.09) */
+  grain?: {opacity?: number};
 };
 
 export type CaptionConfig = {
   enabled: boolean;
-  /** 'word': karaoke highlight of the current word; 'phrase': whole page, no per-word highlight */
-  style: 'word' | 'phrase';
+  /** classic look (boxed page): 'word' = colour on the current word, 'phrase' = no per-word highlight, 'classic' = 'word'.
+   *  Additive (same contract version), drawn by captions-view.tsx, see docs/MOTION.md#captions:
+   *  'pop' (1–3 words, big stroked type, active word springs in brand colour), 'highlight' (brand block behind the
+   *  active word), 'karaoke' (words fill as spoken), 'minimal' (small, clean, low; for 16:9). */
+  style: 'word' | 'phrase' | 'classic' | 'pop' | 'highlight' | 'karaoke' | 'minimal';
+  /** optional: UPPERCASE page text (default: true for 'pop', false otherwise) */
+  uppercase?: boolean;
+  /** optional: extra emphasis on numbers, the brand name and the scene's emphasis words in 'pop' / 'highlight' (default true) */
+  emphasis?: boolean;
   maxWords: number;
   fontSize: number;
   /** distance of the caption box's bottom edge from the frame bottom, as a fraction of height */
@@ -257,8 +269,16 @@ export type BlockV2 =
       startFrom?: number;
       /** default 1 */
       playbackRate?: number;
-      zooms?: {at: number; x: number; y: number; scale: number}[];
+      /** focus keyframes; with `region` (the named UI element, normalised x/y/w/h of the clip) the engine frames that
+       *  element: centre on it and zoom as far as it still fits (geometry-footage.ts regionZoom) */
+      zooms?: {at: number; x: number; y: number; scale: number; region?: FootageRegion}[];
       caption?: string;
+      /** 'frame' (default): the whole clip in its chrome. 'fill': no chrome, the viewport fills the column at
+       *  FOOTAGE.fillAspect and shows a crop of the clip driven by the zooms. Per format: {short: 'fill'} */
+      fit?: FootageFit | {short?: FootageFit; landscape?: FootageFit};
+      /** magnified "lens" panels of a source region that pop in on their word (with a connector to the source) and
+       *  stay until `hold` seconds later, the next callout, or the block's end */
+      callouts?: (FootageRegion & {at: number; hold?: number})[];
     }
   /** A generated scene graphic (pipeline/creative/composer.py): primitives on a normalised canvas. Every element has a
    *  `box` [x, y, w, h] (0..1 of the canvas) for the tall layout (Shorts, narrow columns) and optionally a `wide` box
@@ -343,7 +363,16 @@ export type IconName =
   | 'app' | 'cpu' | 'memory' | 'disk' | 'refresh' | 'plug' | 'palette' | 'settings' | 'download' | 'gauge'
   | 'play';
 
-export type Transition = 'fade' | 'slide-up' | 'none' | 'mask-wipe' | 'gradient-sweep';
+export type Transition = 'fade' | 'slide-up' | 'none' | 'mask-wipe' | 'gradient-sweep'
+  /** effects (additive, same contract version; motion/fx-transitions.ts): the scene ENTERS with this; the previous scene
+   *  exits with the matching move. Every exit still reaches 0 at scene.end. */
+  | 'whip-pan' | 'zoom-through' | 'push' | 'iris' | 'light-leak' | 'glitch';
+/** Direction content moves in a whip-pan / push (default: whip 'left'; push 'up' in 9:16, 'left' in 16:9). */
+export type TransitionDir = 'left' | 'right' | 'up' | 'down';
+/** Emphasis effects (additive, same contract version): defined in effect-types.ts (kept out of this file so the
+ *  block-type list below stays the only `type:` union here). */
+export type {SceneEffect, SceneEffectType} from './effect-types';
+import type {SceneEffect} from './effect-types';
 /** Scene camera. Absent = 'push-in' (the v1 behaviour: scale 1 → 1.03 over the scene). */
 export type Camera = 'none' | 'push-in' | 'pan-left' | 'pan-right' | 'drift';
 /** Motion preset: entrance springs / offsets / stagger only — never cue times. */
@@ -374,6 +403,10 @@ export type Scene = {
   /** v2b: scene backdrop (default 'glow'). 'split' moves the content off the brand panel; 'light' switches
    *  free-standing text to the theme's light tokens. Setting it on any scene opts the video into the v2b look. */
   backdrop?: BackdropKind;
+  /** effects: direction of a whip-pan / push entrance */
+  transitionDir?: TransitionDir;
+  /** effects: word-anchored emphasis effects of this scene (absent = none; renders exactly as before) */
+  effects?: SceneEffect[];
   blocks: Block[];
 };
 

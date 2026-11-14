@@ -33,7 +33,7 @@ export type LogoSpec = Rect & {variant: LogoVariant | 'custom'; expected: number
 
 export type LogoAspects = Record<LogoVariant, number>;
 /** What geometry needs from the world: logo aspects and asset aspects (public/ path → w/h). */
-export type AspectEnv = {logo: LogoAspects; asset: (path: string) => number | undefined; logoPaths?: Partial<Record<LogoVariant, string>>; polish?: boolean};
+export type AspectEnv = {logo: LogoAspects; asset: (path: string) => number | undefined; logoPaths?: Partial<Record<LogoVariant, string>>; polish?: boolean; format?: 'short' | 'landscape'};
 
 export const T = (text: string, x: number, y: number, w: number, h: number, fs: number, weight: number, align: Align, role: Role, extra: Partial<TextSpec> = {}): TextSpec => ({
   text,

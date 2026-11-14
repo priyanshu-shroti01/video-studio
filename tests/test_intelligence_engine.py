@@ -98,7 +98,7 @@ def test_mock_llm_storyboard_path_and_outputs(brief, fb, tmp_path):
     for f in ("concepts.json", "concepts.md", "storyboard-preview.md", "review.json", "claims.json", "creative-plan.json"):
         assert (tmp_path / f).exists(), f
     plan = json.loads((tmp_path / "creative-plan.json").read_text())
-    assert plan["music"]["mood"] in plan["music"]["vocabulary"] and plan["captions"]["style"] == "word"
+    assert plan["music"]["mood"] in plan["music"]["vocabulary"] and plan["captions"]["style"] == "pop"   # new Shorts default
     assert "BLOCKED" in (tmp_path / "storyboard-preview.md").read_text()
 
 

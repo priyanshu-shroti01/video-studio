@@ -66,7 +66,10 @@ def _numbers_shown(o, at: float | None, out: list):
 
 def evaluate(scenes: list[dict], words: list[dict], duration: float) -> dict:
     """scenes: resolved timeline scenes (absolute seconds); words: [{text,start,end}]."""
-    events = sorted({round(t, 3) for s in scenes for t in _times(s["blocks"])} | {round(s["start"], 3) for s in scenes})
+    # scene effects (punch-zoom, annotation draw-on, burst, cursor click...) are visible changes anchored to a spoken word,
+    # so they count as visual events like a block entrance (pipeline/effects.py)
+    events = sorted({round(t, 3) for s in scenes for t in _times(s["blocks"]) + _times(s.get("effects", []))}
+                    | {round(s["start"], 3) for s in scenes})
     pts = events + [duration]
     static = []
     for a, b in zip(pts, pts[1:]):

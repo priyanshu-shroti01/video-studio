@@ -5,14 +5,18 @@ import {collectAssetPaths, collectFootageNeedingDuration, intrinsicAspect, video
 import {BackdropStack} from './backdrops';
 import {BlockView} from './blocks';
 import {watermarkFactor} from './branding';
-import {captionPageAt, wordState} from './captions';
+import {captionLook, captionPageAt, wordState} from './captions';
+import {KineticCaptions} from './captions-view';
 import {assertContract, DIMENSIONS, isV2} from './contract';
 import {captionBandTop} from './layout';
-import {BRANDBAR_DUR, LEAD, VIDEO_FADE_FRAMES, VISIBLE_PAD} from './motion/durations';
+import {BRANDBAR_DUR, LEAD, videoFadeFrames, VISIBLE_PAD} from './motion/durations';
 import {EASE} from './motion/easings';
 import {blockEntrance, MOTION_BLUR_LEVELS, motionBlurFilterId} from './motion/entrances';
 import {life} from './motion/exits';
 import {cameraAt, sceneTransition} from './motion/transitions';
+import {effectCamera, hasEffects} from './motion/effects';
+import {needsFxTransition, sceneTransitionFx} from './motion/fx-transitions';
+import {BlockFx, blockTiltTransform, FxDefs, FxOverlay, fxLayerFilter, fxLayerTransform, SceneFx, usesFx} from './effects';
 import {backdropWeights} from './look';
 import {Env, makeEnv, planScene} from './plan';
 import {holdForFonts} from './theme';
@@ -30,7 +34,11 @@ const SceneView: React.FC<{scene: Scene; env: Env}> = ({scene, env}) => {
   const {props, v2, width} = env;
   const P = useMemo(() => planScene(env, scene), [env, scene]);
   const L = P.layout;
-  const tr = sceneTransition(scene, t);
+  // effects (gated): an effect transition into / out of this scene, word-anchored emphasis effects; classic path otherwise
+  const next = v2 ? props.scenes[props.scenes.indexOf(scene) + 1] : undefined;
+  const fxTr = v2 && needsFxTransition(scene, next) ? sceneTransitionFx(scene, next, t, fps, {width, height: env.height, cx: P.cx, cy: P.cy, format: props.format}) : undefined;
+  const fxCam = v2 && hasEffects(scene) ? effectCamera(scene.effects, scene.id, t) : undefined;
+  const tr = fxTr ?? sceneTransition(scene, t);
   const ctx: Ctx = !v2 ? base : P.backdrop === 'light' ? {...base, motion: P.preset, surface: 'light', ink: lightInk(base.theme)} : {...base, motion: P.preset};
   let transform: string;
   if (!v2) {
@@ -40,10 +48,11 @@ const SceneView: React.FC<{scene: Scene; env: Env}> = ({scene, env}) => {
   } else {
     const cam = cameraAt(scene.camera, scene, t, width, P.preset.camera);
     transform = `translate(${cam.dx}px, ${tr.dy + cam.dy}px) scale(${cam.scale})`;
+    if (fxTr || fxCam) transform += fxLayerTransform(fxTr, fxCam);
   }
   return (
     <EngineCtx.Provider value={ctx}>
-      <AbsoluteFill style={{opacity: tr.opacity, transform, transformOrigin: `${P.cx}px ${P.cy}px`, maskImage: tr.mask, WebkitMaskImage: tr.mask}}>
+      <AbsoluteFill style={{opacity: tr.opacity, transform, transformOrigin: `${P.cx}px ${P.cy}px`, maskImage: tr.mask, WebkitMaskImage: tr.mask, filter: fxLayerFilter(fxTr)}}>
         {scene.blocks.map((b, i) => {
           const box = L.boxes[i];
           const appear = P.appear[i];
@@ -64,6 +73,7 @@ const SceneView: React.FC<{scene: Scene; env: Env}> = ({scene, env}) => {
           const left = st ? mix(st.x, box.x, sp0) : box.x;
           const top = st ? mix(st.y, box.y, sp0) : box.y;
           if (st && style.transform) style.transform = style.transform.replace(`scale(${box.scale})`, `scale(${mix(st.scale, box.scale, sp0)})`);
+          if (fxCam && style.transform) style.transform += blockTiltTransform(scene.effects, i, t, appear, box.designW, box.designH);
           return (
             <div
               key={b.id ?? i}
@@ -80,9 +90,11 @@ const SceneView: React.FC<{scene: Scene; env: Env}> = ({scene, env}) => {
                 sceneEnd={scene.end}
                 ceilingY={P.ceilingY}
               />
+              {fxCam ? <BlockFx scene={scene} index={i} block={b} w={box.designW} h={box.designH} /> : null}
             </div>
           );
         })}
+        {fxCam ? <SceneFx scene={scene} cx={P.cx} cy={P.cy} width={width} height={env.height} /> : null}
       </AbsoluteFill>
       {tr.sweep !== undefined ? <Sweep p={tr.sweep} top={L.top} bottom={captionBandTop(props.format, props.captions)} width={width} /> : null}
     </EngineCtx.Provider>
@@ -272,11 +284,12 @@ export const Storyboard: React.FC<RenderProps> = (props) => {
   const t = frame / fps;
   const ctx: Ctx = makeCtx(props.theme, t, fps, {aspects: env.aspects, v2: env.v2, polish: env.polish});
   const {width, height} = DIMENSIONS[props.format];
-  const fadeOut = 1 - lin(frame, durationInFrames - VIDEO_FADE_FRAMES, durationInFrames - 1);
+  const fadeOut = 1 - lin(frame, durationInFrames - videoFadeFrames(fps), durationInFrames - 1);
   return (
     <EngineCtx.Provider value={ctx}>
       <AbsoluteFill style={{background: props.theme.colors.bg, opacity: fadeOut, fontFamily: ctx.sans}}>
         {env.v2 ? <MotionBlurDefs /> : null}
+        {env.v2 && usesFx(props) ? <FxDefs /> : null}
         {env.polish ? (
           <BackdropStack scenes={props.scenes} format={props.format} width={width} height={height} danger={moodAt(props.scenes, t, 'danger')} brand={moodAt(props.scenes, t, 'brand') * 0.8} />
         ) : (
@@ -285,9 +298,10 @@ export const Storyboard: React.FC<RenderProps> = (props) => {
         {props.scenes.filter((s) => sceneVisible(s, t)).map((s) => (
           <SceneView key={s.id} scene={s} env={env} />
         ))}
+        {env.v2 && usesFx(props) ? <FxOverlay props={props} frame={frame} /> : null}
         <BrandBar env={env} />
         <WatermarkView env={env} />
-        <Captions props={props} polish={env.polish} />
+        {captionLook(props.captions.style) === 'classic' ? <Captions props={props} polish={env.polish} /> : <KineticCaptions props={props} />}
       </AbsoluteFill>
     </EngineCtx.Provider>
   );

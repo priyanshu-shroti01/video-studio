@@ -1,4 +1,4 @@
-import {captionBoxHeight} from './captions';
+import {captionBoxHeight, captionLook, captionMetrics} from './captions';
 import {Block, CaptionConfig, Format, Scene} from './types';
 import {DIMENSIONS} from './contract';
 import {
@@ -244,11 +244,18 @@ export type Box = {x: number; y: number; w: number; h: number; scale: number; de
 export type SceneLayout = {top: number; bottom: number; fit: number; scale: number; boxes: Box[]; split: boolean; side: number};
 
 /** Top of the caption band (content must end above this line). */
-export const captionBandTop = (format: Format, captions: Pick<CaptionConfig, 'enabled' | 'bottomFrac' | 'fontSize'>) => {
+export const captionBandTop = (format: Format, captions: CaptionBandCfg) => {
   const {height} = DIMENSIONS[format];
   if (!captions.enabled) return height - 90 * FORMAT_SPEC[format].k;
+  if (captionLook(captions.style) !== 'classic') {
+    // kinetic / minimal looks: their own size and placement (captions.ts captionMetrics), still 2 lines + 24 px
+    const m = captionMetrics(format, captions);
+    return height - m.bottom - m.bandH - 24;
+  }
   return height - height * captions.bottomFrac - captionBoxHeight(captions.fontSize, 2) - 24;
 };
+/** What the caption band depends on (`style` / `maxWidthFrac` / `uppercase` are optional: absent = classic). */
+export type CaptionBandCfg = Pick<CaptionConfig, 'enabled' | 'bottomFrac' | 'fontSize'> & Partial<Pick<CaptionConfig, 'style' | 'maxWidthFrac' | 'uppercase'>>;
 
 /** v2 layout options: insets reserved for the camera move and a raised top (e.g. under a watermark).
  *  v2b: `leftMin` (content area starts right of this x, e.g. the 'split' brand panel) and `hero` (scale a sparse
@@ -262,7 +269,7 @@ export const HERO = {single: 1.5, multi: 1.18, fill: 0.9} as const;
 export const layoutScene = (
   scene: Pick<Scene, 'layout' | 'splitAt' | 'splitRatio' | 'blocks'>,
   format: Format,
-  captions: Pick<CaptionConfig, 'enabled' | 'bottomFrac' | 'fontSize'>,
+  captions: CaptionBandCfg,
   brandBarActive: boolean,
   logoAspect: number | AspectEnv,
   opts: LayoutOpts = {},

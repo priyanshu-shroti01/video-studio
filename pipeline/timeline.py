@@ -6,12 +6,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from . import captions as C
+from . import effects as FX
 from .contract import CONTRACT_VERSION, FORMATS
 from .errors import PipelineError
+from .quality import BASE_FPS, of_config
 from .storyboard import Resolver, SceneTiming, auto_sfx, resolve_block
 from .timing import Word, tokenize
 
-FPS = 30
+FPS = BASE_FPS          # default frame rate (quality "standard"); the project's rate comes from render.quality
 
 
 @dataclass
@@ -54,20 +56,21 @@ def watermark_props(cfg: dict) -> dict | None:
 
 def build_timeline(cfg: dict, tm: dict) -> Timeline:
     warnings: list[str] = []
+    fps = of_config(cfg).fps
     words = [Word(w["text"], w["start"], w["end"], w.get("interpolated", False)) for w in tm["words"]]
     tail = cfg["audio"].get("tail", 0.7)
-    frames = round(round(tm["duration"] + tail, 3) * FPS)
-    duration = frames / FPS
+    frames = round(round(tm["duration"] + tail, 3) * fps)
+    duration = frames / fps
     spans = tm["scene_spans"]
     scenes_sb = cfg["storyboard"]["scenes"]
     starts = [0.0] + [max(spans[k - 1][1] + 0.05, spans[k][0] - 0.15) for k in range(1, len(spans))]
     ends = starts[1:] + [duration]
-    resolved, sfx = [], []
+    resolved, sfx, fx_anchors = [], [], {}
     for k, sc in enumerate(scenes_sb):
         sw = [w for w in words if spans[k][0] - 1e-3 <= w.start <= spans[k][1] + 1e-3]
         st = SceneTiming(sc["id"], round(starts[k], 3), round(ends[k], 3), spans[k][0], spans[k][1], sw)
         Rz = Resolver(st, sc.get("cues", {}))
-        blocks = [resolve_block(b, Rz, i, FPS) for i, b in enumerate(sc["blocks"])]
+        blocks = [resolve_block(b, Rz, i, fps) for i, b in enumerate(sc["blocks"])]
         for b in blocks:
             for key in ("at", "exitAt"):
                 if key in b and not (st.start - 0.2 <= b[key] <= st.end + 0.01):
@@ -77,15 +80,20 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
                  **({"splitAt": sc["splitAt"]} if "splitAt" in sc else {}),
                  **({"splitRatio": sc["splitRatio"]} if "splitRatio" in sc else {}),
                  "mood": sc.get("mood", "neutral"), "blocks": blocks}
-        for opt in ("camera", "motion", "backdrop"):           # contract v2 scene options
+        for opt in ("camera", "motion", "backdrop", "transitionDir"):           # contract v2 scene options
             if opt in sc:
                 scene[opt] = sc[opt]
+        if sc.get("effects"):                                   # effects (pipeline/effects.py): word-anchored times
+            scene["effects"] = FX.resolve_effects(sc, Rz, k, fx_anchors)
         resolved.append(scene)
         if cfg["audio"].get("autoSfx", True) and sc.get("autoSfx", True):
             sfx += auto_sfx(k, st, blocks, cfg["theme"].get("sfx", {}))
         for ev in sc.get("sfx", []):
             sfx.append({"t": Rz.time(ev["at"]), "sound": ev["sound"], "gain": ev.get("gain", cfg["audio"].get("sfxDb", -12)),
                         "kind": "explicit"})
+    beat_sync = None
+    if any("effects" in s or s["transition"] in FX.FX_TRANSITIONS for s in resolved) or cfg["storyboard"].get("beatSync"):
+        beat_sync = FX.timeline_pass(cfg, resolved, [w.as_dict() for w in words], duration, fps, fx_anchors, sfx, warnings)
     sfx = sorted((e for e in sfx if 0 <= e["t"] < duration - 0.05), key=lambda e: e["t"])
     max_sfx = cfg["audio"].get("maxSfxPerSecond", 2.5)          # prevent excessive SFX
     if sfx and len(sfx) / duration > max_sfx:
@@ -99,9 +107,9 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
     bb = [s for s, sc in zip(resolved, scenes_sb) if sc.get("brandBar")]
     brand_bar = {"from": bb[0]["start"], "to": bb[-1]["end"]} if bb else None
     cc = cfg["captions"]
-    pages = C.build_pages(words, max_words=cc.get("maxWords", 4), max_chars=cc.get("maxChars", 28),
-                          hold=cc.get("hold", 0.6), audio_end=tm["duration"])
-    crep = C.validate_pages(pages, words, tm["duration"], max_cps=cc.get("maxCps", 25))
+    pages = C.pages_for(cc, words, tm["duration"], names=C.caption_names(cfg))      # classic grouping unless kinetic
+    crep = C.validate_pages(pages, words, tm["duration"], max_cps=cc.get("maxCps", 25),
+                            **C.validate_opts(cc.get("style")))
     if crep.errors:
         raise PipelineError("caption timing invalid", detail="\n".join(crep.errors))
     warnings += [f"captions: {w}" for w in crep.warnings]
@@ -113,26 +121,29 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
         w_, h_ = FORMATS[fmt]
         ass[fmt] = C.to_ass(pages, words, width=w_, height=h_, font=cfg["theme"]["fonts"]["sans"]["family"],
                             font_size=ccf.get("fontSize", 66), bottom_frac=ccf.get("bottomFrac", 0.27),
-                            highlight=cfg["theme"]["caption"]["highlight"], karaoke=ccf.get("style", "word") == "word")
-        p = {"contractVersion": CONTRACT_VERSION, "format": fmt, "fps": FPS, "durationInFrames": frames,
+                            highlight=cfg["theme"]["caption"]["highlight"], karaoke=ccf.get("style", "word") != "phrase")
+        p = {"contractVersion": CONTRACT_VERSION, "format": fmt, "fps": fps, "durationInFrames": frames,
              "theme": theme_render,
              "captions": {"enabled": ccf.get("enabled", True), "style": ccf.get("style", "word"),
                           "maxWords": ccf.get("maxWords", 4), "fontSize": ccf.get("fontSize", 66),
                           "bottomFrac": ccf.get("bottomFrac", 0.27), "maxWidthFrac": ccf.get("maxWidthFrac", 0.8),
-                          "pages": [{"start": pg.start, "end": pg.end, "wordIdx": pg.word_idx} for pg in pages]},
+                          "pages": [{"start": pg.start, "end": pg.end, "wordIdx": pg.word_idx} for pg in pages],
+                          **C.style_props(ccf)},
              "words": [w.as_dict() for w in words], "scenes": resolved, "brandBar": brand_bar}
         if CONTRACT_VERSION >= 2:
             p["watermark"] = wm
             if cfg.get("motion"):
                 p["motion"] = cfg["motion"]
         props[fmt] = p
-    sb_out = {"duration": duration, "frames": frames, "fps": FPS, "scenes": [
+    sb_out = {"duration": duration, "frames": frames, "fps": fps, "scenes": [
         {**{k: s[k] for k in ("id", "purpose", "start", "end", "transition")},
          "narration": scenes_sb[i]["narration"], "speech": spans[i],
          "captions": [pg.text(words) for pg in pages if spans[i][0] - 1e-3 <= pg.start <= spans[i][1] + 1e-3],
          "sfx": [e for e in sfx if s["start"] <= e["t"] < s["end"]], "blocks": s["blocks"]}
         for i, s in enumerate(resolved)]}
-    return Timeline(duration, frames, FPS, words, pages, resolved, sfx, brand_bar, props, ass, C.to_srt(pages, words),
+    if beat_sync is not None:
+        sb_out["beatSync"] = beat_sync
+    return Timeline(duration, frames, fps, words, pages, resolved, sfx, brand_bar, props, ass, C.to_srt(pages, words),
                     sb_out, crep.max_cps, warnings)
 
 

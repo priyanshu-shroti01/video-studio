@@ -237,6 +237,8 @@ def select_concept(pid: str, concept_id: str) -> dict:
     p = prod.get(pid)
     sb, project, reports = ib.storyboard(p["brief"], Path(p["dir"]), concept_id, brand=p["brand"],
                                          provider=p["brief"].get("provider", "ollama"))
+    from .quality import apply_to_project
+    apply_to_project(project, p["brief"])                 # brief "quality" -> project render.quality
     res = save_storyboard(pid, sb, project=project)
     # generated copy: fix text overflow before any voice/render is spent (recorded for the reviewer)
     from .layout_fit import fit_storyboard
@@ -284,9 +286,14 @@ def save_storyboard(pid: str, storyboard: dict, project: dict | None = None) -> 
 
 
 def default_project(p: dict) -> dict:
+    from .quality import apply_to_project
     fmt = p["brief"].get("format", "short")
-    return {"name": f"{p['brand']}-{p['id']}".lower(), "brand": p["brand"], "preset": FORMAT_PRESET.get(fmt, "shorts"),
-            "formats": [fmt], "storyboard": "", "audio": {"music": f"mood:{p['brief'].get('musicMood', 'corporate')}"}}
+    project = apply_to_project({"name": f"{p['brand']}-{p['id']}".lower(), "brand": p["brand"],
+                                "preset": FORMAT_PRESET.get(fmt, "shorts"), "formats": [fmt], "storyboard": "",
+                                "audio": {"music": f"mood:{p['brief'].get('musicMood', 'corporate')}"}}, p["brief"])
+    from .brands import load_profile
+    from .captions import apply_default_style
+    return apply_default_style(project, load_profile(p["brand"]), p["brief"])   # caption style: brief -> brand -> format
 
 
 def preview(pid: str) -> dict:

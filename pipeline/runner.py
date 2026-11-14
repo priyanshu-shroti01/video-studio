@@ -27,6 +27,7 @@ from .errors import Cancelled, PipelineError, QAFailed, StateError
 from .jobs import STAGES, Registry
 from .paths import (ROOT, atomic_write_json, atomic_write_text, publish_file, rel, safe_path, sha256_file,
                     sha256_json)
+from .quality import of_config
 from .storyboard import Resolver, SceneTiming, auto_sfx, resolve_block
 from .timing import Word, align, validate_words
 
@@ -382,8 +383,11 @@ class JobRunner:
         pub = cfg.get("publishing", {})
         title = pub.get("title", cfg["name"])
         thumb_t = pub.get("thumbnailAt", tl["scene_starts"][-1] + 1.2)
+        # thumbnails stay at the design size (platform limits, e.g. YouTube's 2 MB), whatever the render scale
+        thumb_vf = ["-vf", "scale={}:{}:flags=lanczos".format(*FORMATS[first])] if of_config(cfg).scale != 1 else []
         procs.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{min(thumb_t, tl['duration'] - 0.2):.2f}", "-i",
-                   str(ROOT / finals[first]), "-frames:v", "1", str(self.d["publishing"] / "thumbnail.png")], timeout=60)
+                   str(ROOT / finals[first]), "-frames:v", "1", *thumb_vf, str(self.d["publishing"] / "thumbnail.png")],
+                  timeout=60)
         atomic_write_text(self.d["publishing"] / "title.txt", title.strip() + "\n")
         atomic_write_text(self.d["publishing"] / "hashtags.txt", " ".join(pub.get("hashtags", [])) + "\n")
         credits = sorted({(e["sound"], e["file"]) for e in mres.events})
@@ -412,9 +416,11 @@ class JobRunner:
             av = S.av_offset(self.d["audio"] / "voiceover.wav", ROOT / final)
             lag = av["max_abs_lag_ms"]
             ok = lag is not None and lag <= 45 and abs(av["drift_ms"] or 0) <= 45
+            # the limit is perceptual (ms), not a frame count: 45 ms ≈ 1.4 frames at 30 fps, 2.7 at 60
             out.append(Q.Check("sync.av_offset", "sync", Q.PASS if ok else Q.FAIL, True,
                                f"voice in video vs voiceover: max lag {lag} ms, drift {av['drift_ms']} ms over "
-                               f"{av['windows']} windows (limit 45 ms ≈ 1.4 frames)", {k: v for k, v in av.items() if k != "lags"}))
+                               f"{av['windows']} windows (limit 45 ms ≈ {0.045 * tl['fps']:.1f} frames)",
+                               {k: v for k, v in av.items() if k != "lags"}))
         except Exception as e:  # noqa: BLE001 - recorded, never silently skipped
             out.append(Q.Check("sync.av_offset", "sync", Q.FAIL, True, f"A/V offset could not be measured: {e}"))
         props = json.loads((self.d["metadata"] / f"props-{fmt}.json").read_text())
@@ -442,7 +448,9 @@ class JobRunner:
                           freeze_warn_s=q.get("freezeWarnS", 3.0), planned_sfx=tl["n_sfx"], placed_sfx=ctx["mix"]["events"]
                           if isinstance(ctx["mix"]["events"], int) else len(ctx["mix"]["events"]),
                           caption_bottom_frac=capf.get("bottomFrac") if fmt == "short" else None,
-                          min_caption_bottom_frac=q.get("shortsOverlayFrac", 0.2), branding_present=tl["branding"])
+                          min_caption_bottom_frac=q.get("shortsOverlayFrac", 0.2), branding_present=tl["branding"],
+                          scale=of_config(cfg).scale,
+                          caption_window=C.reading_window(cfg["captions"].get("style")))
             extra = []
             if q.get("visual", True):
                 from .visual_qa.checks import run_visual_qa

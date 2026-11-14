@@ -18,6 +18,7 @@ from .copybank import variants, word_count
 from .industries import Pack, get_pack
 from .product import ProductFacts, resolve_product, trusted_brief
 from .rules import PAD, SCENE_GAP, WPS, check_rules, failed, layout_overflows, windows
+from .fx import VERSION as FX_VERSION, concept_style
 from .templates import ROLE_PURPOSE, Ctx, SceneTemplate, library
 
 
@@ -197,6 +198,9 @@ def compose(concept: dict, st: Studio, copies: dict[str, dict]) -> tuple[dict, C
         anchors[sp["scene"]] = A
     structure = list(dict.fromkeys(s["purpose"] for s in scenes))
     sb = {"version": 1, "title": f"{st.pf.brand} — {concept['name']}", "structure": structure, "scenes": scenes}
+    if concept.get("effects"):              # new concepts only (fx.py): existing concepts rebuild byte-identically
+        from .fx import plan as plan_effects
+        plan_effects(sb, concept["effects"])
     return sb, ctx, anchors
 
 
@@ -248,6 +252,7 @@ def plan_concept(bp: dict, st: Studio, idx: int, avoid: dict, hook_variant: str 
         "pacing": {**bp["pacing"], "scene_count": len(seq), "words": words, "est_seconds": round(estimate(words, len(seq)) + sum(HOLD_AFTER.get(t.hero, 0.0) for _, t in seq), 1),
                    "words_per_second": WPS},
         "music_mood": bp["music"], "animation_style": "template-composed",
+        "effects": {"version": FX_VERSION, "style": concept_style(bp["music"])},
         "cta_treatment": {"style": bp["cta_style"], "template": seq[-1][1].id, "text": st.pf.cta, "url": st.pf.domain},
     }
     sb, ctx, _ = compose(concept, st, {p["scene"]: v for p, v in zip(plan, chosen)})

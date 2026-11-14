@@ -60,6 +60,7 @@ CHECK_WORDS: dict[str, str] = {
     "file.exists": "the video file is missing",
     "file.nonempty": "the video file is empty",
     "layout.caption_band": "text sits where captions go",
+    "layout.caption_platform_ui": "captions sit under the app's buttons or description",
     "layout.media_aspect": "an image is stretched",
     "layout.safe_area": "text is outside the safe area",
     "layout.text_overflow": "text overflows its box",
@@ -101,6 +102,7 @@ BRIEF_FIELDS: dict[str, str] = {
     "formats": "Formats", "duration_seconds": "Length (duration_seconds)", "goal": "Goal", "cta": "Call to action",
     "tone": "Tone", "voice": "Voice", "request": "Request", "provider": "Provider", "engine": "Engine",
     "url": "Web address", "notes": "Notes", "requirements": "Requirements", "components": "Components",
+    "quality": "Quality",
 }
 
 _TYPE_WORDS = {"integer": "a whole number", "number": "a number", "string": "text", "boolean": "true or false",

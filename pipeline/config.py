@@ -68,7 +68,11 @@ AUDIO_SCHEMA = {
 CAPTION_SCHEMA = {
     "type": "object",
     "properties": {
-        "enabled": {"type": "boolean"}, "style": {"type": "string", "enum": ["word", "phrase"]},
+        # caption look (pipeline/captions.py STYLES, docs/MOTION.md#captions): word/phrase/classic = the original
+        # boxed captions; pop / highlight / karaoke = word-synced 1–3(4)-word pages; minimal = small, low (16:9)
+        "enabled": {"type": "boolean"}, "style": {"type": "string", "enum": ["word", "phrase", "classic", "pop",
+                                                                             "highlight", "karaoke", "minimal"]},
+        "uppercase": {"type": "boolean"}, "emphasis": {"type": "boolean"},
         "maxWords": {"type": "integer", "minimum": 1, "maximum": 12},
         "maxChars": {"type": "integer", "minimum": 8, "maximum": 80},
         "fontSize": {"type": "integer", "minimum": 24, "maximum": 140},
@@ -81,6 +85,8 @@ CAPTION_SCHEMA = {
 RENDER_SCHEMA = {
     "type": "object",
     "properties": {
+        # frame rate x render scale x bitrate (pipeline/quality.py); default "standard" = 1080 wide, 30 fps
+        "quality": {"type": "string", "enum": ["standard", "smooth", "ultra"]},
         "encoder": {"type": "string", "enum": ["auto", "videotoolbox", "x264"]},
         "bitrate": {"type": "string", "pattern": r"^\d{1,3}M$"},
         "crf": {"type": "integer", "minimum": 0, "maximum": 51},

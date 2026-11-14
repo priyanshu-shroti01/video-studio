@@ -65,6 +65,28 @@ LLM work under the scheduler. The hybrid engine selects its templates and copy t
 
 Details: [QA_GUIDE.md](QA_GUIDE.md).
 
+## Quality presets
+
+`render.quality` in a project (or `quality` in a brief; productions copy it to `render.quality`) picks frame rate,
+pixel density and bitrate. Module: `pipeline/quality.py`.
+
+| quality | output (Short / landscape) | fps | Remotion | bitrate (VideoToolbox ABR) | Chromium tabs | render time |
+|---|---|---|---|---|---|---|
+| `standard` (default) | 1080×1920 / 1920×1080 | 30 | — | `render.bitrate` (40M) | benchmark (`auto`) | 1× |
+| `smooth` | 1080×1920 / 1920×1080 | 60 | — | 24M | benchmark | ~2× |
+| `ultra` | 2160×3840 / 3840×2160 | 60 | `--scale=2` | 60M | ≤ 2 when `auto` | ~4–6× |
+
+How it flows: `timeline.build_timeline` writes the preset's `fps` and `durationInFrames = round(seconds × fps)`
+into the props; every other time stays in seconds (cues, captions, SFX, scene bounds), so word anchors land on the
+first frame at or after the word at any rate. The engine reads `fps` from the props (`calculateStoryboardMetadata`),
+and the composition and layout stay in 1080-wide design units: `ultra` only asks Remotion for `--scale=2`, so
+Chromium rasterises text, SVG and CSS at twice the density (sharp, not upscaled). `RenderSettings.from_config` keeps
+chunks ~10 s (`chunkFrames` counts 30-fps frames), scales the chunk timeout with the pixel work, budgets 4× memory
+per tab and caps tabs for `ultra`; chunk reuse also checks the scale and bitrate. QA expects `design size × scale`
+and the preset fps; visual QA downscales sampled frames to the design size (`visual_qa.checks.qa_frame_size`)
+before OCR and pixel checks, so the layout manifest's coordinates apply unchanged. The publishing thumbnail stays at
+the design size. Instagram Reels accepts at most 1920 columns, so `ultra` Shorts route to YouTube only.
+
 ## Multi-brand
 
 - Each brand is data: `brands/<id>/` (`brand.json`, `theme.json`, `assets.json`, `pronunciation.json`),

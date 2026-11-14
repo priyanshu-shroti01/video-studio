@@ -3,6 +3,36 @@
 ## Unreleased
 
 ### Added
+- **Effects** (engine contract unchanged, additive; docs/MOTION.md#effects). Storyboards without effects render
+  byte-identical.
+  - **Transitions:** whip-pan, zoom-through, push or swipe, iris, light leak, and a short glitch of at most 6 frames.
+    The previous scene exits with the matching move and still reaches 0 at its end.
+  - **Word-anchored emphasis:** punch-zoom, impact shake (≤ 8 px), brightness flash (≤ 45 %, never full white),
+    confetti burst when a count lands, hand-drawn underline / circle / arrow, cursor and click ripple on recordings,
+    and a 3D tilt entrance.
+  - **Optional film grain per brand** (`theme.grain`).
+  - **Beat sync:** `pipeline/beats.py` detects the music's beats (numpy and ffmpeg, cached per sha256). Cuts and
+    punch-zooms snap to a beat within ±120 ms only when the word rules still hold, and every decision is recorded.
+  - **Effects director:** new concepts only, following the scene's mood (energetic: whip and punch; cinematic: zoom-through
+    and light leak; calm: minimal), with restraint: one emphasis per scene, no repeated transition, at most 2 flashes or
+    glitches.
+  - **Photosensitivity guard:** at most 3 flashes in any second, in Python and in the engine. QA's sync check counts
+    effects as visual events.
+- **Caption styles** (`captions.style`, engine contract unchanged, additive): `pop` (1–3 words, big outlined
+  type, the spoken word springs up in the brand colour), `highlight` (a brand block travels word to word),
+  `karaoke` (words fill as spoken) and `minimal` (small and low, for 16:9), next to the unchanged classic box
+  (`word` / `phrase` / `classic`; renders byte-identical). Word-synced pages never split names or leave "the" dangling;
+  numbers, the brand name and the scene's emphasis words get extra emphasis; over `light` backdrops they switch to
+  dark ink without an outline and a contrast-checked brand colour (≥ 4.5:1); the new looks stay out of the Shorts UI
+  zones. New productions get brief → brand (`creative.captions.style`) → format default (`pop` Shorts, `minimal`
+  16:9); existing projects stay classic. QA measures reading speed over 1.5 s windows for word-synced pages and adds
+  an advisory `layout.caption_platform_ui` check. See docs/MOTION.md#captions.
+- **Quality presets** (`quality` in a brief, `render.quality` in a project, "Quality" on the New Production form):
+  `standard` 1080p · 30 fps (default, unchanged), `smooth` 1080p · 60 fps (~2× render time) and `ultra` 4K · 60 fps
+  via Remotion `--scale=2` (2160×3840 Shorts, 3840×2160 landscape; ~4–6× render time, at most 2 Chromium tabs).
+  Timeline, keystroke rhythm, end fade, render chunks, QA (resolution, fps, contact sheet, OCR on frames downscaled
+  to the layout's design size) and thumbnails follow the preset. `ultra` Shorts are wider than Instagram's 1920-column
+  limit, so they route to YouTube only.
 - **Watch every frame:** the Storyboard page plays the real engine in the browser (play, scrub, step a frame or a
   second, loop a scene, both formats) before rendering, with estimated timing until the voice is recorded.
 - **Install with one command** (`install.sh`) and open with `videostudio`; no VS Code, Git or developer tools.

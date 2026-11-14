@@ -104,7 +104,7 @@ export const makeEnv = (props: RenderProps): Env => {
   const v2 = isV2(props);
   const polish = isPolished(props);
   const {width, height} = DIMENSIONS[props.format];
-  const aspects = polish ? {...aspectEnv(props), polish: true} : aspectEnv(props);
+  const aspects = polish ? {...aspectEnv(props), polish: true, format: props.format} : {...aspectEnv(props), format: props.format};
   const bb = props.brandBar ? {...brandBarRect(props.format, aspects.logo.onDark), from: props.brandBar.from, to: props.brandBar.to} : null;
   const busy: [number, number][] = [];
   if (props.brandBar) busy.push([props.brandBar.from - 0.1, props.brandBar.to + 0.1]);

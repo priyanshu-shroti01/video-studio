@@ -265,7 +265,8 @@ def build_storyboard(brief: dict, concept: dict, *, request: str | None = None, 
     prof_tags = (load_profile(st.brand.id).get("publishing") or {}).get("hashtags") or []
     pub["hashtags"] = list(dict.fromkeys(list(prof_tags) + pub["hashtags"]))[:8]
     claims = verify(sb, fb, tb, pub)
-    sync = sync_report(sb)
+    from ..quality import of_brief
+    sync = sync_report(sb, fps=of_brief(st.brief).fps)
     rules = check_rules(sb, pf=pf, claims=claims, labels=ctx.labels, sync=sync, brief=st.brief,
                         layout=layout_overflows(sb, st.brand.id, b.get("format", "short")))
     errors, sb_warnings = validate_storyboard(sb)
@@ -311,6 +312,9 @@ def build_storyboard(brief: dict, concept: dict, *, request: str | None = None, 
                "audio": {"music": None}, "publishing": plan["publishing"]}
     if b.get("voice") and re.match(r"^[A-Za-z]{2,3}-[A-Za-z]{2,4}-[A-Za-z]+Neural$", b["voice"]):
         project["voice"] = {"voice": b["voice"]}
+    from ..intelligence.api import _default_captions
+    _default_captions(project, b)                       # NEW production: caption style brief -> brand -> format
+    plan["captions"]["style"] = project["captions"]["style"]
     reports = {"path": path, "engine": "pipeline.creative", "brand": st.brand.id, "industry": st.pack.id, "claims": claims, "brief_claims": brief_claims, "review": review,
                "creative_plan": plan, "copy_sources": sources, "rules": rules, "sync": sync, "price": pf.report(),
                "labels": ctx.labels, "check": {k: v for k, v in chk.items() if k != "claims"},

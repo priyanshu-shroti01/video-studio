@@ -47,6 +47,14 @@ They never move a cue: every entrance starts at its Python-resolved `at` minus t
 Motion blur is a vertical SVG `feGaussianBlur` (`stdDeviation="0 σ"`, σ ∈ {1.5, 3, 4.5}), chosen from the spring's
 per-frame velocity. It is deterministic and only active during the fast part of an entrance.
 
+**Frame rates (quality presets, docs/ARCHITECTURE.md).** The engine runs at the props' `fps` (30 by default, 60 for
+`smooth`/`ultra`). Springs, envelopes and clip times are functions of seconds, so the same instant looks the same at
+either rate. Two constants were counted in frames and are now converted: the end-of-video fade (`VIDEO_FADE_S` =
+0.4 s, 12 frames at 30 fps) and the `domain-input` keystroke rhythm (Python, 30-fps frames scaled by `fps / 30`).
+Motion blur stays per *output* frame (a fixed shutter angle): at 60 fps an entrance moves half as far per frame, so
+it gets less smear, as a camera would record it. `footage` at 60 fps holds each frame of a 30-fps recording for two
+output frames. `ultra` renders at `--scale=2`: all sizes here stay in design px.
+
 ## Scene transitions
 
 `fade` and `slide-up` work as in v1. `mask-wipe` is a soft-edged (18 %) diagonal wipe in over 0.45 s
@@ -112,6 +120,52 @@ platform overlay (Shorts), or outside the caption column (landscape).
   intervals. Gaps shorter than 0.6 s are skipped (no flicker).
 - **Never on content.** If a top watermark would touch a block, that scene's stack starts below it.
 
+## Captions
+
+Captions are drawn by the engine, word-synced to the real voice. Pages (which words show together) are built once
+in Python (`pipeline/captions.py`, single source for the burned-in captions, SRT and ASS); the engine only draws them.
+`captions.style` picks the look (contract-additive, CONTRACT_VERSION unchanged):
+
+| style | look | pages | for |
+|---|---|---|---|
+| `word` / `classic` (default for existing projects) | the original boxed page, current word in `theme.caption.highlight` | up to `maxWords` (4), `maxChars` | unchanged renders (byte-identical) |
+| `phrase` | the original box, no per-word highlight | same | |
+| `pop` (default for new Shorts) | no box: big heavy type (1.3× `fontSize`), UPPERCASE (`uppercase: false` to turn off), dark round outline + soft shadow; the spoken word springs up (~1.1×) in the brand highlight colour and settles back when the next word starts | 1–3 words | 9:16 |
+| `highlight` | white outlined words; a rounded `colors.brand` block sits behind the spoken word and grows in from the left / leaves to the right, so it travels word to word | 1–3 words | 9:16 |
+| `karaoke` | words fill left to right from muted to full colour as they are spoken (the fill edge in the highlight colour) | up to 4 words | 9:16, tutorials |
+| `minimal` (default for new 16:9) | small (0.8×), semibold, no outline; lower on 16:9; switches to dark ink over the `light` backdrop | classic | 16:9 |
+
+- **Paging** (`pop`/`highlight`/`karaoke`, `build_kinetic_pages`): a page ends at every sentence or clause end; it
+  breaks before joiners ("a film | that was made | by the software"); it never ends on a dangling "the / of / your"
+  or leaves a one-word orphan before punctuation; names are never split: the brand name (theme + brand profile) and
+  2–3 Capitalised words that do not start a sentence ("Meet | Video Studio" is not split; "Meet" can be).
+- **Emphasis** (`pop`, `highlight`; `emphasis: false` turns it off): numbers (any digit, e.g. ₹49), the brand name and
+  the words the current scene itself emphasises (`kinetic-text` `emphasis`, coloured `headline` words) are 1.12×
+  larger and keep the highlight colour once spoken.
+- **Lines:** a page is one line when it fits, else the best-balanced two lines (never inside the brand name), shrunk
+  (≥ 60 %) only if neither fits; widths use the generous layout estimator, so text never leaves the column.
+- **Placement** (`captionMetrics`): the new looks stay out of platform UI. On 9:16 the box bottom is at least 20 %
+  above the frame bottom (title/description/music) and the column keeps 140 px from each side (action rail, ~80–160
+  px in the apps); `maxWidthFrac` can only narrow it. `captionBandTop` reserves two lines of the look's own size +
+  outline/pop headroom + 24 px, so layouts keep content above it (a `pop` band is ~25 px taller than classic).
+- **Legibility:** the outline is a ring of hard text-shadows (round joins; `-webkit-text-stroke` spikes on "G" and
+  shows through translucent fills), plus a soft shadow: readable on dark and footage backdrops.
+- **Light surfaces** (scene `backdrop: 'light'`, the same `backdropWeights().light` signal `minimal` uses, blended
+  through crossfades): `pop` / `highlight` / `karaoke` drop the outline and dark shadow (a faint light halo at most)
+  and switch to `light.text` ink; the active / emphasised colour is `colors.brand` darkened until it is ≥ 4.5:1 on
+  `light.surface`, karaoke's not-yet-spoken words use `light.muted` darkened to ≥ 3:1, and the highlight block is the
+  brand colour darkened to ≥ 4.5:1 under white text (`lightCaptionPalette`, targets 4.8 / 3.2 for margin). On dark
+  backdrops nothing changes.
+- **Defaults:** only NEW productions get a style written into their project: the brief's `captions.style` → the
+  brand's `brand.json` `creative.captions.style` (a style, or `{"short": …, "landscape": …}`) → `pop` for Shorts,
+  `minimal` for 16:9 (`captionsByFormat.landscape`). A project file without a style keeps the preset's classic `word`.
+- **QA:** `captions.reading_speed` for the word-synced styles measures chars/s over windows of consecutive pages
+  spanning ≥ 1.5 s (`KINETIC_READING_WINDOW`) instead of per page: a 1–3-word page shows exactly the words being
+  spoken, so its own rate is the local speech rate of a fraction of a second (a lone "orchestrates." reads as 30
+  chars/s at normal speed), while genuinely fast narration still exceeds `maxCps` over the window. The shortest page
+  warning drops from 0.25 s to 0.2 s (6 frames) for them. `layout.caption_platform_ui` (advisory) checks the
+  manifest's caption band against the Shorts UI zones (bottom 20 %, 10 % side rail); classic 80 %-wide/27 % passes.
+
 ## Hook-tag fix (v2)
 
 With the brand bar (or a top-centre watermark) active, the hook-tag string hangs from just below the logo
@@ -135,7 +189,8 @@ Coordinates are output px at the settled position, before the camera. Times are 
   aspect 1.70 vs expected 1.696 shows the old hard-coded value.
 - `scroll-demo` lists the texts visible before scrolling. `browser` reports `Loading… 0.0s` as the counter label.
   `domain-input` reports the button's final (`done`) label.
-- `captionBand`: the reserved caption region (2 lines + 24 px). When captions are off, it's the bottom margin.
+- `captionBand`: the reserved caption region (2 lines + 24 px) of the caption style in use (see [Captions](#captions)).
+  When captions are off, it's the bottom margin.
 - `safeArea`: x = side margin, y = top without the brand bar. Scenes with the bar start lower (250 short / 150 landscape).
 
 ## Fixtures
@@ -228,10 +283,12 @@ renderer `blocks-footage.tsx` and the QA manifest).
 | `title` | none | browser title-bar text, drawn only with `frame: 'browser'`. It must come from the storyboard; the engine never invents UI text |
 | `startFrom` | 0 | seconds into the clip at which playback starts |
 | `playbackRate` | 1 | 0 < rate ≤ 4 |
-| `zooms[{at, x, y, scale}]` | none | focus keyframes: normalised centre (0..1) and scale 1–4 |
+| `zooms[{at, x, y, scale, region?}]` | none | focus keyframes: normalised centre (0..1) and scale 1–4. With `region` {x, y, w, h} (the UI element the beat names, normalised, measured on the recording) the engine frames that element instead: centred, as close as it still fits with a 1.2 margin (`regionZoom`), clamped to [1, zoomMax] |
 | `caption` | none | line under the clip (role `caption`) |
+| `fit` | `frame` | `frame`, `fill`, or per format `{short: 'fill'}`. **fill**: no chrome; the viewport fills the column (9:16: aspect `fillAspectShort` 0.95; 16:9: the clip's aspect) and shows a cover crop of the clip that the zooms move. A 9:16 fill never zooms below `fillMinScale` 1.4 (desktop UI then reads at phone size) |
+| `callouts[{at, x, y, w, h, hold?}]` | none | "zoom lens": a magnified rounded panel of the source region pops in on its word (from `at` − LEAD, 0.4 s ease-out, scale 0.82 → 1), with a soft shadow, a brand outline on the source, a connector between them and a light dim of the clip. It sits in the viewport half away from its source, at the region's aspect, ≤ 90 % × 46 % of the viewport. It ends at `at + hold`, the next callout, the next zoom beat after it, or the block's end. A callout that would magnify its source by less than 1.25× is skipped |
 
-Time keys: `at`, `zooms[].at` (both accept `@word:` expressions). `startFrom` and `playbackRate` are clip seconds and
+Time keys: `at`, `zooms[].at`, `callouts[].at` (all accept `@word:` expressions). `startFrom` and `playbackRate` are clip seconds and
 rates, not timeline times.
 
 - **Playback.** Clip time = `startFrom + (t − appear) · playbackRate`, frozen at `startFrom` during the entrance. The
@@ -253,11 +310,22 @@ rates, not timeline times.
   is at most 760 / 760 / 640 / 1000 (landscape phone 600) design px tall. A wide clip therefore fills the column and a
   tall recording gets a narrower box. Hero scaling applies as for `image`. On a `light` backdrop the browser chrome
   uses the light tokens and every frame gets the softer light-surface shadow.
+- **Fill crop math.** At scale 1 the visible window is the cover crop `baseWindow(clipAspect, viewportAspect)` (9:16 with
+  a 1.415 recording: 67 % of the width, all of the height). Keyframes are clamped per axis (centre ≥ half the window
+  from each edge, `clampZoom(z, win)`), and `zoomRect(z, w, h, clipAspect)` draws the clip at its own aspect, so a crop
+  is never a distortion and every in-between view stays inside the clip (same log-scale argument as the frame fit).
 - **Manifest / QA.** Footage blocks carry `media: [{role: 'media', kind: 'video', asset, frame, bbox, aspect,
-  expectedAspect}]`, where `bbox` is the clip viewport (no other block gets the key). The title is role `title`, the
+  expectedAspect, fit?, clipAspect?, settle?, callouts?}]` (`settle`: when each zoom move ends; `callouts`: settled
+  panel boxes with `from` / `to` / `mag`; for a fill, `expectedAspect` is the viewport's own aspect), where `bbox` is the clip viewport (no other block gets the key). The title is role `title`, the
   caption role `caption`. Visual QA fails `layout.media_aspect` if the viewport and clip aspects differ by more than
   1 %. Template-like words that OCR finds inside a viewport are reported as the advisory `ocr.footage_labels`, since
   they are recorded UI. Footage pixels are excluded from the palette check.
+- **`footage.legibility`** (visual QA). Frames at each zoom's settle time, each callout once popped in and the scene's
+  settled end are OCR'd. The median line-box height of the readable lines (≥ 3 letters/digits, confidence ≥ 0.5)
+  inside the viewport is taken per sample, or inside the callout panel while one is up. A scene's value is the median
+  of its samples. 9:16 FAILs (blocking) below 1.5 % of the frame height (28.8 px of 1920: Apple's smallest readable
+  11–12 pt is 1.3–1.4 % of a phone screen). 16:9 WARNs below 1.1 % (12 px of 1080). The fix is a larger `uiScale` in
+  the recording (scripts/capture_studio.mjs presets), `fit: 'fill'`, regions and callouts.
 - **Pipeline.** `pipeline/footage.py` (called from `load_project`) rejects clips outside `public/`, non-video or
   undecodable files, and a `startFrom` past the end. It fills `aspect` / `duration` in memory; the storyboard file is
   not rewritten. Brand isolation uses the `asset` key like images, and the runner registers each clip in the job's
@@ -331,3 +399,92 @@ counted hub, ladder, path, funnel, stacked cards, split compare), every element 
 npx remotion render Storyboard out/engine-composition/composition-short.mp4 --props=src/engine/fixtures/sample-composition-short.json --concurrency=4 --muted --log=error
 npx remotion render Storyboard out/engine-composition/composition-landscape.mp4 --props=src/engine/fixtures/sample-composition-landscape.json --concurrency=4 --muted --log=error
 ```
+
+## Effects
+
+Effect transitions and word-anchored emphasis effects; same contract version 2, additive. State lives in
+`motion/effects.ts` and `motion/fx-transitions.ts`, which are pure and vitest-covered. Drawing is in `effects.tsx`,
+and the Python side (schema, resolution, restraint, photosensitivity) is in `pipeline/effects.py`.
+
+**Gate.** Props without `scene.effects`, an effect transition or `theme.grain` never mount any effect layer. Storyboard.tsx
+then keeps its classic path: the same transform and filter strings, so the same DOM. Two tests cover this: a vitest
+test over the fixtures, and `tests/test_effects.py::test_storyboards_without_effects_give_identical_props`.
+
+### Effect transitions (`scene.transition`, optional `scene.transitionDir`)
+
+The scene enters with the transition, and the previous scene exits with the matching move. Every exit still reaches
+0 at `scene.end`, and every entrance starts at most 0.12 s before `scene.start`, inside the mount window.
+
+| value | out (previous scene) | in |
+|---|---|---|
+| `whip-pan` | 0.18 s ease-in slide (45 % of the frame along `transitionDir`, default `left`), velocity-gated directional blur (σ 4–26 px) | 0.3 s ease-out slide from the opposite side, with blur |
+| `push` | 0.3 s slide (40 %), fade only in the last 0.1 s | 0.32 s slide in with it; default `up` in 9:16 (a feed swipe), `left` in 16:9 |
+| `zoom-through` | 0.22 s scale 1 → 1.32 + blur 0 → 14 px | 0.36 s scale 1.2 → 1 + blur 10 → 0 |
+| `iris` | 0.2 s fade + scale 0.96 | soft-edged circle from the content centre (0.48 s) |
+| `light-leak` | 0.3 s fade | 0.3 s fade, plus a warm flare sweeping in from one edge (screen blend, ≤ 50 %, ±0.32 s around the cut) |
+| `glitch` | RGB split, 3 frames before the cut | 3 frames after it (6 frames in total at any fps; ≤ 16 px split) |
+
+Durations are in seconds; the glitch is counted in output frames, so it is never longer than 6 frames at 30 or 60 fps.
+Velocity-gated blur is per output frame (a fixed shutter angle), the same as entrance motion blur.
+
+### Emphasis effects (`scene.effects[]`)
+
+Every `at` is a storyboard time expression, resolved like block times (`@word:fast`, `@word:49+0.6`, cues). `target` is
+a block index in the scene. Each effect is a pure function of t and ends at identity.
+
+| type | fields (defaults) | look |
+|---|---|---|
+| `punch-zoom` | `scale` 1.06 (1.01–1.12), `dur` 0.55 | the camera kicks in 0.08 s so it peaks on the word, then settles with a slight undershoot |
+| `shake` | `amp` 6 px (≤ 8), `dur` 0.36 | eased, damped two-axis wobble, seeded per scene and effect |
+| `flash` | `intensity` 0.3 (≤ 0.45) | radial brightness pulse (screen blend, white to brand); never a full-white frame |
+| `burst` | `target?`, `count` 22 (4–40), `spread` radial/up | confetti and dots from a ring around the target's main text (e.g. when a counter lands), 1 s |
+| `annotate` | `kind` underline/circle/arrow, `target`, `text?`, `tone?`, `dur` 0.5 | hand-drawn stroke draws on from the word, then holds; it targets `text` inside the block, else its largest text |
+| `cursor` | `target` (footage/device/browser…), `x`/`y` (default: the footage zoom active at `at`) | pointer glides in, clicks on the word (press and ripple), lingers 0.55 s; it follows the footage zoom |
+| `tilt` | `target`, `rx` 9°, `ry` −14° (≤ 25°), `dur` 0.95 | 3D perspective tilt and parallax entrance of a recording or device; settles flat |
+
+`theme.grain` (per brand, `brands/<id>/theme.json`): `{opacity: 0.045}` (≤ 0.09) gives animated film grain at about
+24 updates a second. The grain noise is generated at half resolution and drawn under the brand bar and captions.
+
+### Rules
+
+- **Photosensitivity (WCAG 2.3.1):** at most 3 flashes in any 1 s. Flash effects and light-leak cuts count as flashes.
+  Python drops the extras with a warning (`effects.photosensitivity`), and the engine enforces the same budget
+  (`allowedFlashes`).
+- **Restraint (director, `pipeline/creative/fx.py`):**
+  - at most one emphasis effect per scene;
+  - never the same effect transition twice in a row;
+  - at most 2 flashes (light leaks included) and 2 glitches per video;
+  - calm scenes keep their template transition.
+  
+  Hand-edited storyboards that break these rules get warnings.
+- **Mood mapping (director):**
+  - energetic: whip-pan or push, a punch-zoom on the key word, a shake when a stamp lands, a burst when a count lands;
+  - cinematic: zoom-through or light leak, tilt-in of recordings, draw-on circle;
+  - standard: push or iris on some cuts, a circle or burst, cursor clicks on recordings.
+
+  Only concepts created after this change carry `concept.effects` and get effects. Saved concepts rebuild unchanged.
+- **Word anchors:** effects reuse the scene's existing `@word:` cues. A kick on a scene's very last word moves to the
+  line's first meaningful word, because it would still be settling at the cut. A punch-zoom or shake that would still
+  be running in the last 0.45 s of the scene is shortened (`fit_before_cut`).
+- **Beat sync (`storyboard.beatSync`, `pipeline/beats.py`):**
+  - Beats come from spectral-flux onsets, an autocorrelation tempo and a dynamic-programming tracker (numpy and
+    ffmpeg only). They are cached in `.pipeline/cache/beats/<sha256>.json`, and the beat grid loops with the music.
+  - Effect-transition cuts and punch-zooms move to the nearest beat within ±120 ms, and only when every rule still
+    holds:
+    - the previous scene's last word is not cut;
+    - the new scene is on screen by its first word;
+    - a punch-zoom stays on its anchor word and never lands before a spoken number;
+    - the scenes stay at least 0.8 s long;
+    - `sync_check` gets no new static stretch over 2.5 s and no early number.
+  - Every decision is recorded in `metadata/storyboard.json → beatSync` (`snapped` / `kept` with the reason).
+
+### QA
+
+- **Sync check:** `sync_check` counts scene effects as visual events. They are visible changes anchored to a spoken word.
+- **OCR sampling:** OCR samples at `end − 0.4 s`. Transitions start their exit at most 0.3 s before the cut, the leak
+  starts 0.32 s before it, and transient effects are trimmed to end 0.45 s before it, so samples land on settled frames.
+  A transient effect that still overlaps a sample is reported as a timeline warning.
+- **Black frames:** `blackdetect` needs at least 0.1 s of near-black. Effect transitions leave at most 1–2 frames
+  between the two scenes, with the backdrop always drawn behind them.
+- **Freeze detection:** film grain changes every frame, so ffmpeg `freezedetect` cannot see a frozen picture under
+  grain. The timeline-based `sync_check` still catches static narration. Grain is opt-in per brand.

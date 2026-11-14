@@ -19,13 +19,14 @@ from dataclasses import dataclass
 
 from .contract import (BLOCK_TYPES, COMPOSITION_COLORS, COMPOSITION_KINDS, COMPOSITION_MOTIONS, COMPOSITION_ROLES,
                        COMPOSITION_SHAPES, ICONS, TIME_KEYS, TONES)
+from . import effects as FX
 from .errors import ConfigError, TimingError
 from .schema import validate
 from .timing import Word, forms, norm, tokenize
 
 PURPOSES = ["intro", "hook", "problem", "turn", "journey", "point", "example", "resolution", "cta", "conclusion", "custom"]
 EXPR = re.compile(r"^@(start|end|speech_end|word:[^+\-#\s]+(?:#\d+)?|[A-Za-z_][\w-]*)([+-]\d+(?:\.\d+)?)?$")
-KEY_RHYTHM = [2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2, 2]  # frames per keystroke (human, not metronomic)
+KEY_RHYTHM = [2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2, 2]  # 30-fps frames per keystroke (human, not metronomic)
 
 TIME = {"type": ["number", "string"]}
 SCENE_SCHEMA = {
@@ -37,7 +38,10 @@ SCENE_SCHEMA = {
         "purpose": {"type": "string", "enum": PURPOSES},
         "narration": {"type": "string", "minLength": 1, "maxLength": 1500},
         "mood": {"type": "string", "enum": ["neutral", "danger", "brand"]},
-        "transition": {"type": "string", "enum": ["fade", "slide-up", "none", "mask-wipe", "gradient-sweep"]},
+        "transition": {"type": "string", "enum": list(FX.TRANSITIONS)},
+        # effects (pipeline/effects.py): whip-pan / push direction and word-anchored emphasis effects
+        "transitionDir": {"type": "string", "enum": list(FX.DIRS)},
+        "effects": FX.EFFECT_SCHEMA,
         "camera": {"type": "string", "enum": ["none", "push-in", "pan-left", "pan-right", "drift"]},
         "backdrop": {"type": "string", "enum": ["glow", "spotlight", "grid", "split", "light", "deep"]},
         "motion": {"type": "string", "enum": ["calm", "standard", "energetic", "cinematic"]},
@@ -61,6 +65,8 @@ STORYBOARD_SCHEMA = {
     "required": ["scenes"],
     "properties": {
         "version": {"type": "integer"},
+        # effects: snap effect transitions / punch-zooms to the music's beats (pipeline/beats.py)
+        "beatSync": {"type": "boolean"},
         "title": {"type": "string"},
         "structure": {"type": "array", "items": {"type": "string", "enum": PURPOSES}},
         "scenes": {"type": "array", "minItems": 1, "items": SCENE_SCHEMA},
@@ -78,6 +84,7 @@ REQUIRED = {"kinetic-text": ["words"], "counter": ["to"], "price-compare": ["col
 FOOTAGE_FRAMES = ("browser", "laptop", "phone", "none")
 FOOTAGE_EXTS = (".mp4", ".webm")
 FOOTAGE_ZOOM_MAX = 4.0          # src/engine/geometry-footage.ts FOOTAGE.zoomMax
+FOOTAGE_FITS = ("frame", "fill")  # src/engine/types.ts FootageFit
 FOOTAGE_RATE_MAX = 4.0
 BRANDING_BLOCKS = ("logo", "cta", "logo-sting", "outro")
 HERO_BLOCKS = {"browser", "bars", "compare-rows", "plans", "domain-input", "hook-tag", "flat-line", "price", "logo", "cta",
@@ -143,6 +150,10 @@ def validate_storyboard(sb: dict, *, structure: list[str] | None = None) -> tupl
         for k, ev in enumerate(sc.get("sfx", [])):
             if isinstance(ev["at"], str) and not EXPR.match(ev["at"]):
                 errors.append(f"{p}.sfx[{k}].at: bad time expression {ev['at']!r}")
+        if "effects" in sc or "transitionDir" in sc:
+            errors += FX.effect_errors(sc, p, lambda path, v, sc=sc, cues=cues: _time_errors(path, v, sc, cues))
+    if any("effects" in s for s in sb["scenes"]):
+        warnings += FX.restraint_warnings(sb["scenes"])
     order = [s["purpose"] for s in sb["scenes"]]
     want = sb.get("structure") or structure
     if want:
@@ -156,6 +167,23 @@ def validate_storyboard(sb: dict, *, structure: list[str] | None = None) -> tupl
             not any(s.get("brandBar") for s in sb["scenes"]):
         warnings.append("no branding (logo / cta block / brandBar) anywhere in the storyboard")
     return errors, warnings
+
+
+def _time_errors(path: str, val, sc: dict, cues: dict) -> list[str]:
+    """A time expression must parse, name a known cue, or a word of this scene's narration (scene effects)."""
+    if isinstance(val, bool) or not isinstance(val, (int, float, str)):
+        return [f"{path}: a time must be seconds or a time expression"]
+    if not isinstance(val, str):
+        return []
+    m = EXPR.match(val)
+    if not m:
+        return [f"{path}: bad time expression {val!r}"]
+    base = m.group(1)
+    if base not in ("start", "end", "speech_end") and not base.startswith("word:") and base not in cues:
+        return [f"{path}: unknown cue '@{base}'"]
+    if base.startswith("word:") and not _word_in(sc["narration"], base[5:].split("#")[0]):
+        return [f"{path}: word {base[5:]!r} is not in this scene's narration"]
+    return []
 
 
 def _footage_errors(b: dict, bp: str) -> list[str]:
@@ -190,7 +218,35 @@ def _footage_errors(b: dict, bp: str) -> list[str]:
                 errs.append(f"{zp}.{k}: must be a normalised position 0..1")
         if not (num(z["scale"]) and 1 <= z["scale"] <= FOOTAGE_ZOOM_MAX):
             errs.append(f"{zp}.scale: must be between 1 and {FOOTAGE_ZOOM_MAX:g}")
+        if "region" in z:
+            errs += _region_errors(z["region"], f"{zp}.region")
+    fit = b.get("fit", "frame")
+    fits = fit.values() if isinstance(fit, dict) else [fit]
+    if (isinstance(fit, dict) and set(fit) - {"short", "landscape"}) or any(f not in FOOTAGE_FITS for f in fits):
+        errs.append(f"{bp}: footage fit must be one of {FOOTAGE_FITS} or {{short|landscape: fit}}, got {fit!r}")
+    callouts = b.get("callouts", [])
+    if not isinstance(callouts, list):
+        return errs + [f"{bp}: footage callouts must be a list"]
+    for i, c in enumerate(callouts):
+        cp = f"{bp}.callouts[{i}]"
+        if not isinstance(c, dict) or "at" not in c:
+            errs.append(f"{cp}: needs at and a region x, y, w, h")
+            continue
+        errs += _region_errors(c, cp)
+        if "hold" in c and not (num(c["hold"]) and c["hold"] > 0):
+            errs.append(f"{cp}.hold: must be seconds > 0")
     return errs
+
+
+def _region_errors(r, path: str) -> list[str]:
+    """A normalised region of a clip (footage zoom `region`, callout): x, y, w, h inside 0..1, w and h > 0."""
+    num = lambda v: isinstance(v, (int, float)) and not isinstance(v, bool) and v == v  # noqa: E731
+    if not isinstance(r, dict) or not all(num(r.get(k)) for k in ("x", "y", "w", "h")):
+        return [f"{path}: needs numbers x, y, w, h (normalised 0..1)"]
+    if not (0 <= r["x"] <= 1 and 0 <= r["y"] <= 1 and r["w"] > 0 and r["h"] > 0
+            and r["x"] + r["w"] <= 1 + 1e-6 and r["y"] + r["h"] <= 1 + 1e-6):
+        return [f"{path}: region must lie inside the clip (0..1) with w, h > 0"]
+    return []
 
 
 COMPOSITION_MAX_ELEMENTS = 64        # src/engine/geometry-composition.ts COMPOSITION.maxElements
@@ -422,7 +478,8 @@ def resolve_block(b: dict, R: Resolver, idx: int, fps: int) -> dict:
         f = round(t0 * fps)
         kt = []
         for k, _ in enumerate(out["domain"]):
-            kt.append(round(f / fps, 3)); f += KEY_RHYTHM[k % len(KEY_RHYTHM)]
+            # KEY_RHYTHM is in 30-fps frames: scale it, so typing has the same pace at any frame rate
+            kt.append(round(f / fps, 3)); f += round(KEY_RHYTHM[k % len(KEY_RHYTHM)] * fps / 30)
         out["keyTimes"] = kt
         out.setdefault("availableAt", round(kt[-1] + 0.25, 3))
     return out
