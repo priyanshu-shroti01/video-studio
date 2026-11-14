@@ -57,9 +57,11 @@ Kokoro's Hindi voices reading English were evaluated instead (see LOCAL_TTS.md).
 | Sound effects (`audio/kit/`, 830 files) | CC0, 619/619 Freesound sources declared CC0 in opus-sound-layer's pinned manifest | looked up by Freesound id (asset registry) |
 | Music (`audio/music/`, 7 tracks, 12.5 MB) | **CC0-1.0, each verified twice** (Openverse API + the source landing page) | `audio/music/library.json` (creator, URLs, sha256) |
 | `audio/music/test-bed.wav` | self-generated test tone, **not publishable** | blocks approval if used |
-| Fonts (Plus Jakarta Sans, Geist Mono): shared copies in `public/shared/fonts/` (Studio UI, default for new brands) and per-brand copies in `public/brands/<id>/fonts/` | OFL-1.1 | `public/shared/fonts/LICENSES.md`, `public/shared/assets.json`; include the OFL text if you redistribute the font files |
+| Fonts (Host Grotesk, Plus Jakarta Sans, Geist Mono): shared copies in `public/shared/fonts/` (Studio UI, default for new brands) and per-brand copies in `public/brands/<id>/fonts/` | OFL-1.1 | `public/shared/fonts/LICENSES.md`, `public/shared/assets.json`; include the OFL text if you redistribute the font files |
 | WordPress icon (`public/shared/logos/wordpress.svg`) | CC0-1.0, from [Simple Icons](https://simpleicons.org) 16.37.0 (fill set to white) | `public/shared/assets.json`. **Trademark:** WordPress® is a trademark of the WordPress Foundation; used unmodified, only to refer to WordPress (nominative use), without implying endorsement ([policy](https://wordpressfoundation.org/trademark-policy)) |
 | UI icons in the engine (`src/engine/ui.tsx`) | ISC | paths simplified from Lucide |
+| Studio interface glyphs (`studio/web/src/icons.tsx`) | ISC | Lucide via `@iconify-json/lucide` 1.2.100, inlined (no network at runtime) |
+| Platform logos (`public/shared/logos/platform-{linkedin,youtube,instagram,facebook,tiktok,x}.svg`) | CC0-1.0, [gilbarbara/logos](https://github.com/gilbarbara/logos) at commit d6960edc1b73, unmodified | `public/shared/assets.json`. **Trademarks** of their owners; shown only to name where a person posted a video (nominative use), without implying endorsement |
 | Studio icon (`public/shared/studio/icon.svg`) | self-made | `public/shared/assets.json` |
 | Shroti Host logos | proprietary (owner's trademark) | `brands/shrotihost/assets.json` |
 | Video Studio logos (`public/brands/videostudio/logos/`) | proprietary, self-made (wordmark outlined from Plus Jakarta Sans, OFL) | `brands/videostudio/assets.json` |

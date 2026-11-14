@@ -24,7 +24,7 @@ export const Dashboard: React.FC<{nav: Nav}> = ({nav}) => {
   const q = nav.brand ? `?brand=${encodeURIComponent(nav.brand)}` : '';
   const {data: d, error} = useApi<Any>(`/api/dashboard${q}`, 5000);
   // keep showing the last good data through a hiccup or a Studio restart; the shell shows the connection banner
-  if (error && !d) return <ErrorBox error={error} title="Dashboard unavailable" />;
+  if (error && !d) return <ErrorBox error={error} title="Overview unavailable" />;
   if (!d) return <div className="skeleton" />;
   const brands: Any[] = d.brands ?? [];
   const byId: Record<string, Any> = Object.fromEntries(brands.map((b) => [b.id, b]));
@@ -107,7 +107,7 @@ export const Dashboard: React.FC<{nav: Nav}> = ({nav}) => {
       </Card>
 
       <Card title="Pipeline" className="span-12" actions={<span className="muted sm">highlighted stages wait for a person</span>}>
-        {totalProds === 0 ? <Empty>No productions yet. Press <kbd>2</kbd> to start one from a brief.</Empty> : (
+        {totalProds === 0 ? <Empty>No productions yet. <a href="#/create">Create a video</a> to start one.</Empty> : (
           <>
             <div className="funnel">
               {FUNNEL.map((f) => {

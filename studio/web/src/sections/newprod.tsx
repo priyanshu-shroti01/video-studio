@@ -4,12 +4,18 @@ import {Alert, Badge, Button, Card, Empty, ErrorBox, Field, Pre, Spinner, State,
 import type {Nav} from '../app';
 
 const GOALS = ['conversions', 'awareness', 'education', 'engagement', 'retention', 'launch'];
+/** Render quality presets (pipeline/quality.py). Standard is the default and is not sent with the brief. */
+const QUALITIES: {id: string; label: string; hint: string}[] = [
+  {id: 'standard', label: 'Standard (1080p · 30 fps)', hint: 'The default render'},
+  {id: 'smooth', label: 'Smooth (1080p · 60 fps)', hint: '~2× render time'},
+  {id: 'ultra', label: 'Ultra (4K · 60 fps)', hint: '~4–6× render time'},
+];
 
 export const NewProduction: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) =>
   pid ? <Concepts nav={nav} pid={pid} /> : <BriefForm nav={nav} />;
 
 const BriefForm: React.FC<{nav: Nav}> = ({nav}) => {
-  const [f, setF] = useState<Record<string, string>>({brand: nav.brand, format: 'short', duration_seconds: '35', goal: 'conversions'});
+  const [f, setF] = useState<Record<string, string>>({brand: nav.brand, format: 'short', duration_seconds: '35', goal: 'conversions', quality: 'standard'});
   const brandId = f.brand || nav.brands[0]?.id || '';
   const domain = nav.brands.find((b) => b.id === brandId)?.domain ?? 'yourdomain.com';
   const [busy, setBusy] = useState(false);
@@ -19,10 +25,11 @@ const BriefForm: React.FC<{nav: Nav}> = ({nav}) => {
     e.preventDefault();
     setBusy(true); setErr(null);
     try {
-      const {brand: _b, name, duration_seconds, duration_flexible, also_other, generate, ...rest} = f;
+      const {brand: _b, name, duration_seconds, duration_flexible, also_other, generate, quality, ...rest} = f;
       const other = rest.format === 'landscape' ? 'short' : 'landscape';
       const brief: Record<string, unknown> = {...rest, ...(duration_flexible ? {duration_flexible: true} : {}),
-        ...(also_other ? {formats: [rest.format, other]} : {}), ...(generate ? {components: 'generate'} : {})};
+        ...(also_other ? {formats: [rest.format, other]} : {}), ...(generate ? {components: 'generate'} : {}),
+        ...(quality && quality !== 'standard' ? {quality} : {})};
       const brand = brandId;
       const p = await api.post('/api/productions', {brand, name: name || undefined,
         brief: {...brief, duration_seconds: Number(duration_seconds)}});
@@ -53,6 +60,9 @@ const BriefForm: React.FC<{nav: Nav}> = ({nav}) => {
               <label className="check"><input type="checkbox" checked={f.also_other === 'yes'} onChange={(e) => setF({...f, also_other: e.target.checked ? 'yes' : ''})} /> {f.format === 'landscape' ? 'Short 9:16' : 'Landscape 16:9'}</label></Field>
             <Field label="Visuals" hint="Opt-in: design new scene graphics, kept only where they beat the template on layout, sync and legibility">
               <label className="check"><input type="checkbox" checked={f.generate === 'yes'} onChange={(e) => setF({...f, generate: e.target.checked ? 'yes' : ''})} /> Generate new components</label></Field>
+            <Field label="Quality" hint={`${QUALITIES.find((q) => q.id === f.quality)?.hint ?? ''}${f.quality === 'ultra' ? ' · 2160 px wide: YouTube only (Instagram Reels accepts at most 1920)' : ''}`}>
+              <div className="seg">{QUALITIES.map((q) => <button type="button" key={q.id} title={q.hint} className={f.quality === q.id ? 'on' : ''} onClick={() => setF({...f, quality: q.id})}>{q.label}</button>)}</div>
+            </Field>
             <Field label="Goal"><select value={f.goal} onChange={set('goal')}>{GOALS.map((g) => <option key={g}>{g}</option>)}</select></Field>
             <Field label="Tone"><input maxLength={120} value={f.tone ?? ''} onChange={set('tone')} placeholder="confident, warm, no hype" /></Field>
             <Field label="Voice" hint="Local voice id (e.g. am_michael, bm_george) or leave blank for the preset default"><input maxLength={60} value={f.voice ?? ''} onChange={set('voice')} /></Field>

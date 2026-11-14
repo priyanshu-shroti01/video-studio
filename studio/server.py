@@ -49,6 +49,16 @@ def _player_props(pid: str, fmt: str | None):
     from pipeline.preview_player import player_props
     return player_props(pid, fmt)
 
+
+def _preview_voice():
+    from pipeline import preview_voice
+    return preview_voice
+
+
+def _start_preview_voice(tasks, pid: str) -> dict:
+    _preview_voice().status(pid)                 # 404 now (not inside the task) when there is no storyboard yet
+    return {"task": tasks.start("preview-voice", pid, lambda: _preview_voice().generate_preview_voice(pid))}
+
 STUDIO_DIR = Path(__file__).resolve().parent
 WEB_DIR = STUDIO_DIR / "web"
 DIST_DIR = WEB_DIR / "dist"
@@ -314,6 +324,11 @@ def create_production(body: dict) -> dict:
             raise BadRequest("'components' must be 'templates' or 'generate'")
         if raw["components"] == "generate":
             brief["components"] = "generate"
+    if raw.get("quality") is not None:                    # render quality preset (pipeline/quality.py)
+        if raw["quality"] not in ("standard", "smooth", "ultra"):
+            raise BadRequest("'quality' must be standard, smooth or ultra")
+        if raw["quality"] != "standard":
+            brief["quality"] = raw["quality"]
     brief["brand"] = load_theme(brand).get("name", brand)
     brief["brand_id"] = brand
     name = _str(body, "name", required=False, limit=100) or None
@@ -425,6 +440,51 @@ def jobs_list() -> list[dict]:
 
 def productions_list() -> list[dict]:
     return _productions().list(200)
+
+
+def _card_thumb(pdir: Path, out: Path | None) -> str | None:
+    """The still a project card shows: the rendered video's thumbnail, else the first preview still, else a
+    contact sheet. Only files under output/ (the Studio serves nothing else from here)."""
+    cands = [out / "publishing/thumbnail.png"] if out else []
+    cands += sorted((pdir / "preview").glob("scene*.png"))[:1] + [pdir / "preview/contact-sheet.jpg"]
+    cands += sorted(out.glob("previews/*/contact-sheet.jpg"))[:1] if out else []
+    for f in cands:
+        if f.is_file() and rel(f).startswith("output/"):
+            return rel(f)
+    return None
+
+
+def production_cards() -> list[dict]:
+    """Home grid (read-only): one row per production with its thumbnail, render progress, whether a person
+    approved the preview, and where a person recorded posting it. Cheap: one query per table plus a few stats."""
+    from pipeline.jobs import Registry
+    reg = Registry()
+    with reg.conn() as c:
+        rows = [dict(r) for r in c.execute(
+            "SELECT p.id, p.brand, p.name, p.state, p.dir, p.brief_json, p.job_id, p.concepts_path, p.created_at, p.updated_at, "
+            "j.state AS job_state, j.stage AS job_stage, j.progress AS job_progress, j.output_dir AS job_dir "
+            "FROM productions p LEFT JOIN jobs j ON j.id = p.job_id WHERE p.archived_at IS NULL "
+            "ORDER BY p.updated_at DESC LIMIT 200")]
+        posted: dict[str, list[str]] = {}
+        for r in c.execute("SELECT production_id, platform FROM publications WHERE status='PUBLISHED' ORDER BY id"):
+            posted.setdefault(r["production_id"], []).append(r["platform"])
+    out = []
+    for r in rows:
+        pdir = Path(r.pop("dir"))
+        jdir = r.pop("job_dir")
+        try:
+            brief = json.loads(r.pop("brief_json") or "{}")
+        except ValueError:
+            brief = {}
+        r["format"] = brief.get("format") or "short"
+        r["product"] = brief.get("product")
+        r["has_concepts"] = bool(r.pop("concepts_path")) or (pdir / "concepts/concepts.json").exists()
+        r["preview_approved"] = (r["state"] in ("STORYBOARD_READY", "PREVIEW_READY")
+                                 and api._preview_approved(reg, {"id": r["id"], "dir": str(pdir)}))
+        r["posted"] = list(dict.fromkeys(posted.get(r["id"], [])))
+        r["thumbnail"] = _card_thumb(pdir, Path(jdir) if jdir else None)
+        out.append(r)
+    return out
 
 
 def _brand_q(h) -> str | None:
@@ -602,16 +662,86 @@ def confirm_fact(bid: str, body: dict) -> dict:
     return {"brand": bid, "fact": fid, "status": f.get("status") or "verified", "check": check}
 
 
+# ---- brands: suggested facts (pipeline/fact_extract.py) -------------------------------------------------
+def candidates_view(bid: str) -> dict:
+    """knowledge/<brand>/candidates.json: facts suggested from the website, all NEEDS_REVIEW until a person confirms."""
+    from pipeline.fact_extract import load_candidates
+    _known_brand(bid)
+    return load_candidates(bid)
+
+
+def extract_candidates(bid: str, tasks: Tasks) -> dict:
+    """"Find facts on the website": read the brand's pages again (background task) and replace the suggestions.
+    Never changes facts.json."""
+    from pipeline import fact_extract
+    _known_brand(bid)
+    fetch = _brand_fetch()                              # looked up at call time (tests stub the network)
+    return {"task": tasks.start("facts-extract", bid, lambda: fact_extract.extract_for_brand(bid, fetch=fetch))}
+
+
+def confirm_candidate(bid: str, body: dict) -> dict:
+    """A PERSON adds a suggestion as a fact: {candidateId, reviewer, confirm: true}. The excerpt is re-checked on its
+    page first (facts.refresh logic); the move into facts.json is audited."""
+    from pipeline import fact_extract
+    from pipeline.intelligence import facts as F
+    _known_brand(bid)
+    if body.get("confirm") is not True:
+        raise BadRequest("adding a fact needs {\"confirm\": true} (tick \"I checked this on the website\")")
+    return fact_extract.confirm_candidate(bid, _str(body, "candidateId", limit=40), _str(body, "reviewer", limit=80),
+                                          confirm=True, note=_str(body, "note", required=False, limit=1000),
+                                          fetcher=F.fetch, lock=_FACTS_LOCK)
+
+
+def reject_candidate(bid: str, body: dict) -> dict:
+    from pipeline import fact_extract
+    _known_brand(bid)
+    return fact_extract.reject_candidate(bid, _str(body, "candidateId", limit=40), _str(body, "reviewer", limit=80),
+                                         _str(body, "note", required=False, limit=1000), lock=_FACTS_LOCK)
+
+
 # ---- library actions -----------------------------------------------------------------------------------
 def archive(pid: str, body: dict) -> dict:
-    """Archive = move to output/_archive/ and hide from lists (pipeline.archive). Nothing is deleted. There is
-    no restore in the pipeline yet; files can be moved back by hand."""
+    """Archive = move to output/_archive/ and hide from lists (pipeline.archive). Nothing is deleted;
+    POST /api/archive/restore moves it back."""
     from pipeline.archive import archive_production
     from pipeline.jobs import Registry
+    from pipeline.video_out import sync_quietly
     if body.get("confirm") is not True:
         raise BadRequest("archiving needs {\"confirm\": true}")
     actor = _str(body, "actor", limit=80)
-    return _relify(archive_production(Registry(), pid, actor, _str(body, "note", required=False, limit=1000)))
+    reg = Registry()
+    res = archive_production(reg, pid, actor, _str(body, "note", required=False, limit=1000))
+    sync_quietly(reg)
+    return _relify(res)
+
+
+def archive_list() -> dict:
+    from pipeline.archive import list_archived
+    return _relify(list_archived())
+
+
+def archive_restore(body: dict) -> dict:
+    """Move an archived production (with its jobs), or a loose job, back from output/_archive/. Needs
+    {confirm: true, actor, productionId | jobId}. Refuses (409) if the original folder exists: never overwrites."""
+    from pipeline.archive import restore_job, restore_production
+    from pipeline.jobs import Registry
+    from pipeline.video_out import sync_quietly
+    if body.get("confirm") is not True:
+        raise BadRequest("restoring needs {\"confirm\": true}")
+    actor = _str(body, "actor", limit=80)
+    note = _str(body, "note", required=False, limit=1000)
+    pid = _str(body, "productionId", required=False, limit=40)
+    jid = _str(body, "jobId", required=False, limit=40)
+    if bool(pid) == bool(jid):
+        raise BadRequest("pass exactly one of 'productionId' or 'jobId'")
+    if pid and not re.fullmatch(PID_RE, pid):
+        raise BadRequest("'productionId' is not a production id")
+    if jid and not re.fullmatch(JOB_RE, jid):
+        raise BadRequest("'jobId' is not a job id")
+    reg = Registry()
+    res = restore_production(pid, actor, note, reg=reg) if pid else restore_job(jid, actor, note, reg=reg)
+    sync_quietly(reg)
+    return _relify(res)
 
 
 def mark_published(pid: str, body: dict) -> dict:
@@ -737,14 +867,22 @@ def _routes():
         ("GET", rf"/api/brands/({B})/facts", lambda h, m, b: facts_view(m[1])),
         ("POST", rf"/api/brands/({B})/facts/refresh", lambda h, m, b: refresh_facts(m[1], h.server.tasks)),
         ("POST", rf"/api/brands/({B})/facts/confirm", lambda h, m, b: confirm_fact(m[1], b)),
+        ("GET", rf"/api/brands/({B})/candidates", lambda h, m, b: candidates_view(m[1])),
+        ("POST", rf"/api/brands/({B})/candidates/extract", lambda h, m, b: extract_candidates(m[1], h.server.tasks)),
+        ("POST", rf"/api/brands/({B})/candidates/confirm", lambda h, m, b: confirm_candidate(m[1], b)),
+        ("POST", rf"/api/brands/({B})/candidates/reject", lambda h, m, b: reject_candidate(m[1], b)),
         ("POST", r"/api/setup/check", lambda h, m, b: {"task": h.server.tasks.start("setup", "", setup_checks)}),
         ("GET", r"/api/storyboard/schema", lambda h, m, b: storyboard_schema()),
         ("GET", r"/api/productions", lambda h, m, b: productions_list()),
+        ("GET", r"/api/productions/cards", lambda h, m, b: production_cards()),
         ("POST", r"/api/productions", lambda h, m, b: create_production(b)),
         ("GET", rf"/api/productions/({P})", lambda h, m, b: production_detail(m[1], h.server.tasks)),
         ("GET", rf"/api/productions/({P})/outputs", lambda h, m, b: production_outputs(m[1])),
         # the exact render props (estimated timing) for the in-browser frame-accurate preview; never relified
         ("GET", rf"/api/productions/({P})/player-props", lambda h, m, b: _player_props(m[1], h.query.get("format") or None)),
+        # real local voice for that preview (scheduler HeavyWork "tts"); player-props then switch to timing "voice"
+        ("GET", rf"/api/productions/({P})/preview-voice", lambda h, m, b: _preview_voice().status(m[1])),
+        ("POST", rf"/api/productions/({P})/preview-voice", lambda h, m, b: _start_preview_voice(h.server.tasks, m[1])),
         ("POST", rf"/api/productions/({P})/concepts",
          lambda h, m, b: {"task": h.server.tasks.start("concepts", m[1], lambda: api.generate_concepts(m[1]))}),
         ("POST", rf"/api/productions/({P})/select", lambda h, m, b: {"task": h.server.tasks.start(
@@ -763,6 +901,8 @@ def _routes():
         ("POST", rf"/api/productions/({P})/export", lambda h, m, b: export(m[1], b)),
         ("POST", rf"/api/productions/({P})/publish", lambda h, m, b: publish(m[1], b, h.server.tasks)),
         ("POST", rf"/api/productions/({P})/archive", lambda h, m, b: archive(m[1], b)),
+        ("GET", r"/api/archive", lambda h, m, b: archive_list()),
+        ("POST", r"/api/archive/restore", lambda h, m, b: archive_restore(b)),
         ("POST", rf"/api/productions/({P})/mark-published", lambda h, m, b: mark_published(m[1], b)),
         ("GET", r"/api/publish/status", lambda h, m, b: {p: destination_status(_brand_q(h) or "", p) for p in ("youtube", "instagram")}),
         ("GET", r"/api/assets", lambda h, m, b: _relify(api.assets(h.query.get("brand") or None))),

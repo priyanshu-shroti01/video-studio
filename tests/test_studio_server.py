@@ -552,3 +552,239 @@ def test_errors_carry_hint_and_action(studio, monkeypatch):
     st, _, js, _ = req(srv, "POST", f"/api/productions/{p['id']}/concepts", {})
     t = _wait(srv, js["task"]["id"])
     assert t["status"] == "failed" and t["error"]["action"] == "rebuild-preview" and t["error"]["hint"], t
+
+
+def test_archive_list_and_restore_keep_the_security_rules(studio):
+    srv, _ = studio
+    path = "/api/archive/restore"
+    assert req(srv, "POST", path, {}, cookie=False)[0] == 401
+    assert req(srv, "POST", path, {}, headers={"Origin": "https://evil.example"})[0] == 403
+    assert req(srv, "POST", path, {}, headers={"Sec-Fetch-Site": "cross-site"})[0] == 403
+    assert req(srv, "POST", path, b"{}", ctype="text/plain")[0] == 415
+    assert req(srv, "GET", "/api/archive", cookie=False)[0] == 401
+
+
+def test_archive_restore_round_trip_over_http(studio, monkeypatch):
+    srv, base = studio
+    import pipeline.archive as A
+    import pipeline.video_out as VO
+    monkeypatch.setattr(A, "ARCHIVE_DIR", base / "_archive")
+    monkeypatch.setattr(VO, "OUT", base / "video-out")
+    monkeypatch.setattr(VO, "INDEX", base / "video-out" / ".index.json")
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "name": "to-restore", "brief": {"product": "NVMe hosting"}})
+    pid = p["id"]
+    assert req(srv, "POST", f"/api/productions/{pid}/archive", {"confirm": True, "actor": "Priyanshu"})[0] == 200
+    st, _, arch, _ = req(srv, "GET", "/api/archive")
+    assert st == 200 and [x["id"] for x in arch["productions"]] == [pid] and arch["productions"][0]["blocked"] is None
+    url = "/api/archive/restore"
+    for bad in ({"productionId": pid, "actor": "Priyanshu"},                             # no confirm
+                {"productionId": pid, "confirm": True},                                  # no name
+                {"productionId": pid, "confirm": True, "actor": "  "},
+                {"confirm": True, "actor": "Priyanshu"},                                 # nothing to restore
+                {"productionId": "../../etc", "confirm": True, "actor": "Priyanshu"},
+                {"productionId": pid, "jobId": "20260101-000000-abcdef", "confirm": True, "actor": "Priyanshu"}):
+        assert req(srv, "POST", url, bad)[0] == 400, bad
+    assert req(srv, "POST", url, {"productionId": "P20260101-000000-abcde", "confirm": True, "actor": "Priyanshu"})[0] == 404
+    orig = base / "productions" / pid
+    orig.mkdir(parents=True)                                                             # original place taken
+    st, _, js, _ = req(srv, "POST", url, {"productionId": pid, "confirm": True, "actor": "Priyanshu"})
+    assert st == 409 and "already exists" in js["error"]["message"], js
+    orig.rmdir()
+    st, _, js, _ = req(srv, "POST", url, {"productionId": pid, "confirm": True, "actor": "Priyanshu", "note": "needed again"})
+    assert st == 200 and js["restored_to"].startswith("output/"), js
+    assert pid in {x["id"] for x in req(srv, "GET", "/api/productions")[2]}
+    assert req(srv, "GET", "/api/archive")[2]["productions"] == []
+    assert req(srv, "POST", url, {"productionId": pid, "confirm": True, "actor": "Priyanshu"})[0] == 409   # not archived any more
+
+
+def test_preview_voice_route_runs_a_task_and_switches_the_player_to_voice_timing(studio, monkeypatch, tmp_path):
+    """POST /preview-voice synthesises through the render's TTS path (mocked here) inside the scheduler's 'tts' slot;
+    player-props then carry real voice timing and a voiceover the /files/ route serves (with Range for seeking)."""
+    srv, _ = studio
+    from pipeline import tts
+    import pipeline.scheduler as Sch
+    grants = []
+
+    class FakeHeavy:
+        def __init__(self, reg, kind, ref="", **kw):
+            self.kind = kind
+
+        def __enter__(self):
+            grants.append(self.kind)
+            return Sch.Grant(1, self.kind, 0.0, 4096.0)
+
+        def __exit__(self, *exc):
+            return False
+    monkeypatch.setattr(Sch, "HeavyWork", FakeHeavy)
+    monkeypatch.setattr(tts, "synthesize_from_config", lambda text, v, **kw: tts.synthesize(
+        text, provider="mock", voice=v["voice"], cache_dir=tmp_path / "tts", pronunciation=v.get("pronunciation")))
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "name": "pvoice-http", "brief": {"product": "NVMe hosting"}})
+    pid = p["id"]
+    assert req(srv, "POST", f"/api/productions/{pid}/preview-voice", {})[0] == 404          # no storyboard yet
+    assert req(srv, "PUT", f"/api/productions/{pid}/storyboard", {"storyboard": STORYBOARD})[0] == 200
+    st, _, s0, _ = req(srv, "GET", f"/api/productions/{pid}/preview-voice")
+    assert st == 200 and s0["ready"] is False and s0["audio"] is None
+    assert req(srv, "GET", f"/api/productions/{pid}/player-props")[2]["timing"] == "estimated"
+
+    st, _, js, _ = req(srv, "POST", f"/api/productions/{pid}/preview-voice", {})
+    assert st == 200 and js["task"]["kind"] == "preview-voice", js
+    for _ in range(300):
+        t = req(srv, "GET", f"/api/tasks/{js['task']['id']}")[2]
+        if t["status"] != "running":
+            break
+        time.sleep(0.1)
+    assert t["status"] == "done", t
+    assert grants == ["tts"] and t["result"]["cached"] is False
+
+    st, _, pp, _ = req(srv, "GET", f"/api/productions/{pid}/player-props")
+    assert st == 200 and pp["timing"] == "voice" and pp["audio"]["url"] == t["result"]["audio"]["url"]
+    assert req(srv, "GET", f"/api/productions/{pid}/preview-voice")[2]["ready"] is True
+    st, h, _, raw = req(srv, "GET", pp["audio"]["url"], headers={"Range": "bytes=0-99"})
+    assert st == 206 and len(raw) == 100 and raw[:4] == b"RIFF" and h.get("Accept-Ranges") == "bytes"
+    assert req(srv, "GET", pp["audio"]["url"], cookie=False)[0] == 401
+    assert req(srv, "POST", f"/api/productions/{pid}/preview-voice", b"x", ctype="text/plain")[0] in (400, 403, 415)
+    assert req(srv, "GET", "/api/productions/P20260101-000000-abcde/preview-voice")[0] == 404
+
+
+# ---- Home: project cards ----------------------------------------------------------------------------------
+def test_home_cards_show_a_thumbnail_the_status_inputs_and_where_a_person_posted(studio):
+    srv, base = studio
+    assert req(srv, "GET", "/api/productions/cards", cookie=False)[0] == 401
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "name": "card-test",
+                                                         "brief": {"product": "NVMe hosting", "format": "landscape"}})
+    pid = p["id"]
+
+    def card():
+        st, _, cards, _ = req(srv, "GET", "/api/productions/cards")
+        assert st == 200
+        return next(c for c in cards if c["id"] == pid)
+    c = card()
+    assert c["state"] == "DRAFT" and c["brand"] == "shrotihost" and c["name"] == "card-test" and c["format"] == "landscape"
+    assert c["thumbnail"] is None and c["has_concepts"] is False and c["posted"] == [] and c["preview_approved"] is False
+    assert "dir" not in c and "brief_json" not in c and "job_dir" not in c
+
+    pdir = ROOT / p["dir"]                                   # first preview still becomes the thumbnail
+    (pdir / "preview").mkdir(parents=True, exist_ok=True)
+    (pdir / "preview/scene02-b.png").write_bytes(b"\x89PNG" + os.urandom(16))
+    (pdir / "preview/scene01-a.png").write_bytes(b"\x89PNG" + os.urandom(16))
+    c = card()
+    assert c["thumbnail"].startswith("output/") and c["thumbnail"].endswith("preview/scene01-a.png")
+    assert req(srv, "GET", "/files/" + c["thumbnail"])[0] == 200
+
+    assert req(srv, "PUT", f"/api/productions/{pid}/storyboard", {"storyboard": STORYBOARD})[0] == 200
+    out = _simulate_completed_job(base, pid)                  # the rendered video's thumbnail wins
+    c = card()
+    assert c["thumbnail"].endswith("publishing/thumbnail.png") and c["job_state"] == "COMPLETED" and c["state"] == "QA_COMPLETE"
+    assert (ROOT / c["thumbnail"]) == out / "publishing/thumbnail.png"
+
+    st, _, m, _ = req(srv, "POST", f"/api/productions/{pid}/package", {})
+    d = req(srv, "GET", f"/api/productions/{pid}")[2]
+    for f in d["flags"]:
+        if f["status"] == "open":
+            req(srv, "POST", f"/api/productions/{pid}/flags/{f['id']}/resolve", {"reviewer": "Priyanshu", "note": "checked"})
+    assert req(srv, "POST", f"/api/productions/{pid}/approve", {"reviewer": "Priyanshu", "packageHash": m["package_hash"]})[0] == 200
+    assert card()["state"] == "APPROVED" and card()["posted"] == []          # approving posts nothing
+    good = {"platform": "linkedin", "url": "https://www.linkedin.com/posts/x-1", "actor": "Priyanshu", "confirm": True}
+    assert req(srv, "POST", f"/api/productions/{pid}/mark-published", good)[0] == 200
+    c = card()
+    assert c["state"] == "PUBLISHED" and c["posted"] == ["linkedin"]
+
+
+def test_built_bundle_has_the_home_and_create_a_video_pages():
+    """Smoke check of the built frontend (studio/web/dist, built by `uv run python -m studio.build`)."""
+    js = S.DIST_DIR / "app.js"
+    if not js.exists():
+        pytest.skip("frontend not built")
+    src = js.read_text(encoding="utf-8")
+    for s in ("/api/productions/cards", "Create a video", "Let the story decide", "Pick an idea", "Approve preview",
+              "Make the video", "Approve the video", "I posted it on", "Overview", "Needs your review", "Ready to post"):
+        assert s in src, s
+    assert "home" in src and "create" in src
+    css = (S.DIST_DIR / "app.css").read_text(encoding="utf-8")
+    assert ".pgrid" in css and ".wsteps" in css
+
+
+# ---- suggested facts (pipeline/fact_extract.py) ------------------------------------------------------------
+CAND_POSTS = ["/api/brands/shrotihost/candidates/extract", "/api/brands/shrotihost/candidates/confirm",
+              "/api/brands/shrotihost/candidates/reject"]
+
+
+def test_candidate_routes_keep_the_security_rules(studio):
+    srv, _ = studio
+    for path in CAND_POSTS:
+        assert req(srv, "POST", path, {}, cookie=False)[0] == 401, path
+        assert req(srv, "POST", path, {}, headers={"Origin": "https://evil.example"})[0] == 403, path
+        assert req(srv, "POST", path, {}, headers={"Sec-Fetch-Site": "cross-site"})[0] == 403, path
+        assert req(srv, "POST", path, b"{}", ctype="text/plain")[0] == 415, path
+    assert req(srv, "GET", "/api/brands/shrotihost/candidates", cookie=False)[0] == 401
+    assert req(srv, "GET", "/api/brands/nosuchbrand/candidates")[0] == 404
+    assert req(srv, "POST", "/api/brands/nosuchbrand/candidates/extract", {})[0] == 404
+
+
+def test_suggested_facts_need_a_person_to_become_facts(studio, temp_brand, monkeypatch):
+    srv, _ = studio
+    bid, _ = temp_brand
+    from pipeline.intelligence import facts as F
+    st, _, js, _ = req(srv, "POST", "/api/brands", {"site": "zed.example", "industry": "software", "id": bid})
+    t = _wait(srv, js["task"]["id"])
+    assert t["status"] == "done" and t["result"]["suggested_facts"] == 1, t
+    facts_path = ROOT / "knowledge" / bid / "facts.json"
+    st, _, c, _ = req(srv, "GET", f"/api/brands/{bid}/candidates")
+    assert st == 200 and len(c["candidates"]) == 1, c
+    cand = c["candidates"][0]
+    assert cand["status"] == "NEEDS_REVIEW" and cand["value"] == {"amount": 9, "currency": "USD", "period": "month"}
+    assert cand["excerpt"] == "Zed Pro costs $9 a month." and cand["excerpt"][slice(*cand["highlight"])] == "$9 a month"
+    assert json.loads(facts_path.read_text())["facts"] == []                       # suggestions are not facts
+
+    url = f"/api/brands/{bid}/candidates/confirm"
+    cid = cand["candidate_id"]
+    for body in ({"candidateId": cid, "reviewer": "Priyanshu"},                     # no deliberate confirm
+                 {"candidateId": cid, "reviewer": "Priyanshu", "confirm": "true"},
+                 {"candidateId": cid, "reviewer": " ", "confirm": True},
+                 {"reviewer": "Priyanshu", "confirm": True}):
+        assert req(srv, "POST", url, body)[0] == 400, body
+    assert req(srv, "POST", url, {"candidateId": "cnope", "reviewer": "Priyanshu", "confirm": True})[0] == 404
+    monkeypatch.setattr(F, "fetch", lambda u, timeout=45.0: FAKE_HOME.decode().replace("$9", "$12"))
+    assert req(srv, "POST", url, {"candidateId": cid, "reviewer": "Priyanshu", "confirm": True})[0] == 409   # page changed
+    assert json.loads(facts_path.read_text())["facts"] == []
+    monkeypatch.setattr(F, "fetch", lambda u, timeout=45.0: FAKE_HOME.decode())
+    st, _, r, _ = req(srv, "POST", url, {"candidateId": cid, "reviewer": "Priyanshu", "note": "home page", "confirm": True})
+    assert st == 200 and r["status"] == "verified", r
+    saved = json.loads(facts_path.read_text())["facts"]
+    assert len(saved) == 1 and saved[0]["verified_by"]["reviewer"] == "Priyanshu" and saved[0]["excerpt"] == cand["excerpt"]
+    st, _, f, _ = req(srv, "GET", f"/api/brands/{bid}/facts")
+    assert [x["status"] for x in f["facts"]] == ["verified"]
+    assert req(srv, "GET", f"/api/brands/{bid}/candidates")[2]["candidates"] == []
+
+    # find facts again (background task): the confirmed fact is not suggested twice
+    home = FAKE_HOME.replace(b"</body>", b"<p>Includes 5 projects and a 30-day money-back guarantee.</p></body>")
+    from pipeline import brand_init
+    monkeypatch.setattr(brand_init, "_get", lambda u, timeout=30.0: (home, "text/html"))
+    st, _, js, _ = req(srv, "POST", f"/api/brands/{bid}/candidates/extract", {})
+    t = _wait(srv, js["task"]["id"])
+    assert st == 200 and t["status"] == "done" and t["kind"] == "facts-extract", t
+    cands = req(srv, "GET", f"/api/brands/{bid}/candidates")[2]["candidates"]
+    assert {x["kind"] for x in cands} == {"projects", "money_back"}, cands
+
+    rej = f"/api/brands/{bid}/candidates/reject"
+    one = cands[0]["candidate_id"]
+    assert req(srv, "POST", rej, {"candidateId": one})[0] == 400                     # reviewer required
+    assert req(srv, "POST", rej, {"candidateId": one, "reviewer": "Priyanshu", "note": "not a plan feature"})[0] == 200
+    assert req(srv, "POST", rej, {"candidateId": one, "reviewer": "Priyanshu"})[0] == 404
+    left = req(srv, "GET", f"/api/brands/{bid}/candidates")[2]
+    assert [x["candidate_id"] for x in left["candidates"]] != [one] and left["rejected"][0]["reviewer"] == "Priyanshu"
+    assert len(json.loads(facts_path.read_text())["facts"]) == 1                    # rejecting adds nothing
+    from pipeline.jobs import Registry
+    with Registry().conn() as con:
+        rows = con.execute("SELECT actor, action FROM audit_log WHERE action LIKE 'facts.candidate-%' ORDER BY id").fetchall()
+    assert [tuple(x) for x in rows] == [("Priyanshu", "facts.candidate-confirm"), ("Priyanshu", "facts.candidate-reject")]
+
+
+def test_brief_keeps_the_quality_preset(studio):
+    srv, base = studio
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "name": "q-brief",
+                                                         "brief": {"product": "NVMe hosting", "format": "short", "quality": "smooth"}})
+    assert st == 200, p
+    from pipeline import api
+    assert api.Productions().get(p["id"])["brief"]["quality"] == "smooth"
+    assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "quality": "8k"}})[0] == 400

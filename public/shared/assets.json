@@ -53,6 +53,66 @@
    "source": "self-generated test clip: ffmpeg lavfi testsrc2 1280x800, 30 fps, 4 s, moving box + progress bar, H.264 (engine footage fixture)",
    "license": "PUBLIC-DOMAIN (self-generated test clip)",
    "attribution": ""
+  },
+  {
+   "path": "shared/logos/platform-linkedin.svg",
+   "app": "LinkedIn",
+   "source": "logos:linkedin-icon from gilbarbara/logos@d6960edc1b7309d392c76e40d3a320df7f9ff85c (https://github.com/gilbarbara/logos), unmodified; fetched with the taste-skill icons resolver",
+   "license": "CC0-1.0",
+   "attribution": "",
+   "trademark": "LinkedIn is a trademark of its owner; nominative use only (the Studio's \"I posted it on…\" list), without implying endorsement"
+  },
+  {
+   "path": "shared/logos/platform-youtube.svg",
+   "app": "YouTube",
+   "source": "logos:youtube-icon from gilbarbara/logos@d6960edc1b7309d392c76e40d3a320df7f9ff85c (https://github.com/gilbarbara/logos), unmodified; fetched with the taste-skill icons resolver",
+   "license": "CC0-1.0",
+   "attribution": "",
+   "trademark": "YouTube is a trademark of its owner; nominative use only (the Studio's \"I posted it on…\" list), without implying endorsement"
+  },
+  {
+   "path": "shared/logos/platform-instagram.svg",
+   "app": "Instagram",
+   "source": "logos:instagram-icon from gilbarbara/logos@d6960edc1b7309d392c76e40d3a320df7f9ff85c (https://github.com/gilbarbara/logos), unmodified; fetched with the taste-skill icons resolver",
+   "license": "CC0-1.0",
+   "attribution": "",
+   "trademark": "Instagram is a trademark of its owner; nominative use only (the Studio's \"I posted it on…\" list), without implying endorsement"
+  },
+  {
+   "path": "shared/logos/platform-facebook.svg",
+   "app": "Facebook",
+   "source": "logos:facebook from gilbarbara/logos@d6960edc1b7309d392c76e40d3a320df7f9ff85c (https://github.com/gilbarbara/logos), unmodified; fetched with the taste-skill icons resolver",
+   "license": "CC0-1.0",
+   "attribution": "",
+   "trademark": "Facebook is a trademark of its owner; nominative use only (the Studio's \"I posted it on…\" list), without implying endorsement"
+  },
+  {
+   "path": "shared/logos/platform-tiktok.svg",
+   "app": "TikTok",
+   "source": "logos:tiktok-icon from gilbarbara/logos@d6960edc1b7309d392c76e40d3a320df7f9ff85c (https://github.com/gilbarbara/logos), unmodified; fetched with the taste-skill icons resolver",
+   "license": "CC0-1.0",
+   "attribution": "",
+   "trademark": "TikTok is a trademark of its owner; nominative use only (the Studio's \"I posted it on…\" list), without implying endorsement"
+  },
+  {
+   "path": "shared/logos/platform-x.svg",
+   "app": "X",
+   "source": "logos:x from gilbarbara/logos@d6960edc1b7309d392c76e40d3a320df7f9ff85c (https://github.com/gilbarbara/logos), unmodified; fetched with the taste-skill icons resolver",
+   "license": "CC0-1.0",
+   "attribution": "",
+   "trademark": "X is a trademark of its owner; nominative use only (the Studio's \"I posted it on…\" list), without implying endorsement"
+  },
+  {
+   "path": "shared/fonts/hostgrotesk-latin.woff2",
+   "source": "Host Grotesk (variable, wght 300-800, latin) by Element Type, @fontsource-variable/host-grotesk 5.2.6 (https://github.com/Element-Type/hostgrotesk); licence text: shared/fonts/OFL-HostGrotesk.txt",
+   "license": "OFL-1.1",
+   "attribution": ""
+  },
+  {
+   "path": "shared/fonts/hostgrotesk-latin-ext.woff2",
+   "source": "Host Grotesk (variable, wght 300-800, latin-ext) by Element Type, @fontsource-variable/host-grotesk 5.2.6 (https://github.com/Element-Type/hostgrotesk); licence text: shared/fonts/OFL-HostGrotesk.txt",
+   "license": "OFL-1.1",
+   "attribution": ""
   }
  ]
 }

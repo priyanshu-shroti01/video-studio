@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Any, fileUrl} from './api';
+import {Any} from './api';
 import {Badge, Button, Dialog, State, Toasts, isTyping, useApi, useLocal} from './ui';
 import {Dashboard} from './sections/dashboard';
 import {NewProduction} from './sections/newprod';
@@ -11,25 +11,31 @@ import {PublishingCenter} from './sections/publish';
 import {Brands} from './sections/brands';
 import {Library} from './sections/library';
 import {Setup} from './sections/setup';
+import {Home, homeTitle} from './sections/home';
+import {Icon} from './icons';
+import {CreateWizard} from './sections/wizard';
 
 export type Route = {section: string; arg?: string};
-const SECTIONS: {key: string; label: string; icon: string; needsProd?: boolean}[] = [
-  {key: 'dashboard', label: 'Dashboard', icon: '▦'},
-  {key: 'new', label: 'New Production', icon: '+'},
-  {key: 'storyboard', label: 'Storyboard', icon: '≣', needsProd: true},
-  {key: 'assets', label: 'Asset Library', icon: '◈'},
-  {key: 'monitor', label: 'Render Monitor', icon: '◷'},
-  {key: 'qa', label: 'Preview & QA', icon: '✓', needsProd: true},
-  {key: 'publish', label: 'Publishing', icon: '↗', needsProd: true},
-  {key: 'library', label: 'Library', icon: '▤'},
-  {key: 'brands', label: 'Websites & facts', icon: '◎'},
-  {key: 'setup', label: 'Setup', icon: '⚙'},
+/** Sidebar order: the everyday pages first, then the power-user tools ("advanced"). Keys 1–9 follow this order. */
+const SECTIONS: {key: string; label: string; icon: string; needsProd?: boolean; advanced?: boolean}[] = [
+  {key: 'home', label: 'Home', icon: 'house'},
+  {key: 'create', label: 'Create a video', icon: 'plus'},
+  {key: 'library', label: 'Library', icon: 'list-video'},
+  {key: 'brands', label: 'Websites & facts', icon: 'globe'},
+  {key: 'dashboard', label: 'Overview', icon: 'layout-dashboard', advanced: true},
+  {key: 'storyboard', label: 'Storyboard', icon: 'clapperboard', needsProd: true, advanced: true},
+  {key: 'qa', label: 'Preview & QA', icon: 'circle-check', needsProd: true, advanced: true},
+  {key: 'publish', label: 'Publishing', icon: 'send', needsProd: true, advanced: true},
+  {key: 'monitor', label: 'Render Monitor', icon: 'activity', advanced: true},
+  {key: 'new', label: 'Brief form', icon: 'file-pen-line', advanced: true},
+  {key: 'assets', label: 'Asset Library', icon: 'images', advanced: true},
+  {key: 'setup', label: 'Setup', icon: 'settings', advanced: true},
 ];
 
 function parseHash(): Route {
   const h = window.location.hash.replace(/^#\/?/, '');
   const [section, arg] = h.split('/');
-  return {section: SECTIONS.some((s) => s.key === section) ? section : 'dashboard', arg: arg ? decodeURIComponent(arg) : undefined};
+  return {section: SECTIONS.some((s) => s.key === section) ? section : 'home', arg: arg ? decodeURIComponent(arg) : undefined};
 }
 
 export const go = (section: string, arg?: string) => {
@@ -92,7 +98,9 @@ export const App: React.FC = () => {
       case 'library': body = <Library nav={nav} />; break;
       case 'brands': body = <Brands nav={nav} arg={route.arg} />; break;
       case 'setup': body = <Setup />; break;
-      default: body = <Dashboard nav={nav} />;
+      case 'dashboard': body = <Dashboard nav={nav} />; break;
+      case 'create': body = <CreateWizard key={route.arg ?? 'new'} nav={nav} pid={route.arg && /^P\d{8}-\d{6}-[0-9a-f]{5}$/.test(route.arg) ? route.arg : undefined} />; break;
+      default: body = <Home nav={nav} />;
     }
   }
 
@@ -100,14 +108,20 @@ export const App: React.FC = () => {
     <div className="shell">
       <aside className="side">
         <div className="brand">
-          <img src={fileUrl('public/shared/studio/icon.svg')} alt="" width={28} height={28} />
+          <svg className="brand-mark" width={28} height={28} viewBox="0 0 28 28" aria-hidden fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <rect x="0.8" y="0.8" width="26.4" height="26.4" rx="7" strokeOpacity={0.25} />
+            <path d="M7 10.5V7h3.5M17.5 7H21v3.5M7 17.5V21h3.5M17.5 21H21v-3.5" strokeOpacity={0.55} /><path d="M12 10.6l5.2 3.4L12 17.4z" fill="currentColor" stroke="none" />
+          </svg>
           <div><div className="brand-t">Video Studio</div><div className="brand-s">local · v{session.data?.version ?? '…'}</div></div>
         </div>
         <nav className="nav" aria-label="Sections">
           {SECTIONS.map((s, i) => (
-            <a key={s.key} href={`#/${s.key}`} className={`nav-i ${route.section === s.key ? 'active' : ''}`} aria-current={route.section === s.key ? 'page' : undefined}>
-              <span className="nav-ic" aria-hidden>{s.icon}</span><span>{s.label}</span>{i < 9 && <kbd>{i + 1}</kbd>}
-            </a>
+            <React.Fragment key={s.key}>
+              {s.advanced && !SECTIONS[i - 1]?.advanced && <div className="nav-sep">Advanced</div>}
+              <a href={`#/${s.key}`} className={`nav-i ${s.key === 'create' ? 'nav-cta' : ''} ${route.section === s.key ? 'active' : ''}`} aria-current={route.section === s.key ? 'page' : undefined}>
+                <span className="nav-ic"><Icon name={s.icon} size={s.key === 'create' ? 16 : 18} /></span><span>{s.label}</span>{i < 9 && <kbd>{i + 1}</kbd>}
+              </a>
+            </React.Fragment>
           ))}
         </nav>
         <div className="side-prod">
@@ -131,12 +145,12 @@ export const App: React.FC = () => {
       <main className="main">
         <header className="top">
           <div>
-            <h1>{sec.label}</h1>
-            {sec.needsProd && current && <div className="crumb">{current.name} <span className="mono muted">{current.id}</span></div>}
+            <h1>{sec.key === 'home' ? homeTitle() : sec.label}</h1>
+            {(sec.needsProd || (sec.key === 'create' && route.arg)) && current && <div className="crumb">{current.name} <span className="mono muted">{current.id}</span></div>}
           </div>
           <div className="top-r">
-            {current && <Badge tone="neutral">{current.brand}</Badge>}
-            <Button variant="ghost" onClick={() => go('new')}>New production</Button>
+            {current && sec.key !== 'home' && <Badge tone="neutral">{current.brand}</Badge>}
+            {sec.key !== 'create' && <Button variant="primary" onClick={() => go('create')}><Icon name="plus" size={16} />Create a video</Button>}
           </div>
         </header>
         <ConnectionBanner error={session.error} />
@@ -160,7 +174,7 @@ const ProductionPicker: React.FC<{prods: Any[]; onPick: (p: string) => void}> = 
   <div className="card"><div className="card-b">
     <h3 className="mb">Choose a production</h3>
     {prods.length === 0 ? (
-      <p className="muted">No productions yet. <a href="#/new">Create one</a> from a brief.</p>
+      <p className="muted">No videos yet. <a href="#/create">Create a video</a> to get started.</p>
     ) : (
       <div className="pick-list">
         {prods.map((p) => (

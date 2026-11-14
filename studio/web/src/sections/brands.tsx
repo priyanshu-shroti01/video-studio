@@ -112,7 +112,8 @@ const AddWebsite: React.FC<{onClose: () => void; onDone: (id: string) => void}> 
             <ul className="sm">{(res.review ?? []).map((r: string, i: number) => <li key={i}>{r}</li>)}</ul>
             <h4 className="h4 mt">Pages where facts can come from</h4>
             <ul className="sm">{Object.entries(res.fact_pages ?? {}).map(([k, u]) => <li key={k}><a href={String(u)} target="_blank" rel="noopener noreferrer">{String(u)}</a></li>)}</ul>
-            <p className="sm muted">Facts start empty: prices and features are added only with the exact text from these pages, then checked here.</p>
+            <p className="sm muted">Facts start empty: prices and features are added only with the exact text from these pages, then checked here.
+              {res.suggested_facts ? ` ${res.suggested_facts} suggested fact(s) were found: open its facts to confirm or reject each one.` : ''}</p>
             <Button variant="primary" onClick={() => onDone(res.brand)}>Open its facts</Button>
           </div>
         </div>
@@ -219,13 +220,14 @@ const BrandFacts: React.FC<{brand: string}> = ({brand}) => {
           )}
         </Card>
       )}
+      <SuggestedFacts brand={brand} onAdded={() => void facts.reload()} />
       <ConfirmFact brand={brand} fact={checking} onClose={() => setChecking(null)} onDone={() => { setChecking(null); void facts.reload(); }} />
     </>
   );
 };
 
 /** The ONLY way a fact becomes verified by a person: open the source, tick, give your name. */
-const ConfirmFact: React.FC<{brand: string; fact: Any; onClose: () => void; onDone: () => void}> = ({brand, fact, onClose, onDone}) => {
+const ConfirmFact: React.FC<{brand: string; fact: Any; onClose: () => void; onDone: () => void; candidate?: boolean}> = ({brand, fact, onClose, onDone, candidate}) => {
   const [reviewer, setReviewer] = useLocal('studio.reviewer', '');
   const [note, setNote] = useState('');
   const [seen, setSeen] = useState(false);
@@ -236,24 +238,117 @@ const ConfirmFact: React.FC<{brand: string; fact: Any; onClose: () => void; onDo
   const submit = async () => {
     setBusy(true); setErr(null);
     try {
-      const r = await api.post(`/api/brands/${encodeURIComponent(brand)}/facts/confirm`, {factId: fact.id, reviewer, note, confirm: true});
-      toast('success', r.status === 'verified' ? 'Recorded: you checked this fact' : `Recorded (${r.status})`);
+      const r = candidate
+        ? await api.post(`/api/brands/${encodeURIComponent(brand)}/candidates/confirm`, {candidateId: fact.candidate_id, reviewer, note, confirm: true})
+        : await api.post(`/api/brands/${encodeURIComponent(brand)}/facts/confirm`, {factId: fact.id, reviewer, note, confirm: true});
+      toast('success', candidate ? `Added as fact ${r.fact}` : r.status === 'verified' ? 'Recorded: you checked this fact' : `Recorded (${r.status})`);
       onDone();
     } catch (x) { setErr(x); } finally { setBusy(false); }
   };
   return (
     <Dialog open title="I checked this on the website" onClose={onClose}
       footer={<><Button variant="ghost" onClick={onClose}>Cancel</Button>
-        <Button variant="primary" busy={busy} disabled={!seen || !reviewer.trim()} onClick={submit}>Record my check</Button></>}>
+        <Button variant="primary" busy={busy} disabled={!seen || !reviewer.trim()} onClick={submit}>{candidate ? 'Add as fact' : 'Record my check'}</Button></>}>
       <p><b>{fact.claim}</b></p>
       <p className="sm">Open <a href={fact.source_url} target="_blank" rel="noopener noreferrer">{fact.source_url}</a> and look for this text:</p>
-      <div className="excerpt mb">“{fact.excerpt}”</div>
+      <div className="excerpt mb">“<Highlighted text={fact.excerpt} hl={fact.highlight} />”</div>
+      {candidate && <p className="sm muted">The Studio reads the page again and adds the fact only if this exact text is still there.</p>}
       {fact.status === 'stale' && <Alert tone="warning">The last re-check did not find this text on the page. If the website changed, the fact must be
         corrected before it is used: recording a check does not change the fact.</Alert>}
       <label className="row mb"><input type="checkbox" checked={seen} onChange={(e) => setSeen(e.target.checked)} />
         <span>I opened the page and this is what the website says.</span></label>
       <Field label="Your name (required)"><input value={reviewer} onChange={(e) => setReviewer(e.target.value)} placeholder="Full name" /></Field>
       <Field label="Note (optional)"><input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Where on the page, anything odd" /></Field>
+      <ErrorBox error={err} />
+    </Dialog>
+  );
+};
+
+/** The excerpt with the matched number (or claim) highlighted: `hl` is [start, end) within the excerpt. */
+const Highlighted: React.FC<{text: string; hl?: number[] | null}> = ({text, hl}) => {
+  if (!hl || hl.length !== 2 || hl[0] < 0 || hl[1] > text.length || hl[0] >= hl[1]) return <>{text}</>;
+  return <>{text.slice(0, hl[0])}<mark>{text.slice(hl[0], hl[1])}</mark>{text.slice(hl[1])}</>;
+};
+
+// ---- suggested facts (knowledge/<brand>/candidates.json) ------------------------------------------------------
+/** Facts the Studio found on the website. None is used until a person adds it (same check dialog) or rejects it. */
+const SuggestedFacts: React.FC<{brand: string; onAdded: () => void}> = ({brand, onAdded}) => {
+  const cands = useApi<Any>(`/api/brands/${encodeURIComponent(brand)}/candidates`);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  const [adding, setAdding] = useState<Any>(null);
+  const [rejecting, setRejecting] = useState<Any>(null);
+  const c = cands.data;
+  const rows: Any[] = c?.candidates ?? [];
+  const find = async () => {
+    setBusy(true); setErr(null);
+    try {
+      const r = await runTask(`/api/brands/${encodeURIComponent(brand)}/candidates/extract`, {}, undefined, 1500);
+      toast(r.count ? 'success' : 'info', r.count ? `Found ${r.count} suggested fact(s)` : 'No new facts found on the pages');
+      void cands.reload();
+    } catch (x) { setErr(x); } finally { setBusy(false); }
+  };
+  return (
+    <Card className="span-12" title={`Suggested facts${rows.length ? ` (${rows.length})` : ''}`}
+      actions={<Button variant="secondary" busy={busy} onClick={find} title="Reads the website's pages again and lists prices and features with their exact text">Find facts on the website</Button>}>
+      <p className="sm muted">Found on the website automatically, with the exact text they came from. None of these is used in a video
+        until you open the page, check it and add it as a fact. Prices shown only by JavaScript, in images or behind a toggle may be missing.</p>
+      <ErrorBox error={cands.error || err} title={err ? 'Finding facts failed' : undefined} actions={err ? {retry: () => void find()} : undefined} />
+      {busy && <Alert tone="info"><Spinner label=" Reading the website pages…" /></Alert>}
+      {c && Object.keys(c.fetch_errors ?? {}).length > 0 && (
+        <Alert tone="warning" title="Some pages could not be read">
+          <ul className="sm">{Object.entries(c.fetch_errors).map(([u, e]) => <li key={u}>{u}: {String(e)}</li>)}</ul>
+        </Alert>
+      )}
+      {c && rows.length === 0 ? <Empty>{c.extracted_at ? 'No suggestions left to review.' : 'No suggestions yet: find facts on the website.'}</Empty> : rows.length > 0 && (
+        <Table cols={['Claim', 'Value', 'Found in', '']}>
+          {rows.map((x) => (
+            <tr key={x.candidate_id}>
+              <td><div>{x.claim}</div><div className="mono muted xs">{x.id}{x.plan ? ` · plan ${x.plan}` : ''}</div>
+                <Badge tone="warning">needs review</Badge></td>
+              <td className="sm">{showValue(x.value)}</td>
+              <td>{String(x.source_url).startsWith('https://')
+                ? <a className="sm" href={x.source_url} target="_blank" rel="noopener noreferrer">{String(x.source_url).replace(/^https:\/\//, '')}</a>
+                : <span className="sm mono">{x.source_url}</span>}
+                <div className="excerpt mt-s">“<Highlighted text={x.excerpt} hl={x.highlight} />”</div>
+                {x.source_kind === 'page-data' && <div className="muted xs">found in the page source, not the visible text</div>}</td>
+              <td className="nowrap"><Button variant="primary" onClick={() => setAdding(x)}>Add as fact</Button>{' '}
+                <Button variant="ghost" onClick={() => setRejecting(x)}>Reject</Button></td>
+            </tr>
+          ))}
+        </Table>
+      )}
+      <ConfirmFact brand={brand} fact={adding} candidate onClose={() => setAdding(null)}
+        onDone={() => { setAdding(null); void cands.reload(); onAdded(); }} />
+      <RejectCandidate brand={brand} cand={rejecting} onClose={() => setRejecting(null)} onDone={() => { setRejecting(null); void cands.reload(); }} />
+    </Card>
+  );
+};
+
+const RejectCandidate: React.FC<{brand: string; cand: Any; onClose: () => void; onDone: () => void}> = ({brand, cand, onClose, onDone}) => {
+  const [reviewer, setReviewer] = useLocal('studio.reviewer', '');
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  useEffect(() => { setNote(''); setErr(null); }, [cand?.candidate_id]);
+  if (!cand) return null;
+  const submit = async () => {
+    setBusy(true); setErr(null);
+    try {
+      await api.post(`/api/brands/${encodeURIComponent(brand)}/candidates/reject`, {candidateId: cand.candidate_id, reviewer, note});
+      toast('success', 'Suggestion rejected');
+      onDone();
+    } catch (x) { setErr(x); } finally { setBusy(false); }
+  };
+  return (
+    <Dialog open title="Reject this suggestion" onClose={onClose}
+      footer={<><Button variant="ghost" onClick={onClose}>Cancel</Button>
+        <Button variant="danger" busy={busy} disabled={!reviewer.trim()} onClick={submit}>Reject</Button></>}>
+      <p><b>{cand.claim}</b></p>
+      <div className="excerpt mb">“<Highlighted text={cand.excerpt} hl={cand.highlight} />”</div>
+      <p className="sm muted">It is removed from the suggestions and will not be suggested again. Nothing is added to the facts.</p>
+      <Field label="Your name (required)"><input value={reviewer} onChange={(e) => setReviewer(e.target.value)} placeholder="Full name" /></Field>
+      <Field label="Why (optional)"><input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Wrong plan, old price, not a feature…" /></Field>
       <ErrorBox error={err} />
     </Dialog>
   );

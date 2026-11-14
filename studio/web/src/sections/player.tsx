@@ -5,7 +5,9 @@
 // {
 //   productionId: string, storyboardHash: string,
 //   format: 'short' | 'landscape', formats: string[], projectFormats: string[], inProject: boolean,
-//   timing: 'estimated', timingNote: string,
+//   timing: 'estimated' | 'voice', timingNote: string,
+//   audio: {url, durationS} | null,       // timing 'voice': the preview voiceover (served by /files/), else null
+//   voiceKey: string | null,              // preview-voice cache key of the current narration
 //   fps: number, durationInFrames: number, width: number, height: number,
 //   staticBase: '/files/public',          // window.remotion_staticBase: staticFile('x') -> /files/public/x
 //   props: RenderProps,                   // unchanged, as the renderer writes props-<fmt>.json
@@ -15,16 +17,23 @@
 // }
 // Errors use the Studio's usual {error: {code, message, detail}} body (404 when there is no storyboard yet).
 //
+// Real voice: POST /api/productions/<id>/preview-voice starts a task that synthesises the narration with the local voice
+// (the render's TTS path, queued by the scheduler so it never overlaps a render); GET of the same route reports
+// {ready, state, progress, audio}. Once ready, player-props come back with timing 'voice' (real word timings, as the
+// render builds them) and `audio`, which plays through remotion's <Html5Audio> inside a wrapper composition: the
+// Player itself keeps it in sync on play, seek, frame steps and scene loops (CSP media-src 'self' allows /files/).
+//
 // Assets: the engine loads fonts, logos, images and footage with staticFile(). Setting window.remotion_staticBase to
 // payload.staticBase makes those resolve to the Studio's existing /files/public/... route (pipeline.api.safe_output_file).
 // The renderer's calculateStoryboardMetadata (intrinsic asset aspects, footage durations) runs here too, before the
 // Player mounts, so the layout matches the render.
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Player, PlayerRef} from '@remotion/player';
+import {Html5Audio} from 'remotion';
 import {calculateStoryboardMetadata, Storyboard} from '../../../../src/engine/Storyboard';
 import type {RenderProps} from '../../../../src/engine/types';
-import {api} from '../api';
-import {Alert, Badge, Button, Card, ErrorBox, isTyping} from '../ui';
+import {api, waitTask} from '../api';
+import {Alert, Badge, Button, Card, ErrorBox, isTyping, Progress} from '../ui';
 
 export type Format = 'short' | 'landscape';
 export type PlayerScene = {id: string; purpose: string; start: number; end: number; startFrame: number; endFrame: number};
@@ -37,6 +46,8 @@ export type PlayerPayload = {
   inProject: boolean;
   timing: 'estimated' | 'voice';
   timingNote: string;
+  audio?: {url: string; durationS: number} | null;   // optional: older servers omit it
+  voiceKey?: string | null;
   fps: number;
   durationInFrames: number;
   width: number;
@@ -56,6 +67,16 @@ async function resolveProps(p: PlayerPayload, signal: AbortSignal): Promise<Rend
   const meta = await calculateStoryboardMetadata({props: p.props, defaultProps: p.props, abortSignal: signal, compositionId: 'Storyboard', isRendering: false});
   return (meta.props as RenderProps | undefined) ?? p.props;
 }
+
+type VoiceStatus = {ready: boolean; state: string; progress: number; error: string | null; audio: {url: string; durationS: number} | null; provider: string; voice: string};
+
+/** The storyboard plus the preview voiceover: the Player owns playback, so <Html5Audio> follows play/seek/loop/step. */
+const StoryboardWithVoice: React.FC<{props: RenderProps; audioUrl: string | null}> = ({props, audioUrl}) => (
+  <>
+    <Storyboard {...props} />
+    {audioUrl ? <Html5Audio src={audioUrl} pauseWhenBuffering /> : null}
+  </>
+);
 
 const pad = (n: number, w: number) => String(n).padStart(w, '0');
 const clock = (s: number) => `${Math.floor(s / 60)}:${pad(Math.floor(s % 60), 2)}.${pad(Math.floor((s % 1) * 100), 2)}`;
@@ -91,7 +112,32 @@ export const PreviewPlayer: React.FC<{productionId: string; format?: Format}> = 
     return () => ctl.abort();
   }, [productionId, fmt, nonce]);
 
+  const [voice, setVoice] = useState<{busy: boolean; status: VoiceStatus | null; error: unknown; t0: number}>({busy: false, status: null, error: null, t0: 0});
+  const [, tick] = useState(0);
+  const pvUrl = `/api/productions/${encodeURIComponent(productionId)}/preview-voice`;
+  const useVoice = async () => {
+    const t0 = Date.now();
+    setVoice({busy: true, status: null, error: null, t0});
+    try {
+      const r = await api.post<{task: {id: string}}>(pvUrl, {});
+      const t = await waitTask(r.task.id, () => {
+        tick((n) => n + 1);
+        api.get<VoiceStatus>(pvUrl).then((status) => setVoice((v) => (v.busy ? {...v, status} : v))).catch(() => {});
+      }, 1000);
+      if (t.status === 'failed') throw Object.assign(new Error(t.error?.message ?? 'voice generation failed'), {detail: t.error?.detail, code: t.error?.code});
+      setVoice({busy: false, status: null, error: null, t0});
+      setNonce((n) => n + 1);
+    } catch (e) {
+      setVoice({busy: false, status: null, error: e, t0});
+    }
+  };
+  const voiceState = voice.status?.state;
+  const voiceLabel = voiceState === 'waiting' ? 'Waiting for its turn (render / AI model)…' : voiceState === 'assembling' ? 'Assembling the voiceover…' : 'Recording the voice…';
+
   const reload = <Button variant="ghost" onClick={() => setNonce((n) => n + 1)} title="Rebuild from the saved storyboard">Reload</Button>;
+  const voiceBtn = payload && payload.timing !== 'voice' ? (
+    <Button onClick={useVoice} busy={voice.busy} disabled={voice.busy} title="Synthesise the narration with the local voice (no render) so the preview plays with the real voice and exact timing">Use the real voice</Button>
+  ) : null;
   const tabs = (payload?.formats ?? (['short', 'landscape'] as Format[])).map((f) => (
     <button key={f} className={`tab ${f === (payload?.format ?? fmt) ? 'on' : ''}`} onClick={() => setFmt(f)}
       title={payload && !payload.projectFormats.includes(f) ? 'This project does not render this format' : undefined}>
@@ -99,7 +145,14 @@ export const PreviewPlayer: React.FC<{productionId: string; format?: Format}> = 
     </button>
   ));
   return (
-    <Card title="Frame-accurate preview" actions={<>{tabs}{payload?.timing === 'voice' ? <Badge tone="success">voice timing</Badge> : <Badge tone="warning" title={payload?.timingNote}>estimated timing</Badge>}{reload}</>}>
+    <Card title="Frame-accurate preview" actions={<>{tabs}{payload?.timing === 'voice' ? <Badge tone="success" title={payload?.timingNote}>real voice timing</Badge> : <Badge tone="warning" title={payload?.timingNote}>estimated timing</Badge>}{voiceBtn}{reload}</>}>
+      {voice.busy ? (
+        <div style={{marginBottom: 12}}>
+          <div className="row between sm"><span>{voiceLabel}</span><span className="mono">{Math.round((Date.now() - voice.t0) / 1000)} s</span></div>
+          <Progress value={voice.status?.progress ?? 0} />
+        </div>
+      ) : null}
+      {voice.error ? <ErrorBox error={voice.error} title="Could not generate the preview voice" /> : null}
       {error ? <ErrorBox error={error} title="Could not load the preview" /> : !payload || !resolved ? <div className="skeleton" style={{height: 320}} /> : (
         <Stage key={`${payload.format}:${payload.propsHash}`} payload={payload} props={resolved} />
       )}
@@ -110,6 +163,8 @@ export const PreviewPlayer: React.FC<{productionId: string; format?: Format}> = 
 const Stage: React.FC<{payload: PlayerPayload; props: RenderProps}> = ({payload, props}) => {
   const ref = useRef<PlayerRef>(null);
   const [loop, setLoop] = useState<string | null>(null);
+  const audioUrl = payload.timing === 'voice' && payload.audio ? payload.audio.url : null;
+  const inputProps = useMemo(() => ({props, audioUrl}), [props, audioUrl]);
   const {fps, durationInFrames: N, width, height, scenes} = payload;
   const looped = scenes.find((s) => s.id === loop) ?? null;
   const portrait = height > width;
@@ -121,8 +176,8 @@ const Stage: React.FC<{payload: PlayerPayload; props: RenderProps}> = ({payload,
       <div style={{...RENDER_DEFAULTS, width: '100%', maxWidth: portrait ? 360 : 960, borderRadius: 8, overflow: 'hidden'}}>
         <Player
           ref={ref}
-          component={Storyboard}
-          inputProps={props}
+          component={StoryboardWithVoice}
+          inputProps={inputProps}
           durationInFrames={N}
           fps={fps}
           compositionWidth={width}
@@ -136,7 +191,7 @@ const Stage: React.FC<{payload: PlayerPayload; props: RenderProps}> = ({payload,
           inFrame={looped ? looped.startFrame : null}
           outFrame={looped ? looped.endFrame : null}
           moveToBeginningWhenEnded={false}
-          numberOfSharedAudioTags={0}  // the engine has no audio; shared tags would load a data: mp3 the Studio CSP blocks
+          numberOfSharedAudioTags={0}  // shared tags would load a data: mp3 the Studio CSP blocks; the voice gets its own <audio>
           errorFallback={errorFallback}
         />
       </div>
@@ -148,19 +203,24 @@ const Stage: React.FC<{payload: PlayerPayload; props: RenderProps}> = ({payload,
 function usePlayerState(player: React.RefObject<PlayerRef | null>) {
   const [frame, setFrame] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(false);
   useEffect(() => {
     const p = player.current;
     if (!p) return;
     const onFrame = (e: {detail: {frame: number}}) => setFrame(e.detail.frame);
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
+    const onMute = (e: {detail: {isMuted: boolean}}) => setMuted(e.detail.isMuted);
+    p.addEventListener('mutechange', onMute);
     p.addEventListener('frameupdate', onFrame);
     p.addEventListener('seeked', onFrame);
     p.addEventListener('play', onPlay);
     p.addEventListener('pause', onPause);
     p.addEventListener('ended', onPause);
     setFrame(p.getCurrentFrame());
+    setMuted(p.isMuted());
     return () => {
+      p.removeEventListener('mutechange', onMute);
       p.removeEventListener('frameupdate', onFrame);
       p.removeEventListener('seeked', onFrame);
       p.removeEventListener('play', onPlay);
@@ -168,12 +228,13 @@ function usePlayerState(player: React.RefObject<PlayerRef | null>) {
       p.removeEventListener('ended', onPause);
     };
   }, [player]);
-  return {frame, playing};
+  return {frame, playing, muted};
 }
 
 const Controls: React.FC<{player: React.RefObject<PlayerRef | null>; payload: PlayerPayload; loop: PlayerScene | null; setLoop: (id: string | null) => void}> =
   ({player, payload, loop, setLoop}) => {
-    const {frame, playing} = usePlayerState(player);
+    const {frame, playing, muted} = usePlayerState(player);
+    const hasVoice = payload.timing === 'voice' && !!payload.audio;
     const {fps, durationInFrames: N, scenes} = payload;
     const lo = loop ? loop.startFrame : 0;
     const hi = loop ? loop.endFrame : N - 1;
@@ -192,6 +253,7 @@ const Controls: React.FC<{player: React.RefObject<PlayerRef | null>; payload: Pl
       if (e.key === 'ArrowLeft') step(-big);
       else if (e.key === 'ArrowRight') step(big);
       else if (e.key === ' ' || e.key === 'k') player.current?.toggle();
+      else if (e.key === 'm' && hasVoice) { if (player.current?.isMuted()) player.current.unmute(); else player.current?.mute(); }
       else if (e.key === 'Home') seek(lo);
       else if (e.key === 'End') seek(hi);
       else return;
@@ -206,6 +268,11 @@ const Controls: React.FC<{player: React.RefObject<PlayerRef | null>; payload: Pl
           <Button onClick={() => step(-1)} title="Back 1 frame (←)">−1 f</Button>
           <Button onClick={() => step(1)} title="Forward 1 frame (→)">+1 f</Button>
           <Button onClick={() => step(fps)} title="Forward 1 second (Shift+→)">+1 s</Button>
+          {hasVoice ? (
+            <Button variant="ghost" onClick={() => (muted ? player.current?.unmute() : player.current?.mute())} aria-pressed={muted} kbd="m" title="Mute or unmute the preview voice (M)">
+              {muted ? 'Unmute' : 'Mute'}
+            </Button>
+          ) : null}
         </div>
         <input
           type="range" min={0} max={N - 1} step={1} value={frame} aria-label="Scrub"
@@ -237,8 +304,11 @@ const Controls: React.FC<{player: React.RefObject<PlayerRef | null>; payload: Pl
           })}
         </div>
 
-        <Alert tone="info" title={payload.timing === 'estimated' ? 'Estimated timing' : 'Timing'}>
-          {payload.timingNote} The preview is silent; voice, sound effects and music are mixed in the full render.
+        <Alert tone="info" title={payload.timing === 'estimated' ? 'Estimated timing' : 'Real voice timing'}>
+          {payload.timingNote}{' '}
+          {hasVoice
+            ? `You hear the narration only (${payload.audio!.durationS.toFixed(1)} s); sound effects and music are mixed in the full render.`
+            : 'The preview is silent; use the real voice to hear the narration with exact timing. Sound effects and music are mixed in the full render.'}
         </Alert>
         {payload.missingAssets.length ? <Alert tone="danger" title="Missing assets">{payload.missingAssets.join(', ')}</Alert> : null}
         {payload.warnings.length ? (

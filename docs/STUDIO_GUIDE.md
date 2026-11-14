@@ -33,7 +33,31 @@ From Python: `from studio import serve; serve(8765, open_browser=False)`.
 - **Look:** a brand-neutral dark theme with its own accent colour and the shared OFL fonts
   (`public/shared/fonts/`). Brand colours appear only as data (brand dots, previews), never as the Studio's chrome.
 
-## Sections (keys 1–7, `?` for shortcuts)
+## Home and "Create a video" (everyday use)
+
+The Studio opens on **Home** (`#/home`): a greeting, one **Create a video** button and a card per production with a
+still (the rendered video's thumbnail, else the first preview still, else a contact sheet), the website, the shape,
+when it last changed and its status in plain words: *Getting started*, *Pick an idea*, *Needs your review*,
+*Making the video… 42%*, *Ready to post*, *Posted on LinkedIn*. A card opens the step that is next. With no
+productions it shows a first-video prompt (or **Add your website first** when there is no website yet).
+
+**Create a video** (`#/create`, `#/create/<production>`) walks the same workflow in six steps with a progress header:
+1 Website → 2 What to promote (product, price, audience, what viewers should do, closing line; length "Let the story
+decide" by default; vertical, wide or both) → 3 Pick an idea (the concepts task; three cards with hook, summary,
+scene count, estimated length and claims to check) → 4 Review (build the preview, look at every scene, approve it
+with your name; **Edit words and scenes** opens the Storyboard page with the frame-by-frame player) → 5 Make the
+video (render progress in plain stage names; stop; try again) → 6 Approve & share (watch, check the open review items
+with a note each, approve with your name; then download the videos, cover and captions, copy the title and
+description, and record **I posted it on…**). Every step uses the same endpoints as the pages below, so the
+rules are the same: a named person approves the preview and the video, nothing is approved or posted for you.
+The power-user pages are under **Advanced** in the sidebar (the old Dashboard is **Overview**).
+
+**Look:** one token system in `studio/web/src/styles.css` (spacing 4/8/12/16/24/32/48/64; type 28/22/16/14/13 with
+fixed line heights; controls 32/40/48 high; radii 8/12/16), Host Grotesk and Geist Mono (OFL, vendored in
+`public/shared/fonts/`), Lucide glyphs inlined in `studio/web/src/icons.tsx`, platform logos in
+`public/shared/logos/platform-*.svg` (records in `public/shared/assets.json`). Nothing loads from the network.
+
+## Sections (keys 1–9 follow the sidebar order, `?` for shortcuts)
 
 | # | Section | What it does |
 |---|---|---|
@@ -44,6 +68,8 @@ From Python: `from studio import serve; serve(8765, open_browser=False)`.
 | 5 | Render Monitor | stage pipeline, progress, chunk table (fps, tabs, RSS, swap Δ, page-outs), memory, scheduler queue, live log tail, events, errors, request cancel |
 | 6 | Preview & QA | before the render: the **preview review panel**; after it: final MP4 per format, voiceover, contact sheet, captions, audio report, QA checks grouped FAIL/WARN/PASS, branding/visual QA, claims and pronunciation, review flags with resolve (reviewer + note) |
 | 7 | Publishing | "Nothing has been published" until a PUBLISHED record exists; video, thumbnail, metadata, transcript, credits, platform metadata, package hash, Approve / Request changes / Reject, Export (approved only), Publish (approved only, type the production id), the brand's publishing status |
+
+**Library → Archived** lists what is in `output/_archive/` (state when archived, size) and **Restore…** moves a production (with its render jobs) or a loose job back, with your name; it refuses if the original folder exists again (never overwrites). CLI: `video-pipeline archive --list` / `archive --restore P --actor "Name"`.
 
 ### Dashboard
 
@@ -65,6 +91,21 @@ scene, estimated timings, no voice) and every quality-gate check with its status
 needs your name (an optional note says what you checked) and records a preview approval for that exact storyboard.
 It is refused if the gate FAILed or if the storyboard changed after the preview; build a new preview first. The
 approval allows the full render; it is not the final approval.
+
+### Websites: suggested facts
+
+**Add a website** also reads a few of the site's own pages (at most 6, one GET each, with a pause between
+them) and lists **Suggested facts**: prices (amount, currency, period, billing, with the plan name from the card
+title), numeric specs (storage, websites, bandwidth, RAM, CPU, users, projects…), guarantees and inclusions
+(money-back, uptime, free SSL/domain, backups, 24/7 support, free trial) and the site URL. They are stored in
+`knowledge/<brand>/candidates.json`, never in `facts.json`, and every one is NEEDS_REVIEW. Each shows the exact
+text it was found in, with the number highlighted. **Add as fact** opens the same "I checked this on the website"
+dialog (your name and the tick are required); the Studio reads the page again and adds the fact only if that exact
+text is still there. **Reject** removes it, and it is not suggested again. Both are recorded in the audit log.
+**Find facts on the website** runs the same search again for an existing brand. Prices that the page draws with
+JavaScript, shows in images or hides behind a monthly/yearly toggle may be missing: add those by hand.
+Routes: `GET /api/brands/<id>/candidates`, `POST …/candidates/extract` (task), `…/candidates/confirm
+{candidateId, reviewer, confirm: true, note?}`, `…/candidates/reject {candidateId, reviewer, note?}`.
 
 ### Publishing: per-brand status
 
@@ -107,6 +148,7 @@ Tests: `uv run pytest tests/test_studio_server.py tests/test_studio_token.py tes
 
 ```
 GET  /api/session | /api/dashboard[?brand=] | /api/brands | /api/storyboard/schema | /api/productions | /api/jobs | /api/tasks[/<id>]
+GET  /api/productions/cards                          Home grid: id, name, brand, state, format, thumbnail, job progress, preview_approved, has_concepts, posted[]
 POST /api/productions                                {brand, name?, brief{product, price, audience, format, duration_seconds, goal, tone, voice, cta, request}}
 GET  /api/productions/<id>  ·  /api/productions/<id>/outputs
 POST /api/productions/<id>/concepts | /select {conceptId} | /preview | /render          -> {task}

@@ -41,7 +41,9 @@ export function stateTone(s?: string | null): Tone {
 export const Badge: React.FC<{tone?: Tone; children: React.ReactNode; title?: string}> = ({tone = 'neutral', children, title}) => (
   <span className={`badge badge-${tone}`} title={title}>{children}</span>
 );
-export const State: React.FC<{s?: string | null}> = ({s}) => <Badge tone={stateTone(s)}>{s ? s.replace(/_/g, ' ') : '—'}</Badge>;
+/** Sentence case for a pipeline state ("AWAITING_APPROVAL" -> "Awaiting approval"); the raw value stays in the title. */
+export const sentence = (s: string) => { const t = s.replace(/_/g, ' ').toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); };
+export const State: React.FC<{s?: string | null}> = ({s}) => <Badge tone={stateTone(s)} title={s ?? undefined}>{s ? sentence(s) : '—'}</Badge>;
 
 // ---- layout ------------------------------------------------------------------------------------
 export const Card: React.FC<{title?: React.ReactNode; actions?: React.ReactNode; children?: React.ReactNode; className?: string; pad?: boolean}> =
@@ -49,7 +51,7 @@ export const Card: React.FC<{title?: React.ReactNode; actions?: React.ReactNode;
     <section className={`card ${className}`}>
       {(title || actions) && (
         <header className="card-h">
-          <h3>{title}</h3>
+          <h2 className="card-t">{title}</h2>
           <div className="card-actions">{actions}</div>
         </header>
       )}
@@ -72,7 +74,7 @@ export const KV: React.FC<{rows: [string, React.ReactNode][]}> = ({rows}) => (
 );
 
 export const Progress: React.FC<{value: number; tone?: Tone}> = ({value, tone = 'brand'}) => (
-  <div className="progress"><div className={`progress-bar pb-${tone}`} style={{width: `${Math.max(0, Math.min(1, value)) * 100}%`}} /></div>
+  <div className="progress"><div className={`progress-bar pb-${tone}`} style={{transform: `scaleX(${Math.max(0, Math.min(1, value))})`}} /></div>
 );
 
 export const Spinner: React.FC<{label?: string}> = ({label}) => <span className="spinner-wrap"><span className="spinner" />{label}</span>;
