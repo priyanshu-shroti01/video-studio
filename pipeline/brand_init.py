@@ -10,8 +10,9 @@ Reads the site's home page (one GET, plus the logo file) and drafts everything a
   public/brands/<id>/...          logo (SVG only: raster logos are listed for manual conversion) + fonts
   knowledge/<id>/facts.json       empty verified-facts file with the candidate pricing/product pages found on the site
 
-Nothing is invented: prices and features are never scraped into facts here. They are added by the
-claim-verification step (`python -m pipeline.intelligence facts --brand <id> --refresh`) from these pages.
+Nothing is invented: prices and features are never scraped into facts here. Suggestions found on the pages go to
+knowledge/<id>/candidates.json (pipeline/fact_extract.py, all NEEDS_REVIEW) until a person confirms each one; facts
+are re-checked by the claim-verification step (`python -m pipeline.intelligence facts --brand <id> --refresh`) from these pages.
 Refuses to touch an existing brand (no overwrites)."""
 from __future__ import annotations
 
@@ -227,6 +228,14 @@ def init_brand(brand_id: str, site: str, name: str | None = None, industry: str 
     review += [f"brand colour {colour} ({colour_src})", "logo licence is NEEDS_REVIEW in assets.json",
                "only one logo variant: add on-light and mark variants", f"pronunciation guess: {pron['entries'][0]}",
                f"{len(pages)} candidate fact pages found; facts are empty until verified"]
+    suggested = None
+    try:   # suggested facts (knowledge/<id>/candidates.json, all NEEDS_REVIEW) for a person to confirm; best effort
+        from .fact_extract import extract_for_brand
+        suggested = extract_for_brand(brand_id, fetch=fetch, prefetched={base: body})
+        review.append(f"{suggested['count']} suggested facts found on the website: confirm or reject each one")
+    except Exception as e:  # noqa: BLE001 - the draft stands without suggestions
+        review.append(f"no suggested facts ({e}): use \"Find facts on the website\" later")
     return {"brand": brand_id, "name": name, "site": base, "files": [f"brands/{brand_id}/", f"public/brands/{brand_id}/",
                                                                       f"knowledge/{brand_id}/facts.json"],
-            "validation_errors": errs, "review": review, "fact_pages": pages}
+            "validation_errors": errs, "review": review, "fact_pages": pages,
+            "suggested_facts": suggested["count"] if suggested else 0}
