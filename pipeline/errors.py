@@ -7,15 +7,43 @@ class PipelineError(Exception):
     transient = False
     exit_code = 1
 
-    def __init__(self, message: str, *, detail: str | None = None, transient: bool | None = None):
+    def __init__(self, message: str, *, detail: str | None = None, transient: bool | None = None,
+                 hint: str | None = None, action: str | None = None):
         super().__init__(message)
         self.message = message
         self.detail = detail
         if transient is not None:
             self.transient = transient
+        self._hint, self._action = hint, action     # explicit ones win over the catalogue (pipeline/error_hints.py)
+
+    def explain(self) -> dict:
+        """{"hint": plain sentence | None, "action": action id | None} for a non-technical user."""
+        if self._hint:
+            return {"hint": self._hint, "action": self._action}
+        from .error_hints import explain
+        found = explain(self.code, self.message, self.detail)
+        return found or {"hint": None, "action": self._action}
+
+    @property
+    def hint(self) -> str | None:
+        return self.explain()["hint"]
+
+    @property
+    def action(self) -> str | None:
+        return self.explain()["action"]
 
     def to_dict(self) -> dict:
-        return {"code": self.code, "message": self.message, "detail": self.detail, "transient": self.transient}
+        return {"code": self.code, "message": self.message, "detail": self.detail, "transient": self.transient,
+                **self.explain()}
+
+    def cli_lines(self) -> list[str]:
+        """What the CLI prints on stderr: the error, its detail (trimmed), then the plain hint."""
+        lines = [f"error [{self.code}]: {self.message}"]
+        if self.detail:
+            lines.append("  " + self.detail.strip().replace("\n", "\n  ")[-3000:])
+        if (h := self.hint):
+            lines.append(f"hint: {h}")
+        return lines
 
 
 class ConfigError(PipelineError):
@@ -76,3 +104,8 @@ class NotFound(PipelineError):
 
 class QAFailed(PipelineError):
     code, exit_code = "QA_FAILED", 3
+
+
+class PreflightError(PipelineError):
+    """Raised by pipeline/preflight.py before heavy work when the Mac can't do it right now."""
+    code = "PREFLIGHT"

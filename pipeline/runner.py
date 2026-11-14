@@ -289,6 +289,10 @@ class JobRunner:
         try:
             g = heavy.__enter__()
             self.log(f"scheduler: render granted after {g.waited_s}s ({g.available_mb} MB available)")
+            self._free_llm_runtime()
+            # checked after the LLM is stopped, so the memory it held counts as free
+            from .preflight import preflight
+            preflight("render", need_ocr=cfg.get("qa", {}).get("visual", True), log=self.log)
             fmts = cfg["formats"]
             for fi, fmt in enumerate(fmts):
                 s = R.RenderSettings.from_config(cfg.get("render", {}), fmt)
@@ -312,6 +316,18 @@ class JobRunner:
         atomic_write_json(self.d["reports"] / "render-report.json", {"bundle": bundle.name, "formats": reports})
         ctx["videos"] = videos
         self.done("RENDERING", ih, t0, files, {"videos": videos})
+
+    def _free_llm_runtime(self):
+        """Stop a local AI runtime the pipeline started (pid file) so the render gets its memory. Runs after the
+        render grant, so no LLM work can be using it; a server the user started themselves is left alone."""
+        try:
+            from .intelligence.providers import stop_pipeline_runtime
+            r = stop_pipeline_runtime()
+        except Exception as e:  # noqa: BLE001 - never fail a render over this
+            self.log(f"could not stop the local AI runtime before rendering: {e}", level="warn")
+            return
+        if r.get("stopped"):
+            self.log(f"stopped the pipeline-started local AI runtime (pid {r.get('pid')}) to free memory for rendering")
 
     def stage_post_processing(self, ctx):
         cfg, tl, tm = self.cfg, ctx["tl"], ctx["timing"]
@@ -412,6 +428,8 @@ class JobRunner:
         cfg, tl, tm = self.cfg, ctx["tl"], ctx["timing"]
         t0 = self.begin("QA", sha256_json({"finals": ctx["finals"], "t": time.time()}))
         q = cfg.get("qa", {})
+        from .preflight import preflight
+        preflight("QA", need_ocr=q.get("visual", True), log=self.log)
         words = tm["words"]
         reports = []
         visual_by_fmt: dict = {}

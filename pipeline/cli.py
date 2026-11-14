@@ -280,9 +280,7 @@ def main(argv: list[str] | None = None) -> int:
         if a.json:
             print(json.dumps({"ok": False, "error": e.to_dict()}, indent=1))
         else:
-            _err(f"error [{e.code}]: {e.message}")
-            if e.detail:
-                _err("  " + e.detail.strip().replace("\n", "\n  ")[-3000:])
+            _err("\n".join(e.cli_lines()))
         return e.exit_code
     except KeyboardInterrupt:
         _err("interrupted")

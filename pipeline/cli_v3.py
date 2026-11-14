@@ -65,10 +65,31 @@ def register(sub) -> dict:
     x = bs.add_parser("init", help="draft brands/<id> + facts skeleton from the site's home page (never overwrites)")
     x.add_argument("--id", required=True); x.add_argument("--site", required=True); x.add_argument("--name")
     x.add_argument("--industry", default="general", help="e.g. web-hosting (selects the creative template pack)")
-    return {"production": cmd_production, "review": cmd_review, "approve": cmd_approve, "reject": cmd_decide,
+    cmds = {"production": cmd_production, "review": cmd_review, "approve": cmd_approve, "reject": cmd_decide,
             "request-changes": cmd_decide, "export": cmd_export, "publish": cmd_publish, "backup": cmd_backup,
             "scheduler": cmd_scheduler, "music": cmd_music, "studio": cmd_studio, "brand": cmd_brand, "archive": cmd_archive, "video-out": cmd_video_out, **_social_register(sub),
             **_component_register(sub)}
+    return {k: _with_hint(fn) for k, fn in cmds.items()}
+
+
+def _with_hint(fn):
+    """Human-readable errors for these commands: the error, its detail, then the catalogue's plain hint
+    (pipeline/error_hints.py). --json output is left to pipeline/cli.py (to_dict() carries hint/action)."""
+    import functools
+    import sys
+
+    from .errors import PipelineError
+
+    @functools.wraps(fn)
+    def run(a):
+        try:
+            return fn(a)
+        except PipelineError as e:
+            if getattr(a, "json", False):
+                raise
+            print("\n".join(e.cli_lines()), file=sys.stderr)
+            return e.exit_code
+    return run
 
 
 def _component_register(sub) -> dict:
