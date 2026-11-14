@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Any, api, fileUrl, waitTask} from '../api';
 import {Alert, Badge, Button, Card, Dialog, Empty, ErrorBox, Field, WPS, estSeconds, isTyping, toast, useApi, words} from '../ui';
 import type {Nav} from '../app';
+import {PreviewPlayer} from './player';
 
 const EDITABLE = ['DRAFT', 'STORYBOARD_READY', 'PREVIEW_READY', 'CHANGES_REQUESTED', 'FAILED'];
 const RENDERABLE = ['STORYBOARD_READY', 'PREVIEW_READY', 'FAILED'];
@@ -251,6 +252,12 @@ export const StoryboardEditor: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
           ) : <Empty>Select a scene.</Empty>}
         </div>
       )}
+
+      {p.files?.['storyboard.json'] ? (
+        <Card title="Watch every frame" className="mt" actions={<span className="muted sm">plays the real engine · estimated timing until the voice is recorded</span>}>
+          <PreviewPlayer productionId={pid} />
+        </Card>
+      ) : null}
 
       {p.preview && (
         <Card title="Low-cost preview" className="mt" actions={<span className="muted sm">{p.preview.note} ≈ {p.preview.duration_estimate_s}s · built in {p.preview.seconds}s</span>}>

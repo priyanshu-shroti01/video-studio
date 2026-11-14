@@ -3,6 +3,12 @@
 ## Unreleased
 
 ### Added
+- **Watch every frame:** the Storyboard page plays the real engine in the browser (play, scrub, step a frame or a
+  second, loop a scene, both formats) before rendering, with estimated timing until the voice is recorded.
+- **Install with one command** (`install.sh`) and open with `videostudio`; no VS Code, Git or developer tools.
+- **No more terminal for daily work:** the AI model starts and stops by itself; websites and facts, library actions
+  and a setup checklist are in the Studio; errors say what to do next; memory, disk and OCR are checked before
+  rendering and QA.
 - **Staged entrances:** a recording or diagram that appears before its message is first shown alone, centred, then
   moves to its place (sideways in 16:9, up in 9:16) just before the message enters, so it never waits off to one
   side for text that hasn't arrived.

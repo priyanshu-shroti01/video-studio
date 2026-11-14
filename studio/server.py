@@ -44,6 +44,11 @@ from pipeline import api
 from pipeline.errors import ConfigError, NotFound, PathError, PipelineError, StateError
 from pipeline.paths import ROOT, rel
 
+
+def _player_props(pid: str, fmt: str | None):
+    from pipeline.preview_player import player_props
+    return player_props(pid, fmt)
+
 STUDIO_DIR = Path(__file__).resolve().parent
 WEB_DIR = STUDIO_DIR / "web"
 DIST_DIR = WEB_DIR / "dist"
@@ -52,7 +57,7 @@ MAX_BODY = 4 * 1024 * 1024
 PID_RE = r"P\d{8}-\d{6}-[0-9a-f]{5}"
 JOB_RE = r"\d{8}-\d{6}-[0-9a-f]{6}"
 TASK_RE = r"[0-9a-f]{12}"
-PAGE_CSP = ("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; "
+PAGE_CSP = ("default-src 'none'; script-src 'self'; style-src 'self' 'sha256-gv/jBVmnD9LQSRVG0n8AQ31cGwpFmZCCHvcOF0Z+Em8='; img-src 'self' data: blob:; "
             "media-src 'self' blob:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; "
             "frame-ancestors 'none'")
 FILE_CSP = "sandbox; default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; font-src 'self'"
@@ -738,6 +743,8 @@ def _routes():
         ("POST", r"/api/productions", lambda h, m, b: create_production(b)),
         ("GET", rf"/api/productions/({P})", lambda h, m, b: production_detail(m[1], h.server.tasks)),
         ("GET", rf"/api/productions/({P})/outputs", lambda h, m, b: production_outputs(m[1])),
+        # the exact render props (estimated timing) for the in-browser frame-accurate preview; never relified
+        ("GET", rf"/api/productions/({P})/player-props", lambda h, m, b: _player_props(m[1], h.query.get("format") or None)),
         ("POST", rf"/api/productions/({P})/concepts",
          lambda h, m, b: {"task": h.server.tasks.start("concepts", m[1], lambda: api.generate_concepts(m[1]))}),
         ("POST", rf"/api/productions/({P})/select", lambda h, m, b: {"task": h.server.tasks.start(
