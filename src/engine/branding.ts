@@ -2,6 +2,7 @@
  * Branding geometry (pure): logo aspects, the brand bar, and the v2 watermark (policy → asset, corner
  * placement per format, duplicate-branding suppression). Shared by the renderer and the QA manifest.
  */
+import {captionLook, captionMetrics} from './captions';
 import {captionBandTop, legacyLogoAspects} from './layout';
 import {DIMENSIONS} from './contract';
 import {AspectEnv, Rect} from './geometry';
@@ -102,13 +103,14 @@ export const planWatermark = (props: RenderProps, env: AspectEnv, busyRaw: [numb
   if (position.startsWith('top')) y = Math.max(m, D.topInset);
   else {
     const cap = props.captions;
-    const capBottom = cap.enabled ? H - H * cap.bottomFrac : H;
+    const capM = captionMetrics(props.format, cap);              // classic: H·bottomFrac / W·maxWidthFrac, as before
+    const capBottom = cap.enabled ? H - capM.bottom : H;
     if (props.format === 'short') {
       // Shorts: between the caption box and the platform overlay (bottom ~20% is covered by the player UI)
       y = Math.max(H * (1 - D.overlayFrac) - h - m * 0.5, capBottom + 12);
     } else {
       y = H - m - h;
-      const colX0 = (W * (1 - cap.maxWidthFrac)) / 2;
+      const colX0 = captionLook(cap.style) === 'classic' ? (W * (1 - cap.maxWidthFrac)) / 2 : capM.x;
       const colX1 = W - colX0;
       const overlapsCol = x < colX1 && x + w > colX0;
       if (cap.enabled && overlapsCol && y < capBottom && y + h > captionBandTop(props.format, cap)) y = capBottom + 8;
