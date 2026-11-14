@@ -3,7 +3,7 @@ name = "video-pipeline"
 version = "0.4.0"
 description = "Local-first video production pipeline: local TTS (Kokoro/Piper) -> timeline -> Remotion -> FFmpeg -> QA"
 requires-python = ">=3.12"
-license = { file = "LICENSE" }
+license = { text = "PolyForm-Shield-1.0.0" }
 # Runtime deps are deliberately tiny: everything else is the stdlib + ffmpeg/ffprobe + node/Remotion.
 dependencies = [
     "av==19.0.2",

@@ -1,8 +1,9 @@
 # Licensing (v0.4.0)
 
-**This project's own code is proprietary.** Copyright (c) 2026 Priyanshu Shroti. All rights reserved. See
-[LICENSE](../LICENSE). Third-party components keep their own licences, listed below; nothing in this repository
-changes them.
+**This project's own code is source-available under the PolyForm Shield License 1.0.0.** Copyright (c) 2026
+Priyanshu Shroti. Anyone may use it, businesses included; nobody may use it to compete (for example by selling it or
+hosting it as a service). See [LICENSE](../LICENSE) and the plain-language summary in [NOTICE.md](../NOTICE.md).
+Third-party components keep their own licences, listed below; nothing in this repository changes them.
 
 This file covers what each third-party component permits for **commercial** use. Every job also writes
 `output/<job>/assets/manifest.json` (sha256, source, licence, attribution of every asset used); anything

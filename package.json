@@ -2,7 +2,7 @@
   "name": "video-studio",
   "version": "0.3.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "PolyForm-Shield-1.0.0",
   "description": "Zero-cost local video workspace: Remotion + edge-tts + FFmpeg + CC0 sound layer",
   "scripts": {
     "studio": "remotion studio",
