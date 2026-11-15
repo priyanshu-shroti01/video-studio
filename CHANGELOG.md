@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.5.1 — 2026-11-15
+
+A help chat inside the Studio, calmer narration, steadier footage, recovery from killed renders, a clean
+security page, and two demo films made with Video Studio itself.
+
 ### Added
 - **Demo films made with Video Studio:** a 30 s teaser (README GIF, `docs/images/teaser.gif`) and an 88 s
   walkthrough of the whole Studio, both in 9:16 and 16:9, attached to the v0.5.0 release.

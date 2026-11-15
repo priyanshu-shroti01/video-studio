@@ -1,4 +1,4 @@
-# Architecture (v0.5.0)
+# Architecture (v0.5.1)
 
 A local-first, multi-brand creative production platform. A **product brief** becomes concepts, a storyboard, a
 reviewed preview, a local voice, an animated video, a QA report and an approval package. Everything runs on this
