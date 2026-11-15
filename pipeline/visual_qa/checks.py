@@ -54,6 +54,18 @@ def _intended_label_boxes(sc: dict, t: float) -> list[tuple]:
     return out
 
 
+def _hud_label_boxes(m: dict, t: float) -> list[tuple]:
+    """HUD text runs on screen at t (v3): storyboard copy too (a chip named "Template" is the film's own word)."""
+    out = []
+    for el in (m.get("hud") or {}).get("elements", []):
+        for tx in el.get("texts", []):
+            if tx["from"] <= t <= tx["to"] and FORBIDDEN_LABELS.search(tx.get("text", "")):
+                bb = tx["bbox"]
+                pad = 20
+                out.append((bb["x"] - pad, bb["y"] - pad, bb["w"] + 2 * pad, bb["h"] + 2 * pad, tx["text"]))
+    return out
+
+
 def _is_intended(item, boxes: list[tuple]) -> bool:
     """OCR text is intended copy only if it lies inside such a box AND its forbidden word is in that box's text."""
     words = {w.lower() for w in FORBIDDEN_LABELS.findall(item.text)}
@@ -275,6 +287,36 @@ def caption_ui_check(m: dict) -> Check:
                  "; ".join(bad) if bad else f"captions inside {left:.0f}–{right:.0f}px, above {bottom / H:.0%} of height")
 
 
+def hud_checks(m: dict) -> list[Check]:
+    """v3 HUD (layout manifest `hud`): no scene block under a HUD element while both are on screen (the planner keeps
+    content below the HUD rows visible in each scene; camera moves stay inside the reserve), every element inside the
+    frame's side margins and out of the caption band, and every HUD text fitting its box."""
+    hud = m.get("hud")
+    if not hud:
+        return []
+    cs: list[Check] = []
+    clash, outside, in_band = [], [], []
+    W = m["width"]
+    for el in hud["elements"]:
+        bb = el["bbox"]
+        if bb["x"] < m["safeArea"]["x"] - 2 or bb["x"] + bb["w"] > W - m["safeArea"]["x"] + 2 or bb["y"] < 0:
+            outside.append(el["id"])
+        bands = [sc.get("captionBand", m["captionBand"]) for sc in m["scenes"] if _overlap_ranges(el["visibleRanges"], [(sc["start"], sc["end"])])]
+        if any(_intersects(bb, band) for band in bands):
+            in_band.append(el["id"])
+        for sc in m["scenes"]:
+            for b in sc["blocks"]:
+                win = [(b["visible"]["from"], b["visible"]["to"])]
+                if _overlap_ranges(el["visibleRanges"], win) and _intersects(b["bbox"], bb):
+                    clash.append(f"{sc['id']}/{b['type']} under HUD {el['id']}")
+    cs.append(Check("layout.hud_clear", "visual", FAIL if clash else PASS, True,
+                    "; ".join(clash[:5]) if clash else f"{len(hud['elements'])} HUD element(s) never cover scene content"))
+    cs.append(Check("layout.hud_safe", "visual", FAIL if outside or in_band else PASS, True,
+                    (f"outside the side margins: {outside}" if outside else "") + ("; " if outside and in_band else "") +
+                    (f"in the caption band: {in_band}" if in_band else "") or "HUD inside the safe margins, clear of the captions"))
+    return cs
+
+
 def static_checks(m: dict) -> list[Check]:
     cs: list[Check] = []
     overflow, outside, in_caption, aspect_bad = [], [], [], []
@@ -287,7 +329,7 @@ def static_checks(m: dict) -> list[Check]:
                     overflow.append(f"{sc['id']}/{b['type']}: {t['text'][:40]!r} needs {t['estWidth']:.0f}px of {t['maxWidth']:.0f}px")
             if not _rect_inside(b["bbox"], m["safeArea"], tol=CAMERA_TOL):
                 outside.append(f"{sc['id']}/{b['type']}")
-            if _intersects(b["bbox"], m["captionBand"]):
+            if _intersects(b["bbox"], sc.get("captionBand", m["captionBand"])):   # headline style: per scene (top)
                 in_caption.append(f"{sc['id']}/{b['type']}")
             for lg in b.get("logos", []):
                 if lg.get("expectedAspect") and abs(lg["aspect"] - lg["expectedAspect"]) / lg["expectedAspect"] > 0.03:
@@ -297,6 +339,10 @@ def static_checks(m: dict) -> list[Check]:
                 media_n += 1
                 if md.get("expectedAspect") and abs(md["aspect"] - md["expectedAspect"]) / md["expectedAspect"] > 0.01:
                     media_bad.append(f"{sc['id']}: {md['asset']} box {md['aspect']:.3f} vs clip {md['expectedAspect']:.3f}")
+    for el in (m.get("hud") or {}).get("elements", []):
+        for t in el.get("texts", []):
+            if t.get("overflow"):
+                overflow.append(f"HUD {el['id']}: {t['text'][:40]!r} needs {t['estWidth']:.0f}px of {t['maxWidth']:.0f}px")
     cs.append(Check("layout.text_overflow", "visual", FAIL if overflow else PASS, True,
                     "; ".join(overflow[:5]) if overflow else "every text fits its box"))
     cs.append(Check("layout.safe_area", "visual", FAIL if outside else PASS, True,
@@ -305,6 +351,7 @@ def static_checks(m: dict) -> list[Check]:
                     f"blocks in caption band: {in_caption}" if in_caption else "caption band kept clear"))
     if m.get("format") == "short":
         cs.append(caption_ui_check(m))
+    cs += hud_checks(m)
     cs.append(Check("brand.logo_aspect", "branding", FAIL if aspect_bad else PASS, True,
                     "; ".join(aspect_bad) if aspect_bad else "every logo drawn at its intrinsic aspect"))
     if media_n:
@@ -383,7 +430,7 @@ def frame_checks(m: dict, video: Path, theme: dict, workdir: Path,
                     logo_bad.append(f"{sc['id']}: {lg['variant']} coverage {cov:.3f} brand-colour {col:.4f}"
                                     f"{' clipped' if clipped else ''}")
         media = _media_rects(sc, t)
-        intended = _intended_label_boxes(sc, t)
+        intended = _intended_label_boxes(sc, t) + _hud_label_boxes(m, t)
         for item in items:
             if FORBIDDEN_LABELS.search(item.text) and not _is_intended(item, intended):
                 # text inside a footage viewport is the recorded product UI, not an engine label: advisory only

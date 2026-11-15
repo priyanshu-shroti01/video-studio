@@ -1,0 +1,84 @@
+{
+  "title": "HUD + caption tones fixture (engine test data, not a published film)",
+  "structure": ["hook", "point", "resolution", "cta"],
+  "hud": {
+    "elements": [
+      {"id": "stakes", "kind": "stakes", "parts": [{"value": 4, "suffix": "s", "label": "to load", "tone": "danger"}, {"label": "on mobile"}]},
+      {"id": "step", "kind": "header", "prefix": "Step", "steps": ["The request", "Caching", "The queue"]},
+      {"id": "series", "kind": "progress", "label": "Day", "total": 30, "value": 2},
+      {"id": "terms", "kind": "chips"}
+    ]
+  },
+  "speakers": {"VISITOR": {"tone": "info"}, "YOU": {"label": "You", "tone": "brand"}},
+  "scenes": [
+    {
+      "id": "hook", "purpose": "hook", "mood": "danger", "camera": "none",
+      "narration": "Why does this shop take 4 seconds to load on mobile? Day 3 of the speed challenge. Let's find out.",
+      "speaker": [{"name": "VISITOR"}, {"name": "YOU", "from": "@word:Day"}],
+      "captionTones": {"4": "danger", "seconds": "danger"},
+      "hud": [
+        {"at": "@word:4", "target": "stakes", "op": "show"},
+        {"at": "@word:Day", "target": "series", "op": "show"},
+        {"at": "@word:3", "target": "series", "op": "advance"}
+      ],
+      "blocks": [
+        {"type": "counter", "to": 4, "suffix": "s", "label": "to load one page", "tone": "danger", "at": "@word:4", "countEnd": "@word:seconds"},
+        {"type": "pill", "text": "Speed challenge", "tone": "brand", "at": "@word:speed"},
+        {"type": "text", "text": "Let's find out", "size": "m", "tone": "muted", "at": "@word:find"}
+      ]
+    },
+    {
+      "id": "request", "purpose": "point", "camera": "push-in",
+      "narration": "Step 1: the request. Every visit asks the server to rebuild the page from scratch.",
+      "captionTones": {"scratch": "danger"},
+      "hud": [
+        {"at": "@word:Step", "target": "step", "op": "show"},
+        {"at": "@word:request", "target": "terms", "op": "add", "text": "Request"}
+      ],
+      "blocks": [
+        {"type": "pill", "text": "Every visit", "tone": "info", "at": "@word:visit"},
+        {"type": "kinetic-text", "words": "Rebuilt from scratch", "emphasis": ["scratch"], "size": "l", "at": "@word:server"}
+      ]
+    },
+    {
+      "id": "caching", "purpose": "point", "camera": "drift",
+      "narration": "Step 2: caching. A cache keeps a ready copy, and a TTL decides how long it stays fresh.",
+      "captionTones": {"fresh": "success"},
+      "hud": [
+        {"at": "@word:caching", "target": "step", "op": "advance"},
+        {"at": "@word:cache", "target": "terms", "op": "add", "text": "Cache"},
+        {"at": "@word:TTL", "target": "terms", "op": "add", "text": "TTL"}
+      ],
+      "blocks": [
+        {"type": "kinetic-text", "words": "A ready copy, kept fresh", "emphasis": ["ready", "fresh"], "size": "l", "at": "@word:ready"},
+        {"type": "pill", "text": "TTL decides how long", "tone": "info", "at": "@word:decides"}
+      ]
+    },
+    {
+      "id": "queue", "purpose": "resolution", "mood": "brand", "camera": "push-in",
+      "narration": "Step 3: the queue. Slow jobs wait in line, so the page loads in 1 second. Fixed.",
+      "captionTones": {"Slow": "danger", "Fixed": "success"},
+      "hud": [
+        {"at": "@word:queue", "target": "step", "op": "advance"},
+        {"at": "@word:queue", "target": "terms", "op": "add", "text": "Queue"},
+        {"at": "@word:1", "target": "stakes", "op": "set", "part": 0, "value": 1, "tone": "success"}
+      ],
+      "blocks": [
+        {"type": "text", "text": "Slow jobs wait in line", "size": "m", "tone": "muted", "at": "@word:wait"},
+        {"type": "counter", "from": 4, "to": 1, "suffix": "s", "label": "to load one page", "tone": "success", "at": "@word:loads", "countEnd": "@word:second"},
+        {"type": "pill", "text": "Fixed", "tone": "success", "stamp": true, "at": "@word:Fixed"}
+      ]
+    },
+    {
+      "id": "cta", "purpose": "cta", "camera": "none",
+      "narration": "Make your shop fast at shrotihost.in.",
+      "hud": [
+        {"at": "@word:Make", "target": "step", "op": "hide"},
+        {"at": "@word:Make", "target": "series", "op": "hide"}
+      ],
+      "blocks": [
+        {"type": "outro", "url": "shrotihost.in", "cta": "Make your shop fast", "at": "@word:Make", "urlAt": "@word:shrotihost"}
+      ]
+    }
+  ]
+}

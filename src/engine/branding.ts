@@ -72,7 +72,7 @@ const r3 = (x: number) => Math.round(x * 1000) / 1000;
  * Resolves the watermark: asset + aspect, rect (output px) and visibility. `busy` = intervals where a
  * logo / cta / logo-sting / outro block or the brand bar is visible (computed by plan.ts).
  */
-export const planWatermark = (props: RenderProps, env: AspectEnv, busyRaw: [number, number][]): WatermarkPlan | null => {
+export const planWatermark = (props: RenderProps, env: AspectEnv, busyRaw: [number, number][], topBusy: [number, number][] = []): WatermarkPlan | null => {
   const wm = props.watermark;
   if (props.contractVersion < 2 || !wm || wm.policy === 'none') return null;
   const {width: W, height: H} = DIMENSIONS[props.format];
@@ -98,13 +98,17 @@ export const planWatermark = (props: RenderProps, env: AspectEnv, busyRaw: [numb
     w = h * aspect;
   }
   const position: WatermarkPosition = wm.policy === 'platform' ? D.platform : (wm.position ?? D.platform);
+  // v3: the HUD owns the top edge; a top watermark hides while any HUD element is on screen
+  if (position.startsWith('top') && topBusy.length) busyRaw = [...busyRaw, ...topBusy];
   const x = position.endsWith('left') ? m : position.endsWith('right') ? W - m - w : (W - w) / 2;
   let y: number;
   if (position.startsWith('top')) y = Math.max(m, D.topInset);
   else {
     const cap = props.captions;
     const capM = captionMetrics(props.format, cap);              // classic: H·bottomFrac / W·maxWidthFrac, as before
-    const capBottom = cap.enabled ? H - capM.bottom : H;
+    const top = cap.enabled && captionLook(cap.style) === 'headline';
+    // v3 headline captions sit at the top: the bottom of the content area takes the caption box's place
+    const capBottom = top ? captionBandTop(props.format, cap) : cap.enabled ? H - capM.bottom : H;
     if (props.format === 'short') {
       // Shorts: between the caption box and the platform overlay (bottom ~20% is covered by the player UI)
       y = Math.max(H * (1 - D.overlayFrac) - h - m * 0.5, capBottom + 12);
@@ -113,7 +117,7 @@ export const planWatermark = (props: RenderProps, env: AspectEnv, busyRaw: [numb
       const colX0 = captionLook(cap.style) === 'classic' ? (W * (1 - cap.maxWidthFrac)) / 2 : capM.x;
       const colX1 = W - colX0;
       const overlapsCol = x < colX1 && x + w > colX0;
-      if (cap.enabled && overlapsCol && y < capBottom && y + h > captionBandTop(props.format, cap)) y = capBottom + 8;
+      if (cap.enabled && !top && overlapsCol && y < capBottom && y + h > captionBandTop(props.format, cap)) y = capBottom + 8;
     }
     y = Math.min(y, H - h - 4);
   }

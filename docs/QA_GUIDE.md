@@ -20,9 +20,9 @@ TTS), builds `preview/contact-sheet.jpg`, and writes `preview/gate.json` and `pr
 | `preview.repetition` | FAIL: two consecutive scene stills look alike |
 | `storyboard.hero_visual` | FAIL: a scene has only headline/text/pill blocks (a hook may lead with a headline or kinetic text) |
 | `storyboard.invented_labels` | FAIL: on-screen "Label: ₹N"-style text (invented UI) |
-| `storyboard.numbers_verified` | FAIL: a number on screen (including `price.amount` and `plan-card.price`) that is not in `knowledge/<brand>/facts.json` |
+| `storyboard.numbers_verified` | FAIL: a number on screen (including `price.amount`, `plan-card.price`, HUD stakes values and digits in HUD chips / steps / labels) that is not in `knowledge/<brand>/facts.json` |
 | `layout.overflow` | FAIL: text overflows its box in the engine's layout manifest |
-| `storyboard.narration_sync` | FAIL: narration runs more than 3 s with no visual event, or a number appears more than 0.3 s before it is spoken; WARN above 2.5 s (`pipeline/sync_check.py`) |
+| `storyboard.narration_sync` | FAIL: narration runs more than 3 s with no visual event, or a number appears more than 0.3 s before it is spoken; WARN above 2.5 s (`pipeline/sync_check.py`). HUD changes count as visual events, and a HUD stakes value counts as a number shown (when its part appears, or when a count lands); step numbers and series counts ("STEP 2", "DAY 03 / 30") are structure, not claims |
 | `storyboard.variety` | WARN: fewer than 5 distinct block types in the video |
 | `storyboard.backdrop_rhythm` | WARN: the same backdrop in more than 3 consecutive scenes |
 
@@ -94,7 +94,8 @@ uv run video-pipeline qa --job-id <JOB_ID>      # exit 0 = PASS/WARN, 3 = FAIL
 
 | Id | Critical | Fails when |
 |---|---|---|
-| `layout.text_overflow` / `layout.safe_area` / `layout.caption_band` | yes | text overflows its box, a block leaves the safe area, or a block enters the caption band (layout manifest; edges within 0.5 px count as touching, not overlapping) |
+| `layout.text_overflow` / `layout.safe_area` / `layout.caption_band` | yes | text overflows its box (HUD texts included), a block leaves the safe area, or a block enters the caption band (layout manifest; edges within 0.5 px count as touching, not overlapping). With `headline` captions every scene has its own band at the top of the content area (`scenes[].captionBand`) |
+| `layout.hud_clear` / `layout.hud_safe` | yes | only when the props have a HUD (contract v3): a scene block sits under a HUD element while both are on screen, or a HUD element leaves the side margins or touches a caption band (docs/MOTION.md#hud-contract-v3) |
 | `ocr.prices_urls_exact` | yes | on-device OCR (Apple Vision) doesn't read every price and URL back digit-exactly |
 | `ocr.titles_legible` | no | a title reads back weakly |
 | `ocr.no_template_labels` | yes | "template", "preview", "watermark", "lorem", "made with" … text appears in a frame |

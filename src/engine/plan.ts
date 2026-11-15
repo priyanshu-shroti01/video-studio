@@ -7,6 +7,8 @@ import {DIMENSIONS, isV2} from './contract';
 import {AspectEnv, Rect} from './geometry';
 import {Box, captionBandTop, FORMAT_SPEC, firstInternalTime, LayoutOpts, layoutScene, SceneLayout} from './layout';
 import {backdropOf, isPolished, splitPanel} from './look';
+import {captionLook, captionMetrics} from './captions';
+import {hudContentTop, HudPlan, planHud} from './hud';
 import {appearTime, DUR, LEAD} from './motion/durations';
 import {cameraReserve} from './motion/transitions';
 import {MotionPreset, presetFor} from './motion/presets';
@@ -31,6 +33,8 @@ export type Env = {
   aspects: AspectEnv;
   brandBar: (Rect & {from: number; to: number}) | null;
   watermark: WatermarkPlan | null;
+  /** v3: the persistent HUD (null without one, or below contract v3) */
+  hud: HudPlan | null;
 };
 
 export type ScenePlan = {
@@ -51,7 +55,21 @@ export type ScenePlan = {
   /** staged entrance: the blocks that appear first are shown alone (centred, as large as the area allows), then move
    *  to their final place during [t0, t1], just before the later blocks enter. Undefined when not staged. */
   stage?: StagePlan;
+  /** v3: what sits above the content in this scene (HUD bottom, headline caption band) */
+  tops: SceneTops;
 };
+
+/** v3: the top of a scene, from the frame edge down: brand bar or safe top → HUD rows visible during the scene →
+ *  the headline caption band (style 'headline') → content (`topMin`). Pure; shared by planner, captions and manifest. */
+export type SceneTops = {
+  /** y below which content may start because of the HUD (HUD bottom + HUD.gapBelow); undefined = no HUD here */
+  hud?: number;
+  /** the headline caption band of this scene (output px) */
+  headline?: Rect;
+  /** content top required by the above (undefined = the layout's own top) */
+  topMin?: number;
+};
+export const HEADLINE_GAP = 24;
 
 /** Per early block: where it starts (absolute px) and how much larger than its final box it is. */
 export type StagePlan = {t0: number; t1: number; from: Record<number, {x: number; y: number; scale: number}>};
@@ -116,8 +134,44 @@ export const makeEnv = (props: RenderProps): Env => {
       if (isBrandingBlock(b, props.theme.logo)) busy.push([Math.max(s.start - 0.15, vis[i].from - 0.1), vis[i].to + 0.05]);
     });
   }
-  const watermark = v2 ? planWatermark(props, aspects, busy) : null;
-  return {props, v2, polish, width, height, duration: props.durationInFrames / props.fps, aspects, brandBar: bb, watermark};
+  const hud = v2 ? planHud(props, bb) : null;
+  const topBusy: [number, number][] = hud ? hud.ranges.map(([a, b]) => [a - 0.1, b + 0.1]) : [];
+  const watermark = v2 ? planWatermark(props, aspects, busy, topBusy) : null;
+  return {props, v2, polish, width, height, duration: props.durationInFrames / props.fps, aspects, brandBar: bb, watermark, hud};
+};
+
+/** v3 scene tops (see SceneTops). Without a HUD and with a bottom caption style this is `{}` (layout unchanged). */
+export const sceneTops = (env: Env, scene: Pick<Scene, 'start' | 'end'>): SceneTops => {
+  const {props} = env;
+  const out: SceneTops = {};
+  const spec = FORMAT_SPEC[props.format];
+  const bar = brandBarActiveFor(props.brandBar, scene);
+  let top = bar ? spec.topWithBar : spec.topNoBar;
+  let need = false;
+  if (env.hud) {
+    const h = hudContentTop(env.hud, scene.start, scene.end);
+    if (h !== undefined) {
+      out.hud = h;
+      top = Math.max(top, h);
+      need = true;
+    }
+  }
+  if (props.captions.enabled && captionLook(props.captions.style) === 'headline') {
+    const wm = env.watermark;
+    if (wm && wm.position.startsWith('top') && overlaps(wm.visibleRanges, scene.start, scene.end)) top = Math.max(top, wm.rect.y + wm.rect.h + 16);
+    const m = captionMetrics(props.format, props.captions);
+    out.headline = {x: m.x, y: top, w: m.maxW, h: m.bandH};
+    top += m.bandH + HEADLINE_GAP * spec.k;
+    need = true;
+  }
+  if (need) out.topMin = top;
+  return out;
+};
+
+/** The scene a caption page belongs to (the one on screen at its first word). */
+export const sceneIndexAt = (scenes: Pick<Scene, 'start' | 'end'>[], t: number): number => {
+  for (let i = scenes.length - 1; i >= 0; i--) if (t >= scenes[i].start) return i;
+  return 0;
 };
 
 const overlaps = (ranges: [number, number][], a: number, b: number) => ranges.some(([x, y]) => x < b && y > a);
@@ -130,31 +184,35 @@ export const planScene = (env: Env, scene: Scene): ScenePlan => {
   let reserve = {x: 0, y: 0};
   let ceilingY = 0;
   let layout: SceneLayout;
+  const tops = sceneTops(env, scene);
   if (!v2) {
-    layout = layoutScene(scene, props.format, props.captions, bar, env.aspects);
+    layout = layoutScene(scene, props.format, props.captions, bar, env.aspects, tops.topMin !== undefined ? {topMin: tops.topMin} : {});
   } else {
     const top0 = bar ? spec.topWithBar : spec.topNoBar;
     const bottom0 = captionBandTop(props.format, props.captions);
     reserve = cameraReserve(scene.camera, width - 2 * spec.side, bottom0 - top0, width, preset.camera);
     const opts: LayoutOpts = {reserveX: reserve.x, reserveY: reserve.y};
+    if (tops.topMin !== undefined) opts.topMin = tops.topMin;
     if (env.polish) {
       opts.hero = true;
       if (backdropOf(scene) === 'split') {
         // content lives on the dark side of the brand panel
         const sp = splitPanel(props.format, width, env.height);
-        if (props.format === 'short') opts.topMin = sp.contentTop;
+        if (props.format === 'short') opts.topMin = Math.max(opts.topMin ?? 0, sp.contentTop);
         else opts.leftMin = sp.contentLeft;
       }
     }
     layout = layoutScene(scene, props.format, props.captions, bar, env.aspects, opts);
     const wm = env.watermark;
-    if (wm && overlaps(wm.visibleRanges, scene.start, scene.end) && wm.position.startsWith('top')) {
+    if (wm && overlaps(wm.visibleRanges, scene.start, scene.end) && wm.position.startsWith('top') && !tops.headline) {
       // the watermark never sits on content: push the stack below it when a box would touch it
       const hit = layout.boxes.some((b) => rectsIntersect(b, wm.rect, 16 + reserve.y));
       if (hit) layout = layoutScene(scene, props.format, props.captions, bar, env.aspects, {...opts, topMin: Math.max(opts.topMin ?? 0, wm.rect.y + wm.rect.h + 24)});
       if (wm.position === 'top-center') ceilingY = wm.rect.y + wm.rect.h + 14;
     }
     if (bar && env.brandBar) ceilingY = Math.max(ceilingY, env.brandBar.y + env.brandBar.h + 14);
+    // a hook-tag string hangs from below the HUD / headline captions, never across them
+    if (tops.topMin !== undefined) ceilingY = Math.max(ceilingY, tops.topMin - 10);
   }
   const appear = blockAppear(scene, preset);
   let stage: StagePlan | undefined;
@@ -165,9 +223,10 @@ export const planScene = (env: Env, scene: Scene): ScenePlan => {
     const t2 = later.length ? Math.min(...later.map((i) => appear[i])) : Infinity;
     if (later.length && t2 - first >= STAGE.minSolo) {
       const opts: LayoutOpts = {reserveX: reserve.x, reserveY: reserve.y, hero: true};
+      if (tops.topMin !== undefined) opts.topMin = tops.topMin;
       if (backdropOf(scene) === 'split') {
         const sp = splitPanel(props.format, width, env.height);
-        if (props.format === 'short') opts.topMin = sp.contentTop;
+        if (props.format === 'short') opts.topMin = Math.max(opts.topMin ?? 0, sp.contentTop);
         else opts.leftMin = sp.contentLeft;
       }
       const solo = layoutScene({...scene, layout: 'stack', blocks: idx.map((i) => scene.blocks[i])}, props.format, props.captions, bar, env.aspects, opts);
@@ -186,5 +245,6 @@ export const planScene = (env: Env, scene: Scene): ScenePlan => {
     cx: width / 2,
     cy: (layout.top + layout.bottom) / 2,
     backdrop: backdropOf(scene),
+    tops,
   };
 };

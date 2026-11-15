@@ -23,7 +23,7 @@ human approval and an explicit confirmation) uploads to YouTube or Instagram.
    │ preview.py + preview_gate.py  │ voice/ + tts.py (Kokoro/Piper)│ music.py · assets.py · shared_assets  │
    │ sync_check.py                 │ qa.py + visual_qa/            │ migrations.py   schema + backups      │
    └──────────────────────────────┴───────────────────────────────┴──────────────────────────────────────┘
-                                            ▼  RenderProps v2 (contract.py ⇄ src/engine/types.ts)
+                                            ▼  RenderProps v3 (contract.py ⇄ src/engine/types.ts)
                src/engine/ — Remotion `Storyboard` composition: motion tokens, 32 block types, 6 backdrops,
                watermark, layout manifest (scripts/engine-layout.mjs)  ·  src/shrotihost/ — legacy hand-built `Short`
 ```
@@ -132,7 +132,7 @@ the account named in `brand.json → publishing.accounts`. See [SOCIAL_PUBLISHIN
 | `pipeline/preview.py`, `preview_gate.py`, `sync_check.py` | preview stills and contact sheet, storyboard quality gate, narration ↔ visual sync and measured A/V offset |
 | `pipeline/voice/`, `pipeline/tts.py` | Kokoro / Piper / mock (+ gated Edge) providers, worker process, pronunciation, native timing, Whisper fallback, model registry |
 | `pipeline/timing.py`, `captions.py`, `audio.py` | alignment + validation, caption pages/SRT/ASS, voiceover assembly (incl. `holdAfter`), voice-levelled ducking, two-pass mastering |
-| `pipeline/storyboard.py`, `timeline.py`, `contract.py` | storyboard schema (v2/v2b blocks), time expressions, auto-SFX conventions, RenderProps build, estimated timings |
+| `pipeline/storyboard.py`, `timeline.py`, `contract.py`, `hud.py` | storyboard schema (v2/v2b blocks, v3 HUD and caption tones / speakers), time expressions, auto-SFX conventions, RenderProps build, estimated timings |
 | `pipeline/render.py` | bundle cache, chunked resumable renders, VideoToolbox/x264, memory-aware tabs, crash/stall retry |
 | `pipeline/qa.py`, `visual_qa/` | structural/visual/audio/caption/sync QA, layout-manifest checks, OCR (Apple Vision via `tools/ocr/ocr.swift`), logo/watermark/palette checks, pronunciation checklist |
 | `pipeline/productions.py`, `publishing.py` | lifecycle, review flags, package hash, approvals, invalidation, export, publish gate, YouTube adapter |
@@ -143,7 +143,7 @@ the account named in `brand.json → publishing.accounts`. See [SOCIAL_PUBLISHIN
 | `pipeline/music.py`, `assets.py` | licensed music library, asset licences |
 | `pipeline/jobs.py`, `migrations.py` | SQLite registry (jobs, stages, events, productions, approvals, flags, publications, scheduler, audit) and migrations |
 | `studio/` | local web UI (stdlib server + React/esbuild frontend) on `pipeline/api.py` |
-| `src/engine/` | data-driven Remotion engine (contract v2, v2b look), motion library (`motion/`), layout manifest |
+| `src/engine/` | data-driven Remotion engine (contract v3: v2 blocks, v2b look, persistent HUD, caption tones), motion library (`motion/`), layout manifest |
 
 ## Key design decisions
 

@@ -144,6 +144,9 @@ In tests, scripted "LLM" output containing "Browser: 39 rupees", the headline "B
   rule, and a sequence with two demo holds (install-flow 1.3 s + domain-input 0.9 s, e.g. `three-moves` for
   WordPress) comes out ~2.4 s longer. Copy is balanced so the concepts the director builds pass both, but
   `three-moves` (WordPress) still fails the duration rule (~35.8 s) when it is planned.
+- The templates do not set the v3 HUD, caption tones or speakers yet ([MOTION.md](MOTION.md#hud-contract-v3)). A
+  storyboard can carry them through manual polish (`pipeline.api.save_storyboard` validates them); a HUD stakes value
+  is a claim like any on-screen number: the preview gate checks it against the verified facts.
 - The claim checker is lexical (see CREATIVE_ENGINE.md). Number-free positioning lines in the copy bank were
   written to be true to the facts, but a human still reads `storyboard-preview.md`.
 

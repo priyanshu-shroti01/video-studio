@@ -16,8 +16,28 @@
   - The pronunciation checklist lists every word with its Devanagari form and source, guesses first.
   - `timing.norm` keeps Devanagari letters; English scripts behave exactly as before.
   - The Studio API accepts `brief.language`. See docs/LOCAL_TTS.md#hinglish.
+- **Persistent HUD (render contract v3):** a storyboard-level `hud` with up to four elements that live across scenes
+  at the top of the frame: a `header` ("STEP 2 · CACHING"), `chips` (a term row that grows and stays), `progress`
+  (a series or chapter bar, "DAY 03 / 30", or one segment per chapter) and `stakes` (a pinned chip whose numbers count
+  up or down). Scenes change it with word-anchored events (`"hud": [{"at": "@word:caching", "target": "step", "op":
+  "advance"}]`: show, hide, advance, set, add). The HUD has fixed rows in 9:16 and 16:9, each scene's content is laid
+  out below the rows visible during it, a top watermark hides while it shows, and it switches to the light tokens on
+  a light backdrop. Validated in `pipeline/hud.py`; HUD changes count as visual events in the sync check and stakes
+  values must not show before they are spoken. The layout manifest lists every HUD element with its windows and
+  texts, and visual QA adds `layout.hud_clear` / `layout.hud_safe`. See docs/MOTION.md#hud-contract-v3.
+- **Caption tones and speakers:** a scene's `captionTones` (`{"wrong": "danger", "fixed": "success"}`) colours those
+  words in every caption style (danger, success, term, brand, warning, info; `theme.caption.tones` can override), a
+  chip added on a word makes that word a `term`, and `speaker` (`"MOM"` or a list with `from` anchors) puts a
+  "● MOM" tag above its caption pages in the speaker's colour (`storyboard.speakers`). A page never spans two
+  speakers. Without them, captions are unchanged.
+- **Headline captions** (`captions.style: "headline"`): the sentence builds word by word, left-aligned at the top of
+  the content area below the HUD, toned and emphasised words in colour; the bottom stays free for the platform UI.
+- **HUD fixtures** `src/engine/fixtures/sample-hud-{short,landscape}.json`, built by the pipeline from
+  `tests/fixtures/hud-storyboard.json` (`uv run python tests/test_hud.py --write`).
 
 ### Changed
+- **Render contract v3** (`CONTRACT_VERSION` 3 in `src/engine/types.ts` and `pipeline/contract.py`). v3 is a
+  superset of v2: the engine still draws v1 and v2 props unchanged, and a `hud` in props below v3 is ignored.
 - **README rewritten for first-time visitors:** the pitch, the teaser and the two-command install come first,
   then what you get, a comparison with AI video generators and video SaaS (including the Remotion licence note),
   and the real results. Developer setup moved to "For developers". Every sentence the Video Studio brand's facts

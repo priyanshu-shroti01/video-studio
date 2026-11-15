@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from .contract import (BLOCK_TYPES, COMPOSITION_COLORS, COMPOSITION_KINDS, COMPOSITION_MOTIONS, COMPOSITION_ROLES,
                        COMPOSITION_SHAPES, ICONS, TIME_KEYS, TONES)
 from . import effects as FX
+from . import hud as HUD
 from .errors import ConfigError, TimingError
 from .schema import validate
 from .timing import Word, forms, norm, tokenize
@@ -58,6 +59,10 @@ SCENE_SCHEMA = {
         # seconds of silence after this scene's last word, so a visual payoff (install finished, domain
         # available) plays out on screen before the next scene starts
         "holdAfter": {"type": "number", "minimum": 0, "maximum": 3},
+        # v3 (pipeline/hud.py): word-anchored HUD events, caption meaning colours per word, the speaker(s)
+        "hud": HUD.SCENE_HUD_SCHEMA,
+        "captionTones": HUD.CAPTION_TONES_SCHEMA,
+        "speaker": HUD.SPEAKER_SCHEMA,
     },
 }
 STORYBOARD_SCHEMA = {
@@ -70,6 +75,9 @@ STORYBOARD_SCHEMA = {
         "title": {"type": "string"},
         "structure": {"type": "array", "items": {"type": "string", "enum": PURPOSES}},
         "scenes": {"type": "array", "minItems": 1, "items": SCENE_SCHEMA},
+        # v3 (pipeline/hud.py): the persistent HUD's elements, the caption speakers
+        "hud": HUD.HUD_SCHEMA,
+        "speakers": HUD.SPEAKERS_SCHEMA,
     },
 }
 
@@ -154,6 +162,10 @@ def validate_storyboard(sb: dict, *, structure: list[str] | None = None) -> tupl
             errors += FX.effect_errors(sc, p, lambda path, v, sc=sc, cues=cues: _time_errors(path, v, sc, cues))
     if any("effects" in s for s in sb["scenes"]):
         warnings += FX.restraint_warnings(sb["scenes"])
+    if "hud" in sb or "speakers" in sb or any(k in s for s in sb["scenes"] for k in ("hud", "captionTones", "speaker")):
+        he, hw = HUD.hud_errors(sb, _scene_time_check)
+        errors += he
+        warnings += hw
     order = [s["purpose"] for s in sb["scenes"]]
     want = sb.get("structure") or structure
     if want:
@@ -167,6 +179,11 @@ def validate_storyboard(sb: dict, *, structure: list[str] | None = None) -> tupl
             not any(s.get("brandBar") for s in sb["scenes"]):
         warnings.append("no branding (logo / cta block / brandBar) anywhere in the storyboard")
     return errors, warnings
+
+
+def _scene_time_check(sc: dict):
+    """check_time(path, value) bound to one scene (its narration and cues)."""
+    return lambda path, v: _time_errors(path, v, sc, sc.get("cues", {}))
 
 
 def _time_errors(path: str, val, sc: dict, cues: dict) -> list[str]:

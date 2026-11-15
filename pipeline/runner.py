@@ -424,7 +424,7 @@ class JobRunner:
         except Exception as e:  # noqa: BLE001 - recorded, never silently skipped
             out.append(Q.Check("sync.av_offset", "sync", Q.FAIL, True, f"A/V offset could not be measured: {e}"))
         props = json.loads((self.d["metadata"] / f"props-{fmt}.json").read_text())
-        r = S.evaluate(props["scenes"], words, props["durationInFrames"] / props["fps"])
+        r = S.evaluate(props["scenes"], words, props["durationInFrames"] / props["fps"], hud=props.get("hud"))
         # not critical for the job (the preview gate blocks this before rendering), but visible in QA and review
         out.append(Q.Check("sync.narration_visual", "sync", r["status"], False, S.summary(r),
                            {k: r[k] for k in ("longest_static_s", "static_share_pct", "events")}))

@@ -1,4 +1,4 @@
-import {captionBoxHeight, captionLook, captionMetrics} from './captions';
+import {CAPTION_SAFE, captionBoxHeight, captionLook, captionMetrics, hasSpeakers, speakerTagMetrics} from './captions';
 import {Block, CaptionConfig, Format, Scene} from './types';
 import {DIMENSIONS} from './contract';
 import {
@@ -247,15 +247,22 @@ export type SceneLayout = {top: number; bottom: number; fit: number; scale: numb
 export const captionBandTop = (format: Format, captions: CaptionBandCfg) => {
   const {height} = DIMENSIONS[format];
   if (!captions.enabled) return height - 90 * FORMAT_SPEC[format].k;
-  if (captionLook(captions.style) !== 'classic') {
+  const look = captionLook(captions.style);
+  if (look === 'headline') {
+    // v3: the captions sit at the top (plan.ts sceneTops); content may go down to the bottom margin, never into the
+    // platform UI zone (Shorts: bottom 20 %), leaving the same 90 px a bottom watermark sits in
+    return Math.min(height - 90 * FORMAT_SPEC[format].k, height * (1 - CAPTION_SAFE[format].bottomFrac) - 90 * FORMAT_SPEC[format].k);
+  }
+  if (look !== 'classic') {
     // kinetic / minimal looks: their own size and placement (captions.ts captionMetrics), still 2 lines + 24 px
     const m = captionMetrics(format, captions);
     return height - m.bottom - m.bandH - 24;
   }
+  if (hasSpeakers(captions)) return height - height * captions.bottomFrac - captionBoxHeight(captions.fontSize, 2) - speakerTagMetrics(captions.fontSize).block - 24;
   return height - height * captions.bottomFrac - captionBoxHeight(captions.fontSize, 2) - 24;
 };
-/** What the caption band depends on (`style` / `maxWidthFrac` / `uppercase` are optional: absent = classic). */
-export type CaptionBandCfg = Pick<CaptionConfig, 'enabled' | 'bottomFrac' | 'fontSize'> & Partial<Pick<CaptionConfig, 'style' | 'maxWidthFrac' | 'uppercase'>>;
+/** What the caption band depends on (`style` / `maxWidthFrac` / `uppercase` / `speakers` are optional: absent = classic). */
+export type CaptionBandCfg = Pick<CaptionConfig, 'enabled' | 'bottomFrac' | 'fontSize'> & Partial<Pick<CaptionConfig, 'style' | 'maxWidthFrac' | 'uppercase' | 'speakers'>>;
 
 /** v2 layout options: insets reserved for the camera move and a raised top (e.g. under a watermark).
  *  v2b: `leftMin` (content area starts right of this x, e.g. the 'split' brand panel) and `hero` (scale a sparse

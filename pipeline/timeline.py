@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 
 from . import captions as C
 from . import effects as FX
+from . import hud as HUD
 from .contract import CONTRACT_VERSION, FORMATS
 from .errors import PipelineError
 from .quality import BASE_FPS, of_config
@@ -32,6 +33,7 @@ class Timeline:
     storyboard_out: dict
     max_cps: float
     warnings: list[str] = field(default_factory=list)
+    hud: dict | None = None          # v3: the RenderProps HUD (absolute times), None without one
 
 
 def caption_cfg(cfg: dict, fmt: str) -> dict:
@@ -66,10 +68,18 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
     starts = [0.0] + [max(spans[k - 1][1] + 0.05, spans[k][0] - 0.15) for k in range(1, len(spans))]
     ends = starts[1:] + [duration]
     resolved, sfx, fx_anchors = [], [], {}
+    scene_words, resolvers, hud_events = [], [], []        # v3: per scene, for the HUD and the caption annotations
     for k, sc in enumerate(scenes_sb):
-        sw = [w for w in words if spans[k][0] - 1e-3 <= w.start <= spans[k][1] + 1e-3]
+        swi = [i for i, w in enumerate(words) if spans[k][0] - 1e-3 <= w.start <= spans[k][1] + 1e-3]
+        sw = [words[i] for i in swi]
         st = SceneTiming(sc["id"], round(starts[k], 3), round(ends[k], 3), spans[k][0], spans[k][1], sw)
         Rz = Resolver(st, sc.get("cues", {}))
+        scene_words.append(swi)
+        resolvers.append(Rz)
+        hud_events.append(HUD.resolve_events(sc, Rz))
+        for ev in hud_events[-1]:
+            if not (st.start - 0.2 <= ev["at"] <= st.end + 0.01):
+                warnings.append(f"scene {sc['id']}: HUD {ev['op']} {ev['target']} at={ev['at']} outside scene [{st.start}, {st.end}]")
         blocks = [resolve_block(b, Rz, i, fps) for i, b in enumerate(sc["blocks"])]
         for b in blocks:
             for key in ("at", "exitAt"):
@@ -108,6 +118,12 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
     brand_bar = {"from": bb[0]["start"], "to": bb[-1]["end"]} if bb else None
     cc = cfg["captions"]
     pages = C.pages_for(cc, words, tm["duration"], names=C.caption_names(cfg))      # classic grouping unless kinetic
+    # v3: caption tones (scene captionTones + chips' term words) and speakers; a page never spans two speakers
+    tones, speakers = HUD.word_annotations(cfg["storyboard"], scene_words, words, resolvers, hud_events)
+    if speakers:
+        pages = C.retime(HUD.split_pages_by_speaker(pages, speakers), words, cc, tm["duration"])
+    speakers_cfg = HUD.speakers_props(cfg["storyboard"], speakers)
+    hud = HUD.contract_hud(cfg["storyboard"], [e for evs in hud_events for e in evs]) if CONTRACT_VERSION >= 3 else None
     crep = C.validate_pages(pages, words, tm["duration"], max_cps=cc.get("maxCps", 25),
                             **C.validate_opts(cc.get("style")))
     if crep.errors:
@@ -127,13 +143,15 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
              "captions": {"enabled": ccf.get("enabled", True), "style": ccf.get("style", "word"),
                           "maxWords": ccf.get("maxWords", 4), "fontSize": ccf.get("fontSize", 66),
                           "bottomFrac": ccf.get("bottomFrac", 0.27), "maxWidthFrac": ccf.get("maxWidthFrac", 0.8),
-                          "pages": [{"start": pg.start, "end": pg.end, "wordIdx": pg.word_idx} for pg in pages],
-                          **C.style_props(ccf)},
+                          "pages": [HUD.page_props(pg, tones, speakers) for pg in pages],
+                          **C.style_props(ccf), **({"speakers": speakers_cfg} if speakers_cfg else {})},
              "words": [w.as_dict() for w in words], "scenes": resolved, "brandBar": brand_bar}
         if CONTRACT_VERSION >= 2:
             p["watermark"] = wm
             if cfg.get("motion"):
                 p["motion"] = cfg["motion"]
+        if hud:
+            p["hud"] = hud
         props[fmt] = p
     sb_out = {"duration": duration, "frames": frames, "fps": fps, "scenes": [
         {**{k: s[k] for k in ("id", "purpose", "start", "end", "transition")},
@@ -143,8 +161,10 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
         for i, s in enumerate(resolved)]}
     if beat_sync is not None:
         sb_out["beatSync"] = beat_sync
+    if hud:
+        sb_out["hud"] = hud
     return Timeline(duration, frames, fps, words, pages, resolved, sfx, brand_bar, props, ass, C.to_srt(pages, words),
-                    sb_out, crep.max_cps, warnings)
+                    sb_out, crep.max_cps, warnings, hud)
 
 
 def estimated_timing(storyboard: dict, wps: float = 2.33, gap: float = 0.2) -> dict:   # wps measured on the local voice

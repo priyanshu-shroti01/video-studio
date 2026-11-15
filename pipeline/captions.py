@@ -13,7 +13,10 @@ CLAUSE_END = re.compile(r"[,;:—–]$")
 # classic look (boxed page, karaoke colour on the current word / no highlight), so every existing project is unchanged.
 CLASSIC_STYLES = ("word", "phrase", "classic")
 KINETIC_STYLES = ("pop", "highlight", "karaoke")         # short word-synced pages (1–3 / up to 4 words)
-STYLES = (*CLASSIC_STYLES, *KINETIC_STYLES, "minimal")
+# v3: the sentence builds word by word at the top of the content area (below the HUD); clause-sized pages
+HEADLINE_STYLE = "headline"
+HEADLINE_PAGE = {"max_words": 7, "max_chars": 40}
+STYLES = (*CLASSIC_STYLES, *KINETIC_STYLES, "minimal", HEADLINE_STYLE)
 # NEW productions only (pipeline.intelligence.api / pipeline.api.default_project): brief -> brand -> this
 FORMAT_DEFAULT_STYLE = {"short": "pop", "landscape": "minimal"}
 # reading speed for word-synced pages is measured over a window of consecutive pages at least this long: a 1–3
@@ -171,6 +174,11 @@ def pages_for(cc: dict, words: list[Word], audio_end: float, names: list[str] = 
     """Caption pages for a resolved caption config (`cfg["captions"]`): the classic grouping for classic / minimal
     (identical to before), short word-synced pages for the kinetic styles."""
     style = cc.get("style", "word")
+    if style == HEADLINE_STYLE:
+        # a clause per page (it builds as it is spoken, so a longer page reads like a sentence being written)
+        return build_pages(words, max_words=min(max(cc.get("maxWords", 4), HEADLINE_PAGE["max_words"]), 10),
+                           max_chars=min(max(cc.get("maxChars", 28), HEADLINE_PAGE["max_chars"]), 56),
+                           hold=cc.get("hold", 0.6), audio_end=audio_end)
     if is_kinetic(style):
         cap = 4 if style == "karaoke" else 3
         return build_kinetic_pages(words, max_words=min(cc.get("maxWords", cap), cap),
@@ -178,6 +186,12 @@ def pages_for(cc: dict, words: list[Word], audio_end: float, names: list[str] = 
                                    hold=cc.get("hold", 0.6), audio_end=audio_end, names=names)
     return build_pages(words, max_words=cc.get("maxWords", 4), max_chars=cc.get("maxChars", 28),
                        hold=cc.get("hold", 0.6), audio_end=audio_end)
+
+
+def retime(groups: list[list[int]], words: list[Word], cc: dict, audio_end: float) -> list[Page]:
+    """Pages again from word groups (after a split, e.g. at a speaker change), with the style's own timing rules."""
+    return _timed(groups, words, min_dur=0.3 if is_kinetic(cc.get("style")) else 0.5, hold=cc.get("hold", 0.6),
+                  audio_end=audio_end)
 
 
 def caption_names(cfg: dict) -> list[str]:

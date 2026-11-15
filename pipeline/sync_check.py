@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import re
 
+from . import hud as HUD
 from .contract import TIME_KEYS
 
 STATIC_WARN = 2.5
@@ -64,12 +65,14 @@ def _numbers_shown(o, at: float | None, out: list):
     return out
 
 
-def evaluate(scenes: list[dict], words: list[dict], duration: float) -> dict:
-    """scenes: resolved timeline scenes (absolute seconds); words: [{text,start,end}]."""
+def evaluate(scenes: list[dict], words: list[dict], duration: float, hud: dict | None = None) -> dict:
+    """scenes: resolved timeline scenes (absolute seconds); words: [{text,start,end}]; hud: the RenderProps HUD (v3)."""
     # scene effects (punch-zoom, annotation draw-on, burst, cursor click...) are visible changes anchored to a spoken word,
     # so they count as visual events like a block entrance (pipeline/effects.py)
     events = sorted({round(t, 3) for s in scenes for t in _times(s["blocks"]) + _times(s.get("effects", []))}
-                    | {round(s["start"], 3) for s in scenes})
+                    | {round(s["start"], 3) for s in scenes}
+                    # v3: HUD changes (a step advancing, a chip landing, a count) are word-anchored visual events too
+                    | {round(t, 3) for t in HUD.event_times(hud)})
     pts = events + [duration]
     static = []
     for a, b in zip(pts, pts[1:]):
@@ -83,12 +86,18 @@ def evaluate(scenes: list[dict], words: list[dict], duration: float) -> dict:
                            "level": "FAIL" if span > STATIC_FAIL else "WARN",
                            "said": " ".join(w["text"] for w in spoken)[:120]})
     early = []
-    for s in scenes:
+    hud_nums: dict[int, list] = {}                  # stakes values in the HUD, attributed to the scene on screen then
+    for n, t in HUD.numbers_shown(hud):
+        k = max([i for i, s in enumerate(scenes) if s["start"] - 1e-3 <= t] or [0])
+        hud_nums.setdefault(k, []).append((n, t))
+    for si, s in enumerate(scenes):
         sw = [w for w in words if s["start"] - 1e-3 <= w["start"] <= s["end"] + 1e-3]
         seen = {}
         for b in s["blocks"]:
             for n, t in _numbers_shown(b, None, []):
                 seen[n] = min(t, seen.get(n, t))
+        for n, t in hud_nums.get(si, []):
+            seen[n] = min(t, seen.get(n, t))
         for n, t in seen.items():
             spoken = [w["start"] for w in sw if n in NUM.findall(w["text"].replace(",", ""))]
             if spoken and t < spoken[0] - EARLY:

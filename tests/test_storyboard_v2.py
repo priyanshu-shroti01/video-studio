@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_contract_versions_match_and_v2_blocks_known():
-    assert CONTRACT_VERSION == ts_contract_version() == 2
+    assert CONTRACT_VERSION == ts_contract_version() == 3
     assert {"kinetic-text", "price-compare", "terminal", "logo-sting", "outro"} <= BLOCK_TYPES
 
 
@@ -66,5 +66,5 @@ def test_timeline_emits_v2_watermark_and_motion():
     cfg = {**cfg, "motion": "cinematic"}
     tl = build_timeline(cfg, estimated_timing(cfg["storyboard"]))
     p = tl.props["short"]
-    assert p["contractVersion"] == 2 and p["motion"] == "cinematic"
+    assert p["contractVersion"] == CONTRACT_VERSION and p["motion"] == "cinematic"
     assert p["watermark"]["policy"] == "platform" and p["watermark"]["variant"] == "mark"

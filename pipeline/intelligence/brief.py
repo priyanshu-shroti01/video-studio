@@ -42,7 +42,7 @@ BRIEF_SCHEMA = {
         "pace": {"type": "string", "enum": ["calm", "normal", "brisk"]},
         # caption look for this video (pipeline/captions.py STYLES); default: brand creative.captions.style -> format
         "captions": {"type": "object", "additionalProperties": False, "properties": {
-            "style": {"type": "string", "enum": ["classic", "pop", "highlight", "karaoke", "minimal"]}}},
+            "style": {"type": "string", "enum": ["classic", "pop", "highlight", "karaoke", "minimal", "headline"]}}},
         "request": {"type": "string", "maxLength": 2000},
         "requirements": {"type": "array", "items": {"type": "string", "enum": REQUIREMENTS}},
         "platform": {"type": "string", "maxLength": 40},

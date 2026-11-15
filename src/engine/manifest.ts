@@ -12,9 +12,10 @@
 import {DIMENSIONS} from './contract';
 import {LogoSpec, Rect, specWidth, TextSpec} from './geometry';
 import {activeCallouts, geomFootage, zoomSettleTimes} from './geometry-footage';
-import {captionMetrics} from './captions';
+import {captionLook, captionMetrics} from './captions';
+import {hudTexts} from './hud';
 import {captionBandTop, FORMAT_SPEC} from './layout';
-import {makeEnv, planScene} from './plan';
+import {makeEnv, planScene, sceneTops} from './plan';
 import {blockContent} from './texts';
 import {RenderProps} from './types';
 
@@ -63,6 +64,15 @@ export type ManifestBlock = {
   /** only on blocks that show a video (footage) */
   media?: ManifestMedia[];
 };
+/** v3: a HUD element (output px, fixed for the whole video) with the windows it is on screen and its text runs
+ *  (each with the window it shows; a counted stakes value from when it lands). */
+export type ManifestHudElement = {
+  id: string;
+  kind: string;
+  bbox: Rect;
+  visibleRanges: [number, number][];
+  texts: (ManifestText & {from: number; to: number})[];
+};
 export type LayoutManifest = {
   contractVersion: number;
   format: RenderProps['format'];
@@ -71,9 +81,13 @@ export type LayoutManifest = {
   fps: number;
   safeArea: Rect;
   captionBand: Rect;
-  scenes: {id: string; start: number; end: number; blocks: ManifestBlock[]}[];
+  /** v3: `hudBottom` = y below which this scene's content starts because of the HUD; `captionBand` = this scene's own
+   *  caption band when the style is 'headline' (top of the content area) */
+  scenes: {id: string; start: number; end: number; blocks: ManifestBlock[]; hudBottom?: number; captionBand?: Rect}[];
   watermark: {policy: string; bbox: Rect; variant: string; opacity: number; visibleRanges: [number, number][]} | null;
   brandBar: {bbox: Rect; from: number; to: number} | null;
+  /** v3: the persistent HUD (only present when the props have one) */
+  hud?: {elements: ManifestHudElement[]};
 };
 
 /** Overflow tolerance (design px) so float noise never flips the flag. */
@@ -87,9 +101,13 @@ export const buildManifest = (props: RenderProps): LayoutManifest => {
   const capM = captionMetrics(props.format, props.captions);       // classic: H·bottomFrac and W·maxWidthFrac, as before
   const capBottom = height - capM.bottom;
   const capW = capM.maxW;
-  const captionBand = props.captions.enabled
-    ? {x: (width - capW) / 2, y: bandTop, w: capW, h: capBottom - bandTop}
-    : {x: 0, y: bandTop, w: width, h: height - bandTop};
+  const headline = props.captions.enabled && captionLook(props.captions.style) === 'headline';
+  const firstTops = headline && props.scenes.length ? sceneTops(env, props.scenes[0]) : undefined;
+  const captionBand = headline && firstTops?.headline
+    ? firstTops.headline   // the top band of the first scene; every scene carries its own (scenes[].captionBand)
+    : props.captions.enabled
+      ? {x: (width - capW) / 2, y: bandTop, w: capW, h: capBottom - bandTop}
+      : {x: 0, y: bandTop, w: width, h: height - bandTop};
   const topSafe = spec.topNoBar;
   const scenes = props.scenes.map((s) => {
     const P = planScene(env, s);
@@ -141,8 +159,31 @@ export const buildManifest = (props: RenderProps): LayoutManifest => {
       }
       return out;
     });
-    return {id: s.id, start: s.start, end: s.end, blocks};
+    const sc: LayoutManifest['scenes'][number] = {id: s.id, start: s.start, end: s.end, blocks};
+    if (P.tops.hud !== undefined) sc.hudBottom = r2(P.tops.hud);
+    if (P.tops.headline) sc.captionBand = rect(P.tops.headline);
+    return sc;
   });
+  let hud: LayoutManifest['hud'];
+  if (env.hud) {
+    const runs = hudTexts(env.hud, env.duration);
+    hud = {
+      elements: env.hud.tracks.map((tr) => {
+        const b = env.hud!.boxes[tr.el.id];
+        return {
+          id: tr.el.id,
+          kind: tr.el.kind,
+          bbox: rect(b ?? {x: 0, y: 0, w: 0, h: 0}),
+          visibleRanges: tr.ranges,
+          texts: (runs[tr.el.id] ?? []).map((x) => {
+            const bx = tr.el.kind === 'stakes' ? x.x + (x.w - x.est) / 2 : tr.el.kind === 'progress' ? x.x + x.w - x.est : x.x;
+            return {text: x.text, bbox: rect({x: bx, y: x.y, w: x.est, h: x.h}), fontSize: r2(x.fs), fontWeight: x.weight, estWidth: r2(x.est), maxWidth: r2(x.w),
+              overflow: x.est > x.w + EPS || (tr.el.kind === 'chips' && b?.kind === 'chips' && b.overflow), role: 'label' as const, from: x.from, to: x.to};
+          }),
+        };
+      }),
+    };
+  }
   const wm = env.watermark;
   return {
     contractVersion: props.contractVersion,
@@ -155,6 +196,7 @@ export const buildManifest = (props: RenderProps): LayoutManifest => {
     scenes,
     watermark: wm ? {policy: wm.policy, bbox: rect(wm.rect), variant: wm.variant, opacity: wm.opacity, visibleRanges: wm.visibleRanges} : null,
     brandBar: env.brandBar ? {bbox: rect(env.brandBar), from: env.brandBar.from, to: env.brandBar.to} : null,
+    ...(hud ? {hud} : {}),
   };
 };
 

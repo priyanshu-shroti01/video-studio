@@ -8,10 +8,13 @@
  *
  * v2 is a strict superset of v1: every v2 field is optional, and props with contractVersion 1 render
  * exactly as they did under v1 (v2-only behaviour is gated on `contractVersion >= 2`).
+ * v3 adds the persistent HUD (`RenderProps.hud`), caption tones / speaker tags (`CaptionConfig.pages[].tones`,
+ * `.speaker`, `CaptionConfig.speakers`) and the 'headline' caption style. All optional: v2 props render as before,
+ * and a `hud` in props below v3 is ignored.
  */
-export const CONTRACT_VERSION = 2;
+export const CONTRACT_VERSION = 3;
 /** Versions this engine can draw. */
-export const SUPPORTED_CONTRACT_VERSIONS: readonly number[] = [1, 2];
+export const SUPPORTED_CONTRACT_VERSIONS: readonly number[] = [1, 2, 3];
 
 export type Format = 'short' | 'landscape';
 /** footage: how the clip fills its block, and a normalised region of the clip (0..1, top-left origin) */
@@ -38,10 +41,30 @@ export type Theme = {
    *  intrinsic aspects; when absent the engine reads each SVG's own viewBox (never a hard-coded value). */
   logo: {onDark: string; onLight: string; mark: string; aspect: number; aspects?: Partial<Record<LogoVariant, number>>};
   background: {style: 'dots-glow' | 'plain'; glowA: string; glowB: string};
-  caption: {highlight: string; box: string; text: string; dim: string};
+  caption: {
+    highlight: string; box: string; text: string; dim: string;
+    /** v3, optional: colour per caption tone (default: danger / success / warning / info from `colors`, term =
+     *  `colors.warning`, brand = `caption.highlight`) */
+    tones?: Partial<Record<CaptionTone, string>>;
+  };
   radius: {card: number; pill: number};
   /** effects, optional per brand (brands/<id>/theme.json): subtle animated film grain over the picture (opacity ≤ 0.09) */
   grain?: {opacity?: number};
+};
+
+/** v3: meaning colour of a caption word. danger = bad / wrong, success = good / fixed, term = a named concept. */
+export const CAPTION_TONES = ['danger', 'success', 'term', 'brand', 'warning', 'info'] as const;
+export type CaptionTone = (typeof CAPTION_TONES)[number];
+
+/** v3: one caption page (word indices into RenderProps.words), optionally with per-word tones and a speaker. */
+export type CaptionPage = {
+  start: number;
+  end: number;
+  wordIdx: number[];
+  /** parallel to wordIdx: the tone of each word (null = none) */
+  tones?: (CaptionTone | null)[];
+  /** key into CaptionConfig.speakers: a "● NAME" tag above the page */
+  speaker?: string;
 };
 
 export type CaptionConfig = {
@@ -49,8 +72,9 @@ export type CaptionConfig = {
   /** classic look (boxed page): 'word' = colour on the current word, 'phrase' = no per-word highlight, 'classic' = 'word'.
    *  Additive (same contract version), drawn by captions-view.tsx, see docs/MOTION.md#captions:
    *  'pop' (1–3 words, big stroked type, active word springs in brand colour), 'highlight' (brand block behind the
-   *  active word), 'karaoke' (words fill as spoken), 'minimal' (small, clean, low; for 16:9). */
-  style: 'word' | 'phrase' | 'classic' | 'pop' | 'highlight' | 'karaoke' | 'minimal';
+   *  active word), 'karaoke' (words fill as spoken), 'minimal' (small, clean, low; for 16:9).
+   *  v3: 'headline' (the sentence builds word by word at the top of the content area, toned words in colour). */
+  style: 'word' | 'phrase' | 'classic' | 'pop' | 'highlight' | 'karaoke' | 'minimal' | 'headline';
   /** optional: UPPERCASE page text (default: true for 'pop', false otherwise) */
   uppercase?: boolean;
   /** optional: extra emphasis on numbers, the brand name and the scene's emphasis words in 'pop' / 'highlight' (default true) */
@@ -61,8 +85,44 @@ export type CaptionConfig = {
   bottomFrac: number;
   maxWidthFrac: number;
   /** pages = groups of word indices into RenderProps.words, precomputed by Python (single source) */
-  pages: {start: number; end: number; wordIdx: number[]}[];
+  pages: CaptionPage[];
+  /** v3, optional: speakers a page can name (`pages[].speaker`), in order of appearance. `label` is drawn (default:
+   *  the key), `tone` colours the dot and the name (default: brand, info, warning, success, danger by order). While
+   *  this is set the caption band reserves room for the tag. */
+  speakers?: Record<string, {label?: string; tone?: Tone}>;
 };
+
+/** v3 HUD: persistent overlay elements that live across scenes at the top of the frame (docs/MOTION.md#hud). */
+export const HUD_KINDS = ['header', 'chips', 'progress', 'stakes'] as const;
+export const HUD_OPS = ['show', 'hide', 'advance', 'set', 'add'] as const;
+export type HudKind = (typeof HUD_KINDS)[number];
+export type HudOp = (typeof HUD_OPS)[number];
+export type HudElement =
+  /** "STEP 2 · CACHING": `steps[i]` with an optional numbered `prefix`; `advance` moves to the next step */
+  | {id: string; kind: 'header'; steps: string[]; prefix?: string; numbered?: boolean}
+  /** a row of term chips that accumulates (`add` events) and stays */
+  | {id: string; kind: 'chips'}
+  /** series / chapter bar: "DAY 03 / 30" (`label` + zero-padded count) over a thin bar, or `segments` (one per
+   *  chapter). `showCount: false` draws the bar only. */
+  | {id: string; kind: 'progress'; total: number; value?: number; label?: string; style?: 'bar' | 'segments'; pad?: number; showCount?: boolean}
+  /** pinned stakes chip: "212 applications · 0 replies"; `set` counts a part's value up or down */
+  | {id: string; kind: 'stakes'; parts: {label: string; value?: number; prefix?: string; suffix?: string; tone?: Tone}[]};
+/** A word-anchored HUD change (absolute seconds, resolved by Python). An element is hidden until its first event. */
+export type HudEvent = {
+  at: number;
+  target: string;
+  op: HudOp;
+  /** header set: step index (0-based) */
+  index?: number;
+  /** progress set: new value; stakes set: new value of `part` */
+  value?: number;
+  part?: number;
+  /** chips add: the chip */
+  text?: string;
+  /** chips add / stakes set: tone of the chip / part */
+  tone?: Tone;
+};
+export type Hud = {elements: HudElement[]; events: HudEvent[]};
 
 /** Every block has an optional `at` (absolute seconds; default = scene start + stagger) and optional `exitAt`. */
 type BlockBase = {id?: string; at?: number; exitAt?: number};
@@ -445,4 +505,6 @@ export type RenderProps = {
   /** v2, optional: intrinsic width/height per asset path (public/). Filled by the engine's calculateMetadata
    *  (and by scripts/engine-layout.mjs) from the files themselves when absent; Python may pre-fill it. */
   assetAspects?: Record<string, number>;
+  /** v3, optional: the persistent HUD (ignored below contractVersion 3) */
+  hud?: Hud | null;
 };

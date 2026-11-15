@@ -210,8 +210,13 @@ flowchart LR
 - **Generated components.** `composition` draws scenes that the component generator designs from primitives (cards,
   rings, connectors, icons, counted numbers); a design is kept only when it beats the template.
 - **Captions in today's styles:** Pop (1–3 big words, the spoken word springs in the brand colour), Highlight,
-  Karaoke and Minimal, plus Classic. They stay clear of the Shorts and Reels buttons and switch to dark ink on light
+  Karaoke and Minimal, plus Classic, and Headline, where the sentence builds word by word at the top of the picture.
+  Words can carry a meaning colour (red for what is wrong, green for the fix, amber for a named term), and a speaker
+  tag ("● MOM") marks who is talking. They stay clear of the Shorts and Reels buttons and switch to dark ink on light
   backgrounds.
+- **A persistent HUD.** A header ("STEP 2 · CACHING"), a row of term chips that grows as each term is named, a
+  series or chapter bar ("DAY 03 / 30") and a pinned stakes chip that counts up or down can stay on screen across
+  scenes. Each change lands on its spoken word, and the scenes lay out below it.
 - **Transitions and effects:** whip pan, push, zoom-through, iris, light leak and glitch; punch-zoom, shake, flash,
   confetti burst, hand-drawn circles, cursor clicks and 3D tilt. The director picks them by mood and uses them
   sparingly, cuts can snap to the music's beat, and flashes stay within the 3-per-second safety limit.
@@ -347,7 +352,7 @@ pipeline/            orchestrator: CLI, productions, jobs, scheduler, timeline, 
   intelligence/      local LLM runtime, claim checking, fact base
   social/            YouTube / Instagram: routing, metadata, adapters, MCP server
   voice/ visual_qa/  local TTS + alignment, Hinglish transliteration; OCR, layout and branding checks
-src/engine/          Remotion engine: Storyboard composition, 32 blocks, backdrops, motion tokens
+src/engine/          Remotion engine: Storyboard composition, 32 blocks, HUD, backdrops, motion tokens
 studio/              local web Studio (Python server + React frontend)
 install.sh bin/      one-command installer and the `videostudio` launcher
 brands/ knowledge/   per-brand profiles and verified facts

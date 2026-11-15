@@ -1,11 +1,29 @@
 import React, {useMemo} from 'react';
 import {mix} from './anim';
-import {captionEmphasis, captionMetrics, captionPageAt, CaptionMetrics, keepTogether, lightCaptionPalette, mixColor, pageLayout} from './captions';
+import {
+  captionEmphasis,
+  captionMetrics,
+  captionPageAt,
+  CaptionMetrics,
+  captionToneBlock,
+  captionToneColor,
+  captionToneColorLight,
+  captionToneMap,
+  keepTogether,
+  lightCaptionPalette,
+  mixColor,
+  pageLayout,
+  speakerColor,
+  speakerOf,
+  speakerTagMetrics,
+} from './captions';
 import {wordLook} from './captions-motion';
 import {backdropWeights} from './look';
+import {LEAD} from './motion/durations';
 import {springAt} from './motion/entrances';
-import {RenderProps, Theme, Word} from './types';
-import {useEngine} from './ui';
+import {Env, sceneIndexAt, sceneTops} from './plan';
+import {CaptionConfig, CaptionTone, RenderProps, Theme, Word} from './types';
+import {alpha, useEngine} from './ui';
 
 /**
  * The kinetic caption looks ('pop' | 'highlight' | 'karaoke' | 'minimal'); the classic boxed look stays in
@@ -57,9 +75,13 @@ const lightOf = (theme: Theme) => {
 
 /** `lightW` 0..1: how much of a light surface (scene backdrop 'light') is under the captions now. At 0 every style is
  *  exactly the dark-backdrop one; at 1: dark ink, no outline, contrast-checked accent (lightCaptionPalette). */
-type WordProps = {w: Word; k: number; pw: Word[]; t: number; fps: number; fs: number; emph: boolean; theme: Theme; lightW: number};
+type WordProps = {w: Word; k: number; pw: Word[]; t: number; fps: number; fs: number; emph: boolean; theme: Theme; lightW: number; tone?: CaptionTone};
 
-const PopWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, lightW}) => {
+/** v3: a toned word's colour at the current light-surface weight (undefined = no tone: the look's own colours). */
+const toneInk = (theme: Theme, tone: CaptionTone | undefined, lightW: number) =>
+  !tone ? undefined : lightW > 0 ? mixColor(captionToneColor(theme, tone), captionToneColorLight(theme, tone), lightW) : captionToneColor(theme, tone);
+
+const PopWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, lightW, tone}) => {
   const s = wordLook(pw, k, t, fps);
   const next = pw[k + 1];
   const bump = emph ? 0.14 : 0.1;
@@ -69,7 +91,10 @@ const PopWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, lightW
   const scale = !s.spoken ? 1 : s.active ? mix(0.9, peak, Math.min(1, s.pop * 1.15)) : mix(1 + bump, 1, settle);
   const L = lightW > 0 ? lightOf(theme) : null;
   const accent = s.active || (emph && s.spoken);
-  const color = !L ? (accent ? theme.caption.highlight : theme.caption.text) : mixColor(accent ? theme.caption.highlight : theme.caption.text, accent ? L.accent : L.ink, lightW);
+  const base = !L ? (accent ? theme.caption.highlight : theme.caption.text) : mixColor(accent ? theme.caption.highlight : theme.caption.text, accent ? L.accent : L.ink, lightW);
+  // a toned word takes its meaning colour as it is spoken and keeps it
+  const tc = toneInk(theme, tone, lightW);
+  const color = tc && (s.active || s.spoken) ? tc : base;
   return (
     <span style={{display: 'inline-block', fontSize: emph ? fs * EMPH_SCALE : fs, transform: `scale(${scale.toFixed(4)})`, transformOrigin: '50% 65%', color, ...outline(fs, 0.15, 0.55, lightW)}}>
       {w.text}
@@ -77,7 +102,7 @@ const PopWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, lightW
   );
 };
 
-const HighlightWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, lightW}) => {
+const HighlightWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, lightW, tone}) => {
   const s = wordLook(pw, k, t, fps);
   const next = pw[k + 1];
   // the block grows in from the left as the word starts and leaves to the right as the next one starts,
@@ -88,7 +113,10 @@ const HighlightWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, 
   const grow = s.active ? Math.min(1, 0.35 + 0.65 * Math.min(1, s.pop * 1.3)) : 1 - leave;
   const L = lightW > 0 ? lightOf(theme) : null;
   const dark = s.active ? '#ffffff' : emph ? theme.caption.highlight : theme.caption.text;
-  const color = !L || s.active ? dark : mixColor(dark, emph ? L.accent : L.ink, lightW);
+  const tc = toneInk(theme, tone, lightW);
+  const color = tc && s.spoken && !s.active ? tc : !L || s.active ? dark : mixColor(dark, emph ? L.accent : L.ink, lightW);
+  // a toned word's block is its tone, darkened until white reads on it
+  const block = tone ? captionToneBlock(theme, tone) : null;
   return (
     <span style={{position: 'relative', display: 'inline-block', fontSize: emph ? fs * EMPH_SCALE : fs, padding: `0 ${(fs * 0.12).toFixed(1)}px`}}>
       {on > 0.001 ? (
@@ -100,7 +128,7 @@ const HighlightWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, 
             top: fs * 0.02,
             bottom: -fs * 0.14,
             borderRadius: fs * 0.18,
-            background: L ? mixColor(theme.colors.brand, L.block, lightW) : theme.colors.brand,
+            background: block ?? (L ? mixColor(theme.colors.brand, L.block, lightW) : theme.colors.brand),
             opacity: Math.min(1, on * 1.4),
             transform: `scaleX(${grow.toFixed(4)})`,
             transformOrigin: s.active ? 'left center' : 'right center',
@@ -113,12 +141,12 @@ const HighlightWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, emph, theme, 
   );
 };
 
-const KaraokeWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, theme, lightW}) => {
+const KaraokeWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, theme, lightW, tone}) => {
   const s = wordLook(pw, k, t, fps);
   const L = lightW > 0 ? lightOf(theme) : null;
   const filling = s.active && s.fill < 1;
   const darkFill = filling ? theme.caption.highlight : theme.caption.text;
-  const fillColor = L ? mixColor(darkFill, filling ? L.accent : L.ink, lightW) : darkFill;
+  const fillColor = toneInk(theme, tone, lightW) ?? (L ? mixColor(darkFill, filling ? L.accent : L.ink, lightW) : darkFill);
   const darkMuted = mixHex(theme.caption.text, '#000000', 0.42);
   const muted = L ? mixColor(darkMuted, L.muted, lightW) : darkMuted;
   return (
@@ -133,9 +161,10 @@ const KaraokeWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, theme, lightW})
   );
 };
 
-const MinimalWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, theme, lightW}) => {
+const MinimalWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, theme, lightW, tone}) => {
   const s = wordLook(pw, k, t, fps);
-  const ink = mixHex(theme.caption.text, theme.colors.light.text, lightW);
+  const tc = toneInk(theme, tone, lightW);
+  const ink = tc && s.spoken ? tc : mixHex(theme.caption.text, theme.colors.light.text, lightW);
   return (
     <span
       style={{
@@ -151,7 +180,63 @@ const MinimalWord: React.FC<WordProps> = ({w, k, pw, t, fps, fs, theme, lightW})
   );
 };
 
-const WORD = {pop: PopWord, highlight: HighlightWord, karaoke: KaraokeWord, minimal: MinimalWord} as const;
+/** v3 'headline': words appear as they are spoken (the page's later words hold their place, invisible), so the
+ *  sentence builds at the top of the content area; toned words in their colour, emphasis words in the highlight. */
+const HeadlineWord: React.FC<WordProps> = ({w, t, fps, fs, emph, theme, lightW, tone}) => {
+  const p = springAt(t, w.start - LEAD.word, fps, {damping: 16, mass: 0.55});
+  const L = lightW > 0 ? lightOf(theme) : null;
+  const base = emph ? theme.caption.highlight : theme.caption.text;
+  const color = toneInk(theme, tone, lightW) ?? (L ? mixColor(base, emph ? L.accent : L.ink, lightW) : base);
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        fontSize: fs,
+        color,
+        opacity: Math.min(1, p * 1.6),
+        transform: `translateY(${((1 - p) * fs * 0.32).toFixed(2)}px)`,
+        ...outline(fs, 0.1, 0.5, lightW),
+      }}
+    >
+      {w.text}
+    </span>
+  );
+};
+
+const WORD = {pop: PopWord, highlight: HighlightWord, karaoke: KaraokeWord, minimal: MinimalWord, headline: HeadlineWord} as const;
+
+/** v3 speaker tag ("● MOM") above a caption page. It pops in when the speaker changes (or returns after a pause)
+ *  and holds across that speaker's pages. Colour: the speaker's tone (captions.ts speakerOf). */
+export const SpeakerTag: React.FC<{cap: Pick<CaptionConfig, 'speakers' | 'pages' | 'fontSize'>; idx: number; words: Word[]; lightW: number; align?: 'center' | 'left'}> = ({cap, idx, words, lightW, align = 'center'}) => {
+  const {t, fps, theme, sans} = useEngine();
+  const page = cap.pages[idx];
+  const m = speakerTagMetrics(cap.fontSize);
+  if (!page?.speaker) return <div style={{height: m.block, flex: 'none'}} />;
+  const prev = idx > 0 ? cap.pages[idx - 1] : undefined;
+  const first = words[page.wordIdx[0]];
+  const prevLast = prev ? words[prev.wordIdx[prev.wordIdx.length - 1]] : undefined;
+  const fresh = !prev || prev.speaker !== page.speaker || (!!prevLast && !!first && first.start - prevLast.end > 0.6);
+  const sp = speakerOf(cap, page.speaker);
+  const col = speakerColor(theme, sp.tone);
+  const light = lightW > 0.5;
+  const p = fresh && first ? springAt(t, first.start - 0.05 - LEAD.word, fps, {damping: 14, mass: 0.5}) : 1;
+  return (
+    <div style={{display: 'flex', justifyContent: align === 'left' ? 'flex-start' : 'center', height: m.h, marginBottom: m.gap, flex: 'none'}}>
+      <div
+        style={{
+          display: 'flex', alignItems: 'center', height: m.h, padding: `0 ${(m.fs * 0.75).toFixed(1)}px`, borderRadius: m.h / 2, boxSizing: 'border-box',
+          background: light ? alpha(theme.colors.light.card, 0.96) : 'rgba(10,10,15,0.66)', border: `2px solid ${alpha(col, 0.75)}`,
+          boxShadow: light ? '0 4px 14px rgba(21,17,28,0.10)' : `0 6px 20px rgba(0,0,0,0.35), 0 0 18px ${alpha(col, 0.2)}`,
+          fontFamily: sans, fontWeight: 800, fontSize: m.fs, lineHeight: 1, letterSpacing: m.fs * 0.14, color: light ? theme.colors.light.text : col,
+          whiteSpace: 'nowrap', textTransform: 'uppercase', opacity: Math.min(1, p * 1.5), transform: `scale(${mix(0.8, 1, p).toFixed(4)})`, transformOrigin: align === 'left' ? '0% 100%' : '50% 100%',
+        }}
+      >
+        <span style={{width: m.fs * 0.5, height: m.fs * 0.5, borderRadius: '50%', background: col, marginRight: m.fs * 0.5, boxShadow: `0 0 ${(m.fs * 0.5).toFixed(1)}px ${alpha(col, 0.7)}`, flex: 'none'}} />
+        {sp.label}
+      </div>
+    </div>
+  );
+};
 
 /** Page entrance per look (spring from the page's first word, matching captionPageAt's 0.05 s lead). */
 const enterStyle = (m: CaptionMetrics, t: number, start: number, fps: number): React.CSSProperties => {
@@ -162,11 +247,12 @@ const enterStyle = (m: CaptionMetrics, t: number, start: number, fps: number): R
   return {opacity: o, transform: `translateY(${((1 - p) * m.fontSize * 0.25).toFixed(2)}px)`};
 };
 
-export const KineticCaptions: React.FC<{props: RenderProps}> = ({props}) => {
+export const KineticCaptions: React.FC<{props: RenderProps; env?: Env}> = ({props, env}) => {
   const {t, fps, theme, sans} = useEngine();
   const cap = props.captions;
   const emph = useMemo(() => (cap.emphasis === false ? new Set<number>() : captionEmphasis(props)), [props, cap.emphasis]);
   const keep = useMemo(() => keepTogether(props), [props]);
+  const tones = useMemo(() => captionToneMap(cap), [cap]);
   const m = useMemo(() => captionMetrics(props.format, cap), [props.format, cap]);
   if (!cap.enabled) return null;
   const idx = captionPageAt(cap.pages, props.words, t);
@@ -174,8 +260,9 @@ export const KineticCaptions: React.FC<{props: RenderProps}> = ({props}) => {
   const page = cap.pages[idx];
   const pw = page.wordIdx.map((i) => props.words[i]);
   const look = m.look === 'classic' ? 'pop' : m.look;
-  const useEmph = look === 'pop' || look === 'highlight';
-  const isEmph = (i: number) => useEmph && emph.has(i);
+  const useEmph = look === 'pop' || look === 'highlight' || look === 'headline';
+  // v3: a toned word is emphasised too in pop / highlight (scaled); headline colours emphasis words, never scales them
+  const isEmph = (i: number) => useEmph && (emph.has(i) || (look !== 'headline' && tones.has(i)));
   const {fs, lines} = pageLayout(
     pw.map((w) => w.text),
     m,
@@ -185,7 +272,34 @@ export const KineticCaptions: React.FC<{props: RenderProps}> = ({props}) => {
   // the same light-surface signal for every look (minimal switches ink; pop / highlight / karaoke drop the outline)
   const lightW = backdropWeights(props.scenes, t).light ?? 0;
   const W = WORD[look];
+  if (look === 'headline') {
+    // the band of the scene on screen at the page's first word (plan.ts sceneTops), below the HUD
+    const s = props.scenes[sceneIndexAt(props.scenes, pw[0].start)];
+    const band = env && s ? sceneTops(env, s).headline : undefined;
+    if (!band) return null;
+    return (
+      // left-aligned: the sentence is written from the column's edge, under the HUD's own left edge
+      <div style={{position: 'absolute', left: band.x, top: band.y, width: band.w, height: band.h, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontFamily: sans, fontWeight: m.weight, lineHeight: m.lineHeight, letterSpacing: '-0.012em', textTransform: m.uppercase ? 'uppercase' : 'none'}}>
+        {m.tagH ? <SpeakerTag cap={cap} idx={idx} words={props.words} lightW={lightW} align="left" /> : null}
+        {lines.map((line) => (
+          <div key={line[0]} style={{display: 'flex', flexWrap: 'nowrap', alignItems: 'baseline', columnGap: fs * 0.26, whiteSpace: 'nowrap'}}>
+            {line.map((k) => (
+              <W key={page.wordIdx[k]} w={pw[k]} k={k} pw={pw} t={t} fps={fps} fs={fs} emph={isEmph(page.wordIdx[k])} theme={theme} lightW={lightW} tone={tones.get(page.wordIdx[k])} />
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  // the speaker tag sits above the page outside its entrance transform, so it holds while the speaker keeps talking
+  const tag = m.tagH && page.speaker ? (
+    <div style={{position: 'absolute', left: m.x, width: m.maxW, bottom: m.bottom + lines.length * fs * m.lineHeight}}>
+      <SpeakerTag cap={cap} idx={idx} words={props.words} lightW={lightW} />
+    </div>
+  ) : null;
   return (
+    <>
+    {tag}
     <div
       style={{
         position: 'absolute',
@@ -207,10 +321,11 @@ export const KineticCaptions: React.FC<{props: RenderProps}> = ({props}) => {
       {lines.map((line) => (
         <div key={line[0]} style={{display: 'flex', flexWrap: 'nowrap', alignItems: 'baseline', columnGap: fs * (look === 'highlight' ? 0.12 : look === 'pop' ? 0.34 : 0.26), whiteSpace: 'nowrap'}}>
           {line.map((k) => (
-            <W key={page.wordIdx[k]} w={pw[k]} k={k} pw={pw} t={t} fps={fps} fs={fs} emph={isEmph(page.wordIdx[k])} theme={theme} lightW={lightW} />
+            <W key={page.wordIdx[k]} w={pw[k]} k={k} pw={pw} t={t} fps={fps} fs={fs} emph={isEmph(page.wordIdx[k])} theme={theme} lightW={lightW} tone={tones.get(page.wordIdx[k])} />
           ))}
         </div>
       ))}
     </div>
+    </>
   );
 };

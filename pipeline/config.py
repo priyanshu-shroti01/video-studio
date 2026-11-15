@@ -71,7 +71,8 @@ CAPTION_SCHEMA = {
         # caption look (pipeline/captions.py STYLES, docs/MOTION.md#captions): word/phrase/classic = the original
         # boxed captions; pop / highlight / karaoke = word-synced 1–3(4)-word pages; minimal = small, low (16:9)
         "enabled": {"type": "boolean"}, "style": {"type": "string", "enum": ["word", "phrase", "classic", "pop",
-                                                                             "highlight", "karaoke", "minimal"]},
+                                                                             "highlight", "karaoke", "minimal",
+                                                                             "headline"]},
         "uppercase": {"type": "boolean"}, "emphasis": {"type": "boolean"},
         "maxWords": {"type": "integer", "minimum": 1, "maximum": 12},
         "maxChars": {"type": "integer", "minimum": 8, "maximum": 80},

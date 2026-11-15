@@ -134,6 +134,8 @@ def evaluate(prod_dir: Path, cfg: dict) -> dict:
                     v = e.get("to") if e.get("kind") == "number" else None
                     if isinstance(v, (int, float)) and _num_str(v) not in facts_nums:
                         unverified.append(f"{s['id']}/composition.number: {v}")
+    from .hud import storyboard_numbers           # v3 HUD: stakes values and digits in chips / steps are claims too
+    unverified += [f"{where}: {n}" for n, where in storyboard_numbers(sb) if n not in facts_nums]
     add("storyboard.invented_labels", "FAIL" if labels else "PASS",
         f"label-with-number text (invented UI): {labels}" if labels else "no invented 'Label: number' UI text")
     add("storyboard.numbers_verified", "FAIL" if unverified else "PASS",
@@ -148,7 +150,7 @@ def evaluate(prod_dir: Path, cfg: dict) -> dict:
     from .timeline import build_timeline, estimated_timing
     tm = estimated_timing(sb)
     tl = build_timeline({**cfg, "formats": [prev["format"]]}, tm)
-    sync = sync_check.evaluate(tl.resolved, tm["words"], tl.duration)
+    sync = sync_check.evaluate(tl.resolved, tm["words"], tl.duration, hud=tl.hud)
     metrics["sync"] = {k: sync[k] for k in ("longest_static_s", "static_share_pct", "static", "early_numbers")}
     add("storyboard.narration_sync", sync["status"], sync_check.summary(sync))
     types = {b["type"] for s in sb["scenes"] for b in s["blocks"]}

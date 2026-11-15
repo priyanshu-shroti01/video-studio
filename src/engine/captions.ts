@@ -1,6 +1,6 @@
 import {DIMENSIONS} from './contract';
 import {estimateTextWidth} from './motion/typography';
-import {CaptionConfig, Format, RenderProps, Theme, Word} from './types';
+import {CaptionConfig, CaptionTone, Format, RenderProps, Theme, Tone, Word} from './types';
 
 /**
  * Index of the caption page visible at `t`, or -1.
@@ -33,9 +33,13 @@ export const captionBoxHeight = (fontSize: number, lines = 2) => fontSize * 1.15
 // type with a dark stroke + soft shadow instead of a box, the spoken word marked in the brand colour.
 // ---------------------------------------------------------------------------------------------------------------
 
-export type CaptionLook = 'classic' | 'pop' | 'highlight' | 'karaoke' | 'minimal';
+export type CaptionLook = 'classic' | 'pop' | 'highlight' | 'karaoke' | 'minimal' | 'headline';
 export const captionLook = (style: string | undefined): CaptionLook =>
-  style === 'pop' || style === 'highlight' || style === 'karaoke' || style === 'minimal' ? style : 'classic';
+  style === 'pop' || style === 'highlight' || style === 'karaoke' || style === 'minimal' || style === 'headline' ? style : 'classic';
+/** v3 'headline': the page sits at the top of the content area (below the HUD), not in a bottom band. */
+export const isTopCaption = (style: string | undefined) => captionLook(style) === 'headline';
+/** Side margin of the headline column (= layout.ts FORMAT_SPEC.side; kept here to avoid an import cycle). */
+export const HEADLINE_SIDE: Record<Format, number> = {short: 70, landscape: 140};
 
 /** Platform UI zones the new looks stay out of. Shorts/Reels/TikTok: the bottom ~20 % (title, description, music)
  *  and the right-hand action rail (~120–160 px of 1080). Landscape players only overlay a thin bottom strip. */
@@ -50,7 +54,18 @@ const LOOK = {
   highlight: {scale: 1.18, line: 1.22, weight: 800, upper: false},
   karaoke: {scale: 1.15, line: 1.12, weight: 800, upper: false},
   minimal: {scale: 0.8, line: 1.2, weight: 600, upper: false},
+  headline: {scale: 0.95, line: 1.14, weight: 800, upper: false},
 } as const;
+
+/** v3 speaker tag ("● MOM") above a caption page: size relative to the configured caption `fontSize`. */
+export const SPEAKER_TAG = {scale: 0.42, minFs: 22, h: 1.9, gap: 0.45, track: 0.14} as const;
+export const speakerTagMetrics = (fontSize: number) => {
+  const fs = Math.max(SPEAKER_TAG.minFs, Math.round(fontSize * SPEAKER_TAG.scale));
+  const h = Math.round(fs * SPEAKER_TAG.h);
+  const gap = Math.round(fs * SPEAKER_TAG.gap);
+  return {fs, h, gap, block: h + gap};
+};
+export const hasSpeakers = (cap: Partial<Pick<CaptionConfig, 'speakers'>>) => !!cap.speakers && Object.keys(cap.speakers).length > 0;
 
 export type CaptionMetrics = {
   look: CaptionLook;
@@ -63,22 +78,32 @@ export type CaptionMetrics = {
   /** caption column (centred) */
   x: number;
   maxW: number;
-  /** height the layout reserves for 2 lines (+ stroke / pop headroom) */
+  /** height the layout reserves for 2 lines (+ stroke / pop headroom, + the speaker tag when speakers are set) */
   bandH: number;
+  /** v3: room reserved above the text for the speaker tag (0 without speakers) */
+  tagH: number;
 };
 
-type CapLike = Pick<CaptionConfig, 'bottomFrac' | 'fontSize'> & Partial<Pick<CaptionConfig, 'style' | 'maxWidthFrac' | 'uppercase'>>;
+type CapLike = Pick<CaptionConfig, 'bottomFrac' | 'fontSize'> & Partial<Pick<CaptionConfig, 'style' | 'maxWidthFrac' | 'uppercase' | 'speakers'>>;
 
 export const captionMetrics = (format: Format, cap: CapLike): CaptionMetrics => {
   const {width, height} = DIMENSIONS[format];
   const look = captionLook(cap.style);
   const frac = cap.maxWidthFrac ?? 0.8;
+  const tagH = hasSpeakers(cap) ? speakerTagMetrics(cap.fontSize).block : 0;
   if (look === 'classic') {
     const maxW = width * frac;
     return {look, fontSize: cap.fontSize, lineHeight: 1.15, weight: 800, uppercase: false, bottom: height * cap.bottomFrac,
-      x: (width - maxW) / 2, maxW, bandH: captionBoxHeight(cap.fontSize, 2)};
+      x: (width - maxW) / 2, maxW, bandH: tagH ? captionBoxHeight(cap.fontSize, 2) + tagH : captionBoxHeight(cap.fontSize, 2), tagH};
   }
   const L = LOOK[look];
+  if (look === 'headline') {
+    // the content column itself (under the HUD); `bottom` is unused (the band's y comes from the scene plan)
+    const fs = Math.round(cap.fontSize * L.scale);
+    const maxW = width - 2 * HEADLINE_SIDE[format];
+    return {look, fontSize: fs, lineHeight: L.line, weight: L.weight, uppercase: cap.uppercase ?? L.upper, bottom: 0,
+      x: HEADLINE_SIDE[format], maxW, bandH: fs * L.line * 2 + fs * 0.12 + tagH, tagH};
+  }
   const safe = CAPTION_SAFE[format];
   const fs = Math.round(cap.fontSize * L.scale);
   // minimal sits lower on 16:9 (a thin line above the player's progress bar); never inside a platform zone
@@ -87,7 +112,78 @@ export const captionMetrics = (format: Format, cap: CapLike): CaptionMetrics => 
   const maxW = Math.min(width * frac, width - 2 * safe.sidePx);
   const headroom = look === 'pop' ? fs * 0.36 : look === 'highlight' ? fs * 0.2 : fs * 0.16; // spring scale / stroke / block
   return {look, fontSize: fs, lineHeight: L.line, weight: L.weight, uppercase: cap.uppercase ?? L.upper, bottom,
-    x: (width - maxW) / 2, maxW, bandH: fs * L.line * 2 + headroom};
+    x: (width - maxW) / 2, maxW, bandH: fs * L.line * 2 + headroom + tagH, tagH};
+};
+
+// ---------------------------------------------------------------------------------------------------------------
+// v3 caption tones and speakers. Absent (every v2 caption config) = no change to any look.
+// ---------------------------------------------------------------------------------------------------------------
+
+/** Tone of each word index that carries one (from the pages' parallel `tones` arrays). */
+export const captionToneMap = (cap: Pick<CaptionConfig, 'pages'>): Map<number, CaptionTone> => {
+  const out = new Map<number, CaptionTone>();
+  for (const pg of cap.pages) {
+    if (!pg.tones) continue;
+    pg.wordIdx.forEach((wi, k) => {
+      const tn = pg.tones?.[k];
+      if (tn) out.set(wi, tn);
+    });
+  }
+  return out;
+};
+
+/** Colour of a caption tone on a dark surface (theme.caption.tones overrides; theme tokens only). */
+export const captionToneColor = (theme: Theme, tone: CaptionTone): string => {
+  const o = theme.caption.tones?.[tone];
+  if (o) return o;
+  const c = theme.colors;
+  switch (tone) {
+    case 'danger':
+      return c.danger;
+    case 'success':
+      return c.success;
+    case 'term':
+    case 'warning':
+      return c.warning;
+    case 'info':
+      return c.info;
+    case 'brand':
+      return theme.caption.highlight;
+  }
+};
+
+/** The same tone on the light surface: darkened until it reads (≥ 4.8:1 on light.surface, like the accent). */
+export const captionToneColorLight = (theme: Theme, tone: CaptionTone) => darkenFor(captionToneColor(theme, tone), theme.colors.light.surface, 4.8);
+
+/** A block colour under white text (highlight look): darkened until white reads on it (≥ 3:1, large bold type). */
+export const captionToneBlock = (theme: Theme, tone: CaptionTone) => darkenFor(captionToneColor(theme, tone), '#ffffff', 3);
+
+const SPEAKER_TONES: Tone[] = ['brand', 'info', 'warning', 'success', 'danger'];
+/** Display label + tone of a speaker (default tones cycle by order of `captions.speakers`). */
+export const speakerOf = (cap: Pick<CaptionConfig, 'speakers'>, name: string): {label: string; tone: Tone} => {
+  const keys = Object.keys(cap.speakers ?? {});
+  const sp = cap.speakers?.[name];
+  const i = Math.max(0, keys.indexOf(name));
+  return {label: (sp?.label ?? name).toUpperCase(), tone: sp?.tone ?? SPEAKER_TONES[i % SPEAKER_TONES.length]};
+};
+export const speakerColor = (theme: Theme, tone: Tone): string => {
+  const c = theme.colors;
+  switch (tone) {
+    case 'brand':
+      return c.brandText;
+    case 'danger':
+      return c.danger;
+    case 'success':
+      return c.success;
+    case 'warning':
+      return c.warning;
+    case 'info':
+      return c.info;
+    case 'muted':
+      return c.text2;
+    default:
+      return c.text;
+  }
 };
 
 /** Lines + font size for one page: the look's size if the page fits one line, else the best-balanced 2-line split

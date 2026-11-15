@@ -5,8 +5,9 @@ import {collectAssetPaths, collectFootageNeedingDuration, intrinsicAspect, video
 import {BackdropStack} from './backdrops';
 import {BlockView} from './blocks';
 import {watermarkFactor} from './branding';
-import {captionLook, captionPageAt, wordState} from './captions';
-import {KineticCaptions} from './captions-view';
+import {captionLook, captionPageAt, captionToneColor, captionToneMap, hasSpeakers, speakerTagMetrics, wordState} from './captions';
+import {KineticCaptions, SpeakerTag} from './captions-view';
+import {HudView} from './hud-view';
 import {assertContract, DIMENSIONS, isV2} from './contract';
 import {captionBandTop} from './layout';
 import {BRANDBAR_DUR, LEAD, videoFadeFrames, VISIBLE_PAD} from './motion/durations';
@@ -155,8 +156,12 @@ const Captions: React.FC<{props: RenderProps; polish: boolean}> = ({props, polis
   const {width, height} = DIMENSIONS[props.format];
   const page = cap.pages[idx];
   const fs = cap.fontSize;
+  // v3: toned words (danger / success / term …) and a speaker tag above the box; absent = the original look exactly
+  const tones = page.tones ? captionToneMap({pages: [page]}) : null;
+  const tagged = hasSpeakers(cap) && !!page.speaker;
   return (
-    <div style={{position: 'absolute', left: 0, right: 0, bottom: height * cap.bottomFrac, display: 'flex', justifyContent: 'center'}}>
+    <div style={{position: 'absolute', left: 0, right: 0, bottom: height * cap.bottomFrac, display: 'flex', justifyContent: 'center', ...(tagged ? {flexDirection: 'column', alignItems: 'center'} : {})}}>
+      {tagged ? <div style={{height: speakerTagMetrics(fs).block, flex: 'none'}}><SpeakerTag cap={cap} idx={idx} words={props.words} lightW={lightW} /></div> : null}
       <div
         style={{
           maxWidth: width * cap.maxWidthFrac,
@@ -174,13 +179,15 @@ const Captions: React.FC<{props: RenderProps; polish: boolean}> = ({props, polis
         {page.wordIdx.map((wi) => {
           const w = props.words[wi];
           const st = cap.style === 'word' ? wordState(w, t) : 'spoken';
+          const tn = tones?.get(wi);
+          const tc = tn ? captionToneColor(theme, tn) : undefined;
           return (
             <span
               key={wi}
               style={{
                 display: 'inline-block',
                 margin: `0 ${fs * 0.2}px`,
-                color: st === 'current' ? theme.caption.highlight : st === 'spoken' ? theme.caption.text : theme.caption.dim,
+                color: tc && st !== 'upcoming' ? tc : st === 'current' ? theme.caption.highlight : st === 'spoken' ? theme.caption.text : theme.caption.dim,
                 transform: st === 'current' ? 'scale(1.08)' : 'none',
               }}
             >
@@ -299,9 +306,10 @@ export const Storyboard: React.FC<RenderProps> = (props) => {
           <SceneView key={s.id} scene={s} env={env} />
         ))}
         {env.v2 && usesFx(props) ? <FxOverlay props={props} frame={frame} /> : null}
+        {env.hud ? <HudView plan={env.hud} scenes={props.scenes} polish={env.polish} /> : null}
         <BrandBar env={env} />
         <WatermarkView env={env} />
-        {captionLook(props.captions.style) === 'classic' ? <Captions props={props} polish={env.polish} /> : <KineticCaptions props={props} />}
+        {captionLook(props.captions.style) === 'classic' ? <Captions props={props} polish={env.polish} /> : <KineticCaptions props={props} env={env} />}
       </AbsoluteFill>
     </EngineCtx.Provider>
   );

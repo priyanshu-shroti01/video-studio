@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .paths import ROOT
 
-CONTRACT_VERSION = 2  # v2 is a superset of v1; the engine also accepts v1 props unchanged
+CONTRACT_VERSION = 3  # v3 (HUD, caption tones / speakers, headline captions) is a superset of v2, v2 of v1
 FORMATS = {"short": (1080, 1920), "landscape": (1920, 1080)}
 COMPOSITION_ID = "Storyboard"
 
@@ -54,3 +54,9 @@ def ts_contract_version() -> int | None:
         return None
     m = re.search(r"CONTRACT_VERSION\s*=\s*(\d+)", f.read_text())
     return int(m.group(1)) if m else None
+
+
+# v3 (src/engine/types.ts HUD_KINDS / HUD_OPS / CAPTION_TONES): persistent HUD and caption meaning colours
+HUD_KINDS = {"header", "chips", "progress", "stakes"}
+HUD_OPS = {"show", "hide", "advance", "set", "add"}
+CAPTION_TONES = {"danger", "success", "term", "brand", "warning", "info"}

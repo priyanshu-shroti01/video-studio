@@ -278,7 +278,7 @@ describe('assets', () => {
 });
 
 describe('v1 backward compatibility', () => {
-  it('accepts contractVersion 1 and 2, rejects others', () => {
+  it('accepts contractVersion 1, 2 and 3, rejects others', () => {
     expect(() => assertContract({...V1S, contractVersion: 1})).not.toThrow();
     expect(() => assertContract({...V1S, contractVersion: 2})).not.toThrow();
     expect(() => assertContract({...V1S, contractVersion: 0})).toThrow(/contractVersion/);

@@ -5,6 +5,8 @@ pure function of `t = frame / fps`: no `Math.random`, no `Date`, no CSS transiti
 Render contract **v2** is a strict superset of v1. Props with `contractVersion: 1` render bit-identically to
 the v1 engine, verified by decoding the v1 fixture before and after and comparing per-frame MD5s (0 of 638 frames differ).
 All v2-only behaviour is gated on `contractVersion >= 2` (`isV2()` in `contract.ts`).
+Render contract **v3** adds the persistent [HUD](#hud-contract-v3), caption [tones and speakers](#tones-and-speakers-v3)
+and the `headline` caption style. All optional: v2 props render as before, and a `hud` below v3 is ignored.
 
 The engine has **32 block types** (14 from v1, 13 added in v2, 3 in the v2b look, plus `footage` and `composition`) and **6 scene backdrops**; the
 authoritative list is `src/engine/types.ts`.
@@ -25,6 +27,8 @@ authoritative list is `src/engine/types.ts`.
 | `branding.ts` | logo/asset aspects, brand bar rect, watermark policy + suppression | yes |
 | `plan.ts` | `makeEnv` / `planScene`: the scene plan used by **both** renderer and manifest | yes |
 | `texts.ts`, `manifest.ts` | QA layout manifest | yes |
+| `hud.ts` | v3 HUD: event → state segments, fixed rows (geometry), per-scene reserve, manifest texts | yes |
+| `hud-view.tsx`, `captions-view.tsx` | HUD drawing; kinetic / headline captions, tones, speaker tags | no |
 | `assets.ts` | intrinsic aspect from bytes (SVG viewBox, PNG, JPEG, GIF, WebP; MP4 / WebM display size + duration) | yes |
 | `look.ts` | v2b gate (`isPolished`), backdrop weights / crossfades, split-panel geometry | yes |
 | `geometry-v2b.ts` | geometry of `plan-card`, `install-flow`, `server-stack` (wide + tall layouts) | yes |
@@ -134,6 +138,7 @@ in Python (`pipeline/captions.py`, single source for the burned-in captions, SRT
 | `highlight` | white outlined words; a rounded `colors.brand` block sits behind the spoken word and grows in from the left / leaves to the right, so it travels word to word | 1–3 words | 9:16 |
 | `karaoke` | words fill left to right from muted to full colour as they are spoken (the fill edge in the highlight colour) | up to 4 words | 9:16, tutorials |
 | `minimal` (default for new 16:9) | small (0.8×), semibold, no outline; lower on 16:9; switches to dark ink over the `light` backdrop | classic | 16:9 |
+| `headline` (v3) | the sentence builds word by word, left-aligned at the top of the content area (below the HUD): each word springs up as it is spoken while the rest of the page holds its place, toned words in their colour, emphasis words (numbers, brand) in the highlight; 0.95× `fontSize`, two lines | a clause (≤ 7 words / 40 chars) | explainers, 16:9 |
 
 - **Paging** (`pop`/`highlight`/`karaoke`, `build_kinetic_pages`): a page ends at every sentence or clause end; it
   breaks before joiners ("a film | that was made | by the software"); it never ends on a dangling "the / of / your"
@@ -159,6 +164,32 @@ in Python (`pipeline/captions.py`, single source for the burned-in captions, SRT
 - **Defaults:** only NEW productions get a style written into their project: the brief's `captions.style` → the
   brand's `brand.json` `creative.captions.style` (a style, or `{"short": …, "landscape": …}`) → `pop` for Shorts,
   `minimal` for 16:9 (`captionsByFormat.landscape`). A project file without a style keeps the preset's classic `word`.
+- **Headline placement** (v3): the band is the content column (side margins), two lines + the speaker tag, at the top
+  of each scene's content area: below the brand bar or safe top, the HUD rows visible in that scene, and a top
+  watermark visible in it (`plan.ts sceneTops`). A page sits in the band of the scene on screen at its first word.
+  Scene content starts 24 px below the band; the content may go down to 90 px above the Shorts UI zone (bottom 20 %)
+  or the 16:9 bottom margin, where a bottom watermark sits. The manifest gives each scene its own `captionBand`.
+
+### Tones and speakers (v3)
+
+- **Tones.** `pages[].tones` (parallel to `wordIdx`, `null` = none) colours words by meaning: `danger` (bad, wrong),
+  `success` (good, fixed), `term` (a named concept), `brand`, `warning`, `info`. Colours are theme tokens
+  (`colors.danger` / `success` / `warning` / `info`, term = `colors.warning`, brand = `caption.highlight`;
+  `theme.caption.tones` overrides per brand). Every style uses them: pop / highlight / karaoke / minimal colour the word
+  from when it is spoken (pop and highlight also scale it like an emphasis word; the highlight block takes the tone,
+  darkened until white reads on it, ≥ 3:1), classic colours it once current, headline as it appears. On the light
+  surface a tone is darkened to ≥ 4.5:1 on `light.surface`. Without tones nothing changes.
+- **Where tones come from** (storyboard, per scene): `"captionTones": {"wrong": "danger", "fixed": "success",
+  "cache#2": "term"}` (every occurrence of the word in the scene, or the n-th), and every chip added on an `@word:`
+  anchor makes that word a `term` (`hud.termTones: false` turns this off; `captionTones` wins).
+- **Speakers.** `"speaker": "MOM"` on a scene, or `[{"name": "MOM"}, {"name": "HR", "from": "@word:sorry"}]` for a
+  dialogue inside one scene. Top-level `"speakers": {"MOM": {"label": "Mom", "tone": "danger"}}` declares labels and
+  colours (default tones by order: brand, info, warning, success, danger); a name a scene uses must be declared when
+  the map exists. The pipeline splits caption pages at every speaker change, so a page names one speaker
+  (`pages[].speaker`), and writes `captions.speakers`. The tag ("● MOM": a dot in the speaker's colour, the name in
+  caps, a dark pill with a tinted border) sits above the page, outside the page's entrance motion. It pops in when the
+  speaker changes or returns after a pause over 0.6 s, and holds across that speaker's pages. While `captions.speakers` is set, the caption band
+  reserves the tag's height (0.42 × `fontSize`, 1.9 × its size tall, plus a gap) in every style.
 - **QA:** `captions.reading_speed` for the word-synced styles measures chars/s over windows of consecutive pages
   spanning ≥ 1.5 s (`KINETIC_READING_WINDOW`) instead of per page: a 1–3-word page shows exactly the words being
   spoken, so its own rate is the local speech rate of a fraction of a second (a lone "orchestrates." reads as 30
@@ -190,13 +221,16 @@ Coordinates are output px at the settled position, before the camera. Times are 
 - `scroll-demo` lists the texts visible before scrolling. `browser` reports `Loading… 0.0s` as the counter label.
   `domain-input` reports the button's final (`done`) label.
 - `captionBand`: the reserved caption region (2 lines + 24 px) of the caption style in use (see [Captions](#captions)).
-  When captions are off, it's the bottom margin.
+  When captions are off, it's the bottom margin. With `headline` captions it is the first scene's top band, and every
+  scene carries its own (`scenes[].captionBand`).
+- v3: `hud` (only when the props have one; see [HUD](#hud-contract-v3)) and `scenes[].hudBottom`.
 - `safeArea`: x = side margin, y = top without the brand bar. Scenes with the bar start lower (250 short / 150 landscape).
 
 ## Fixtures
 
 `src/engine/fixtures/sample-{short,landscape}.json` (v1, unchanged) and `sample-v2-{short,landscape}.json`
 (every new block, `platform` + `custom` watermark, all cameras, transitions and presets, hook-tag under the brand bar).
+`sample-hud-{short,landscape}.json` (v3) cover the [HUD](#hud-contract-v3), caption tones, speakers and `headline`.
 
 ```bash
 npx remotion render Storyboard out/engine-v2/v2-short.mp4 --props=src/engine/fixtures/sample-v2-short.json --concurrency=2 --muted --log=error
@@ -400,6 +434,82 @@ counted hub, ladder, path, funnel, stacked cards, split compare), every element 
 ```bash
 npx remotion render Storyboard out/engine-composition/composition-short.mp4 --props=src/engine/fixtures/sample-composition-short.json --concurrency=4 --muted --log=error
 npx remotion render Storyboard out/engine-composition/composition-landscape.mp4 --props=src/engine/fixtures/sample-composition-landscape.json --concurrency=4 --muted --log=error
+```
+
+## HUD (contract v3)
+
+A persistent stage that lives across scenes instead of every scene starting from scratch: a header, a row of term
+chips that grows as terms are introduced, a series or chapter bar and a pinned stakes chip. It is drawn outside the
+scene layer (scene cameras and transitions never move it), above the scenes and below the brand bar, watermark and
+captions. Geometry and state are pure (`hud.ts`, shared by the renderer `hud-view.tsx`, the planner and the layout
+manifest); validation, `@word:` resolution and caption annotations are in `pipeline/hud.py`.
+
+**Contract.** `RenderProps.hud = {elements, events}` (absolute seconds, sorted). Props below `contractVersion` 3 ignore it.
+In the storyboard the elements are defined once at the top level and every scene changes them with its own events,
+anchored on its own words like block times:
+
+```json
+{
+  "hud": {"elements": [
+    {"id": "stakes", "kind": "stakes", "parts": [{"value": 212, "label": "applications"},
+                                                  {"value": 0, "label": "replies", "tone": "danger"}]},
+    {"id": "step", "kind": "header", "prefix": "Round", "steps": ["Hook", "Script", "Edit"]},
+    {"id": "series", "kind": "progress", "label": "Day", "total": 30, "value": 3},
+    {"id": "terms", "kind": "chips"}
+  ]},
+  "scenes": [
+    {"id": "s1", "narration": "212 applications. Round 1: the hook. ...",
+     "hud": [{"at": "@word:212", "target": "stakes", "op": "show"},
+             {"at": "@word:Round", "target": "step", "op": "show"},
+             {"at": "@word:hook", "target": "terms", "op": "add", "text": "Hook"}], "blocks": [...]},
+    {"id": "s2", "narration": "Round 2: the script ... 3 replies.",
+     "hud": [{"at": "@word:script", "target": "step", "op": "advance"},
+             {"at": "@word:3", "target": "stakes", "op": "set", "part": 1, "value": 3, "tone": "success"}], "blocks": [...]}
+  ]
+}
+```
+
+| kind | fields (defaults) | ops | draws |
+|---|---|---|---|
+| `header` | `steps[]` (1–12, ≤ 28 chars), `prefix`, `numbered` (true) | show, hide, advance, set `index` | "ROUND 2 · SCRIPT": prefix and number in the accent, name in the text colour, caps tracking 0.14 em; a step change slides the old line up and the new one in (0.42 s) |
+| `chips` | – | show, hide, add `text` (≤ 22 chars) + `tone` (brand) | left-aligned pills with a tone dot; a new chip pops in tinted in its tone, then settles (1.1 s + 0.5 s) to the quiet chip; chips stay |
+| `progress` | `total` (1–999), `value` (0), `label`, `style` bar / segments (≤ 12), `pad` (digits of `total`), `showCount` (true) | show, hide, advance, set `value` | a thin brand-gradient bar (or one segment per chapter) that fills over 0.8 s, with "DAY 03 / 30" in mono at its right |
+| `stakes` | `parts[]` (1–3: `label`, `value`, `prefix`, `suffix`, `tone`) | show, hide, set `part` + `value` / `tone` | a pinned pill, "212 applications · 0 replies"; a set counts from the old value to the new one over 0.6 s, its colour blending with the count, and the number bumps once as it lands |
+
+- **State.** An element is hidden until its first event (an `add` or `set` also shows it) and after a `hide` (0.3 s
+  fade). Every change starts `HUD.lead` (0.06 s) before its word, so it lands on the word. At most one element per kind.
+- **Rows.** Fixed for the whole video, so nothing jumps when an element appears: stakes (and the header beside it when
+  both fit one row, as in 16:9; otherwise the stakes chip gets its own centred row above), then the header, the bar,
+  the chips (wrapping into at most two rows, shrinking to 20 px first). Sizes are design px × the format scale
+  (header 34, stakes 28, bar label 26 mono, chips 26). The HUD starts at the content top (130 px Shorts / 70 px 16:9)
+  inside the side margins (70 / 140 px), or below the brand bar when the bar is on screen while the HUD is.
+- **Space.** Each scene reserves down to the lowest HUD row visible at any time during it, plus 30 px
+  (`hudContentTop` → `planScene` `topMin`); the camera reserve is added on top, so no camera move reaches the HUD.
+  The HUD never enters the caption band. A top watermark is hidden while any HUD element is on screen (the HUD owns
+  the top edge); a hook-tag string hangs from below it.
+- **Surfaces.** On a `light` backdrop the HUD switches to the light tokens (dark ink, white chips and pill); the bar
+  and dot glows drop there.
+- **Rules.** Stakes values are claims: `sync_check` treats them as numbers shown (when the part appears, or when a set
+  lands) and fails them if they appear more than 0.3 s before they are spoken, and the preview gate's
+  `storyboard.numbers_verified` checks them (and any digit in a chip, step or label) against the verified facts. Step numbers and series counts are
+  structure, not claims. Every HUD change counts as a visual event for the static-narration check. Nothing in the HUD
+  flashes (no luminance pulses), so it adds nothing to the 3-flashes-per-second budget. The engine has no reduced-motion
+  mode; the HUD's motions are short eases and springs like every block.
+- **Validation** (`pipeline/hud.py`): ids and kinds, one element per kind, fields and limits above, every event's
+  target, op (per kind), `at` (a valid time on a word of that scene), a header never advancing past its last step, at
+  most 12 chips (a warning above 8), and a warning for an element no event shows.
+- **Manifest / QA.** `hud.elements[]` = `{id, kind, bbox, visibleRanges, texts[{text, bbox, …, from, to}]}` (texts
+  per state: each header step, each stakes value from when it lands, each chip); scenes carry `hudBottom`. Visual QA:
+  `layout.hud_clear` fails when a scene block sits under a HUD element while both are on screen, `layout.hud_safe`
+  when an element leaves the side margins or touches a caption band; HUD texts join `layout.text_overflow`.
+
+Fixtures: `sample-hud-{short,landscape}.json` (all four kinds, chips that become caption terms, a stakes count from
+4 s to 1 s, header and bar hidden for the CTA; the Short with `pop` captions, tones and speaker tags, the 16:9 with
+`headline` captions), built by the pipeline from `tests/fixtures/hud-storyboard.json`:
+
+```bash
+uv run python tests/test_hud.py --write        # rebuild the fixtures (estimated timings)
+npx remotion still Storyboard out/hud-short.png --props=src/engine/fixtures/sample-hud-short.json --frame=560
 ```
 
 ## Effects

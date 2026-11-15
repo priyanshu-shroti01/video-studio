@@ -1,0 +1,1113 @@
+{
+ "contractVersion": 3,
+ "format": "short",
+ "fps": 30,
+ "durationInFrames": 943,
+ "theme": {
+  "name": "Shroti Host",
+  "colors": {
+   "bg": "#0a0a0f",
+   "surface": "#131318",
+   "card": "#17171f",
+   "raised": "#191921",
+   "border": "rgba(255,255,255,0.14)",
+   "borderStrong": "rgba(255,255,255,0.22)",
+   "text": "#f5f5f7",
+   "text2": "#a1a1ab",
+   "muted": "#87878f",
+   "brand": "#a810c7",
+   "brandHover": "#c817ea",
+   "brandActive": "#8b0da3",
+   "brandText": "#cf6cf2",
+   "success": "#22c55e",
+   "danger": "#f0576b",
+   "warning": "#f5a524",
+   "info": "#3fa7ff",
+   "light": {
+    "card": "#ffffff",
+    "surface": "#f7f5fa",
+    "border": "#e6e1ec",
+    "text": "#15111c",
+    "text2": "#4b4655",
+    "muted": "#726c7d",
+    "success": "#15803d"
+   }
+  },
+  "fonts": {
+   "sans": {
+    "family": "Plus Jakarta Sans",
+    "files": [
+     {
+      "src": "brands/shrotihost/fonts/jakarta-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+     },
+     {
+      "src": "brands/shrotihost/fonts/jakarta-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+1E00-1EFF,U+20A0-20AB,U+20AD-20C4,U+2113"
+     }
+    ]
+   },
+   "mono": {
+    "family": "Geist Mono",
+    "files": [
+     {
+      "src": "brands/shrotihost/fonts/geistmono-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212"
+     },
+     {
+      "src": "brands/shrotihost/fonts/geistmono-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+20A0-20AB,U+20AD-20C4"
+     }
+    ]
+   }
+  },
+  "logo": {
+   "onDark": "brands/shrotihost/logos/logo-on-dark.svg",
+   "onLight": "brands/shrotihost/logos/logo-on-light.svg",
+   "mark": "brands/shrotihost/logos/icon.svg",
+   "aspect": 5
+  },
+  "background": {
+   "style": "dots-glow",
+   "glowA": "#a810c7",
+   "glowB": "#3fa7ff"
+  },
+  "caption": {
+   "highlight": "#cf6cf2",
+   "box": "rgba(0,0,0,0.55)",
+   "text": "#f5f5f7",
+   "dim": "rgba(255,255,255,0.45)"
+  },
+  "radius": {
+   "card": 32,
+   "pill": 999
+  }
+ },
+ "captions": {
+  "enabled": true,
+  "style": "pop",
+  "maxWords": 4,
+  "fontSize": 66,
+  "bottomFrac": 0.27,
+  "maxWidthFrac": 0.8,
+  "pages": [
+   {
+    "start": 0.0,
+    "end": 0.968,
+    "wordIdx": [
+     0,
+     1,
+     2
+    ],
+    "speaker": "VISITOR"
+   },
+   {
+    "start": 0.968,
+    "end": 1.868,
+    "wordIdx": [
+     3,
+     4,
+     5
+    ],
+    "tones": [
+     null,
+     null,
+     "danger"
+    ],
+    "speaker": "VISITOR"
+   },
+   {
+    "start": 1.868,
+    "end": 3.016,
+    "wordIdx": [
+     6,
+     7,
+     8
+    ],
+    "tones": [
+     "danger",
+     null,
+     null
+    ],
+    "speaker": "VISITOR"
+   },
+   {
+    "start": 3.016,
+    "end": 4.044,
+    "wordIdx": [
+     9,
+     10
+    ],
+    "speaker": "VISITOR"
+   },
+   {
+    "start": 4.044,
+    "end": 4.511,
+    "wordIdx": [
+     11,
+     12
+    ],
+    "speaker": "YOU"
+   },
+   {
+    "start": 4.511,
+    "end": 4.711,
+    "wordIdx": [
+     13
+    ],
+    "speaker": "YOU"
+   },
+   {
+    "start": 4.711,
+    "end": 6.487,
+    "wordIdx": [
+     14,
+     15,
+     16
+    ],
+    "speaker": "YOU"
+   },
+   {
+    "start": 6.487,
+    "end": 7.8,
+    "wordIdx": [
+     17,
+     18,
+     19
+    ],
+    "speaker": "YOU"
+   },
+   {
+    "start": 7.8,
+    "end": 8.41,
+    "wordIdx": [
+     20,
+     21
+    ]
+   },
+   {
+    "start": 8.41,
+    "end": 9.588,
+    "wordIdx": [
+     22,
+     23
+    ],
+    "tones": [
+     null,
+     "term"
+    ]
+   },
+   {
+    "start": 9.588,
+    "end": 10.804,
+    "wordIdx": [
+     24,
+     25,
+     26
+    ]
+   },
+   {
+    "start": 10.804,
+    "end": 11.586,
+    "wordIdx": [
+     27,
+     28
+    ]
+   },
+   {
+    "start": 11.586,
+    "end": 12.384,
+    "wordIdx": [
+     29,
+     30
+    ]
+   },
+   {
+    "start": 12.384,
+    "end": 13.002,
+    "wordIdx": [
+     31,
+     32
+    ]
+   },
+   {
+    "start": 13.002,
+    "end": 14.212,
+    "wordIdx": [
+     33,
+     34
+    ],
+    "tones": [
+     null,
+     "danger"
+    ]
+   },
+   {
+    "start": 14.212,
+    "end": 14.822,
+    "wordIdx": [
+     35,
+     36
+    ]
+   },
+   {
+    "start": 14.822,
+    "end": 15.732,
+    "wordIdx": [
+     37
+    ]
+   },
+   {
+    "start": 15.732,
+    "end": 16.798,
+    "wordIdx": [
+     38,
+     39,
+     40
+    ],
+    "tones": [
+     null,
+     "term",
+     null
+    ]
+   },
+   {
+    "start": 16.798,
+    "end": 17.923,
+    "wordIdx": [
+     41,
+     42,
+     43
+    ]
+   },
+   {
+    "start": 17.923,
+    "end": 18.658,
+    "wordIdx": [
+     44,
+     45,
+     46
+    ],
+    "tones": [
+     null,
+     null,
+     "term"
+    ]
+   },
+   {
+    "start": 18.658,
+    "end": 19.874,
+    "wordIdx": [
+     47,
+     48,
+     49
+    ]
+   },
+   {
+    "start": 19.874,
+    "end": 21.202,
+    "wordIdx": [
+     50,
+     51,
+     52
+    ],
+    "tones": [
+     null,
+     null,
+     "success"
+    ]
+   },
+   {
+    "start": 21.202,
+    "end": 21.812,
+    "wordIdx": [
+     53,
+     54
+    ]
+   },
+   {
+    "start": 21.812,
+    "end": 22.825,
+    "wordIdx": [
+     55,
+     56
+    ],
+    "tones": [
+     null,
+     "term"
+    ]
+   },
+   {
+    "start": 22.825,
+    "end": 23.875,
+    "wordIdx": [
+     57,
+     58,
+     59
+    ],
+    "tones": [
+     "danger",
+     null,
+     null
+    ]
+   },
+   {
+    "start": 23.875,
+    "end": 24.568,
+    "wordIdx": [
+     60,
+     61
+    ]
+   },
+   {
+    "start": 24.568,
+    "end": 25.386,
+    "wordIdx": [
+     62,
+     63,
+     64
+    ]
+   },
+   {
+    "start": 25.386,
+    "end": 25.818,
+    "wordIdx": [
+     65
+    ]
+   },
+   {
+    "start": 25.818,
+    "end": 27.046,
+    "wordIdx": [
+     66,
+     67,
+     68
+    ]
+   },
+   {
+    "start": 27.046,
+    "end": 27.741,
+    "wordIdx": [
+     69
+    ],
+    "tones": [
+     "success"
+    ]
+   },
+   {
+    "start": 27.741,
+    "end": 28.791,
+    "wordIdx": [
+     70,
+     71,
+     72
+    ]
+   },
+   {
+    "start": 28.791,
+    "end": 29.142,
+    "wordIdx": [
+     73
+    ]
+   },
+   {
+    "start": 29.142,
+    "end": 30.747,
+    "wordIdx": [
+     74,
+     75
+    ]
+   }
+  ],
+  "speakers": {
+   "VISITOR": {
+    "tone": "info"
+   },
+   "YOU": {
+    "label": "You",
+    "tone": "brand"
+   }
+  }
+ },
+ "words": [
+  {
+   "text": "Why",
+   "start": 0.0,
+   "end": 0.248
+  },
+  {
+   "text": "does",
+   "start": 0.268,
+   "end": 0.598
+  },
+  {
+   "text": "this",
+   "start": 0.618,
+   "end": 0.948
+  },
+  {
+   "text": "shop",
+   "start": 0.968,
+   "end": 1.298
+  },
+  {
+   "text": "take",
+   "start": 1.318,
+   "end": 1.648
+  },
+  {
+   "text": "4",
+   "start": 1.668,
+   "end": 1.848
+  },
+  {
+   "text": "seconds",
+   "start": 1.868,
+   "end": 2.446
+  },
+  {
+   "text": "to",
+   "start": 2.466,
+   "end": 2.646
+  },
+  {
+   "text": "load",
+   "start": 2.666,
+   "end": 2.996
+  },
+  {
+   "text": "on",
+   "start": 3.016,
+   "end": 3.196
+  },
+  {
+   "text": "mobile?",
+   "start": 3.216,
+   "end": 3.794
+  },
+  {
+   "text": "Day",
+   "start": 4.044,
+   "end": 4.291
+  },
+  {
+   "text": "3",
+   "start": 4.311,
+   "end": 4.491
+  },
+  {
+   "text": "of",
+   "start": 4.511,
+   "end": 4.691
+  },
+  {
+   "text": "the",
+   "start": 4.711,
+   "end": 4.959
+  },
+  {
+   "text": "speed",
+   "start": 4.979,
+   "end": 5.392
+  },
+  {
+   "text": "challenge.",
+   "start": 5.412,
+   "end": 6.237
+  },
+  {
+   "text": "Let's",
+   "start": 6.487,
+   "end": 6.9
+  },
+  {
+   "text": "find",
+   "start": 6.92,
+   "end": 7.25
+  },
+  {
+   "text": "out.",
+   "start": 7.27,
+   "end": 7.6
+  },
+  {
+   "text": "Step",
+   "start": 7.8,
+   "end": 8.13
+  },
+  {
+   "text": "1:",
+   "start": 8.15,
+   "end": 8.33
+  },
+  {
+   "text": "the",
+   "start": 8.41,
+   "end": 8.658
+  },
+  {
+   "text": "request.",
+   "start": 8.678,
+   "end": 9.338
+  },
+  {
+   "text": "Every",
+   "start": 9.588,
+   "end": 10.001
+  },
+  {
+   "text": "visit",
+   "start": 10.021,
+   "end": 10.433
+  },
+  {
+   "text": "asks",
+   "start": 10.453,
+   "end": 10.784
+  },
+  {
+   "text": "the",
+   "start": 10.804,
+   "end": 11.051
+  },
+  {
+   "text": "server",
+   "start": 11.071,
+   "end": 11.566
+  },
+  {
+   "text": "to",
+   "start": 11.586,
+   "end": 11.766
+  },
+  {
+   "text": "rebuild",
+   "start": 11.786,
+   "end": 12.364
+  },
+  {
+   "text": "the",
+   "start": 12.384,
+   "end": 12.632
+  },
+  {
+   "text": "page",
+   "start": 12.652,
+   "end": 12.982
+  },
+  {
+   "text": "from",
+   "start": 13.002,
+   "end": 13.332
+  },
+  {
+   "text": "scratch.",
+   "start": 13.352,
+   "end": 14.012
+  },
+  {
+   "text": "Step",
+   "start": 14.212,
+   "end": 14.542
+  },
+  {
+   "text": "2:",
+   "start": 14.562,
+   "end": 14.742
+  },
+  {
+   "text": "caching.",
+   "start": 14.822,
+   "end": 15.482
+  },
+  {
+   "text": "A",
+   "start": 15.732,
+   "end": 15.912
+  },
+  {
+   "text": "cache",
+   "start": 15.932,
+   "end": 16.345
+  },
+  {
+   "text": "keeps",
+   "start": 16.365,
+   "end": 16.778
+  },
+  {
+   "text": "a",
+   "start": 16.798,
+   "end": 16.978
+  },
+  {
+   "text": "ready",
+   "start": 16.998,
+   "end": 17.41
+  },
+  {
+   "text": "copy,",
+   "start": 17.43,
+   "end": 17.843
+  },
+  {
+   "text": "and",
+   "start": 17.923,
+   "end": 18.171
+  },
+  {
+   "text": "a",
+   "start": 18.191,
+   "end": 18.371
+  },
+  {
+   "text": "TTL",
+   "start": 18.391,
+   "end": 18.638
+  },
+  {
+   "text": "decides",
+   "start": 18.658,
+   "end": 19.236
+  },
+  {
+   "text": "how",
+   "start": 19.256,
+   "end": 19.504
+  },
+  {
+   "text": "long",
+   "start": 19.524,
+   "end": 19.854
+  },
+  {
+   "text": "it",
+   "start": 19.874,
+   "end": 20.054
+  },
+  {
+   "text": "stays",
+   "start": 20.074,
+   "end": 20.487
+  },
+  {
+   "text": "fresh.",
+   "start": 20.507,
+   "end": 21.002
+  },
+  {
+   "text": "Step",
+   "start": 21.202,
+   "end": 21.532
+  },
+  {
+   "text": "3:",
+   "start": 21.552,
+   "end": 21.732
+  },
+  {
+   "text": "the",
+   "start": 21.812,
+   "end": 22.06
+  },
+  {
+   "text": "queue.",
+   "start": 22.08,
+   "end": 22.575
+  },
+  {
+   "text": "Slow",
+   "start": 22.825,
+   "end": 23.155
+  },
+  {
+   "text": "jobs",
+   "start": 23.175,
+   "end": 23.505
+  },
+  {
+   "text": "wait",
+   "start": 23.525,
+   "end": 23.855
+  },
+  {
+   "text": "in",
+   "start": 23.875,
+   "end": 24.055
+  },
+  {
+   "text": "line,",
+   "start": 24.075,
+   "end": 24.488
+  },
+  {
+   "text": "so",
+   "start": 24.568,
+   "end": 24.748
+  },
+  {
+   "text": "the",
+   "start": 24.768,
+   "end": 25.016
+  },
+  {
+   "text": "page",
+   "start": 25.036,
+   "end": 25.366
+  },
+  {
+   "text": "loads",
+   "start": 25.386,
+   "end": 25.798
+  },
+  {
+   "text": "in",
+   "start": 25.818,
+   "end": 25.998
+  },
+  {
+   "text": "1",
+   "start": 26.018,
+   "end": 26.198
+  },
+  {
+   "text": "second.",
+   "start": 26.218,
+   "end": 26.796
+  },
+  {
+   "text": "Fixed.",
+   "start": 27.046,
+   "end": 27.541
+  },
+  {
+   "text": "Make",
+   "start": 27.741,
+   "end": 28.071
+  },
+  {
+   "text": "your",
+   "start": 28.091,
+   "end": 28.421
+  },
+  {
+   "text": "shop",
+   "start": 28.441,
+   "end": 28.771
+  },
+  {
+   "text": "fast",
+   "start": 28.791,
+   "end": 29.122
+  },
+  {
+   "text": "at",
+   "start": 29.142,
+   "end": 29.322
+  },
+  {
+   "text": "shrotihost.in.",
+   "start": 29.342,
+   "end": 30.497
+  }
+ ],
+ "scenes": [
+  {
+   "id": "hook",
+   "purpose": "hook",
+   "start": 0.0,
+   "end": 7.65,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "danger",
+   "blocks": [
+    {
+     "type": "counter",
+     "to": 4,
+     "suffix": "s",
+     "label": "to load one page",
+     "tone": "danger",
+     "at": 1.668,
+     "countEnd": 1.868
+    },
+    {
+     "type": "pill",
+     "text": "Speed challenge",
+     "tone": "brand",
+     "at": 4.979
+    },
+    {
+     "type": "text",
+     "text": "Let's find out",
+     "size": "m",
+     "tone": "muted",
+     "at": 6.92
+    }
+   ],
+   "camera": "none"
+  },
+  {
+   "id": "request",
+   "purpose": "point",
+   "start": 7.65,
+   "end": 14.062,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "pill",
+     "text": "Every visit",
+     "tone": "info",
+     "at": 10.021
+    },
+    {
+     "type": "kinetic-text",
+     "words": [
+      {
+       "text": "Rebuilt",
+       "at": 11.191
+      },
+      {
+       "text": "from",
+       "at": 12.942
+      },
+      {
+       "text": "scratch",
+       "at": 13.292,
+       "emphasis": true
+      }
+     ],
+     "size": "l",
+     "at": 11.071
+    }
+   ],
+   "camera": "push-in"
+  },
+  {
+   "id": "caching",
+   "purpose": "point",
+   "start": 14.062,
+   "end": 21.052,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "kinetic-text",
+     "words": [
+      {
+       "text": "A",
+       "at": 16.998
+      },
+      {
+       "text": "ready",
+       "at": 16.998,
+       "emphasis": true
+      },
+      {
+       "text": "copy,",
+       "at": 17.37
+      },
+      {
+       "text": "kept",
+       "at": 17.49
+      },
+      {
+       "text": "fresh",
+       "at": 20.447,
+       "emphasis": true
+      }
+     ],
+     "size": "l",
+     "at": 16.998
+    },
+    {
+     "type": "pill",
+     "text": "TTL decides how long",
+     "tone": "info",
+     "at": 18.658
+    }
+   ],
+   "camera": "drift"
+  },
+  {
+   "id": "queue",
+   "purpose": "resolution",
+   "start": 21.052,
+   "end": 27.591,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "brand",
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Slow jobs wait in line",
+     "size": "m",
+     "tone": "muted",
+     "at": 23.525
+    },
+    {
+     "type": "counter",
+     "from": 4,
+     "to": 1,
+     "suffix": "s",
+     "label": "to load one page",
+     "tone": "success",
+     "at": 25.386,
+     "countEnd": 26.218
+    },
+    {
+     "type": "pill",
+     "text": "Fixed",
+     "tone": "success",
+     "stamp": true,
+     "at": 27.046
+    }
+   ],
+   "camera": "push-in"
+  },
+  {
+   "id": "cta",
+   "purpose": "cta",
+   "start": 27.591,
+   "end": 31.433,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "outro",
+     "url": "shrotihost.in",
+     "cta": "Make your shop fast",
+     "at": 27.741,
+     "urlAt": 29.342
+    }
+   ],
+   "camera": "none"
+  }
+ ],
+ "brandBar": null,
+ "watermark": {
+  "policy": "platform",
+  "opacity": 0.85,
+  "position": "top-right",
+  "widthFrac": 0.07,
+  "marginFrac": 0.04,
+  "variant": "mark"
+ },
+ "hud": {
+  "elements": [
+   {
+    "id": "stakes",
+    "kind": "stakes",
+    "parts": [
+     {
+      "value": 4,
+      "suffix": "s",
+      "label": "to load",
+      "tone": "danger"
+     },
+     {
+      "label": "on mobile"
+     }
+    ]
+   },
+   {
+    "id": "step",
+    "kind": "header",
+    "prefix": "Step",
+    "steps": [
+     "The request",
+     "Caching",
+     "The queue"
+    ]
+   },
+   {
+    "id": "series",
+    "kind": "progress",
+    "label": "Day",
+    "total": 30,
+    "value": 2
+   },
+   {
+    "id": "terms",
+    "kind": "chips"
+   }
+  ],
+  "events": [
+   {
+    "at": 1.668,
+    "target": "stakes",
+    "op": "show"
+   },
+   {
+    "at": 4.044,
+    "target": "series",
+    "op": "show"
+   },
+   {
+    "at": 4.311,
+    "target": "series",
+    "op": "advance"
+   },
+   {
+    "at": 7.8,
+    "target": "step",
+    "op": "show"
+   },
+   {
+    "at": 8.678,
+    "target": "terms",
+    "op": "add",
+    "text": "Request"
+   },
+   {
+    "at": 14.822,
+    "target": "step",
+    "op": "advance"
+   },
+   {
+    "at": 15.932,
+    "target": "terms",
+    "op": "add",
+    "text": "Cache"
+   },
+   {
+    "at": 18.391,
+    "target": "terms",
+    "op": "add",
+    "text": "TTL"
+   },
+   {
+    "at": 22.08,
+    "target": "step",
+    "op": "advance"
+   },
+   {
+    "at": 22.08,
+    "target": "terms",
+    "op": "add",
+    "text": "Queue"
+   },
+   {
+    "at": 26.018,
+    "target": "stakes",
+    "op": "set",
+    "part": 0,
+    "value": 1,
+    "tone": "success"
+   },
+   {
+    "at": 27.741,
+    "target": "step",
+    "op": "hide"
+   },
+   {
+    "at": 27.741,
+    "target": "series",
+    "op": "hide"
+   }
+  ]
+ }
+}
