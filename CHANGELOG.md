@@ -24,6 +24,8 @@
   clicking or scrolling, for read-only tours.
 
 ### Fixed
+- **Help chat dropped path placeholders** such as `knowledge/<id>/` from the guide text it reads, so answers named
+  `knowledge//candidates.json`. Only real HTML tags are stripped now.
 - **capture_studio.mjs kept the time spent off camera:** after `record: false`, the last frame held until recording
   resumed, so a clip showed seconds of a still page while the script navigated away. That time is now cut from the
   clip and from region times.

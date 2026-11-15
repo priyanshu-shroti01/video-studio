@@ -109,7 +109,9 @@ _ANSWER_LOCK = threading.Lock()          # one answer at a time per Studio (the 
 def _clean(md: str) -> str:
     md = re.sub(r"<!--.*?-->", "", md, flags=re.S)
     md = re.sub(r"<img[^>]*alt=\"([^\"]*)\"[^>]*>", r"(image: \1)", md)
-    md = re.sub(r"<[^>]+>", "", md)                                     # README tables and layout tags
+    # README tables and layout tags (real HTML tag names only: placeholders such as `<id>` or `<brand>` stay)
+    md = re.sub(r"</?(?:p|div|span|a|img|br|hr|table|thead|tbody|tr|td|th|sub|sup|picture|source|video|details|summary"
+                r"|b|i|em|strong|code|kbd|h[1-6]|ul|ol|li|center)\b[^>]*>", "", md, flags=re.I)
     md = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", md)                        # images and badges
     md = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", md)                    # links -> their text
     md = re.sub(r"\n{3,}", "\n\n", md)

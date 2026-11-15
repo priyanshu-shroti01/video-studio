@@ -159,3 +159,9 @@ def test_input_and_conversation_are_capped(registry, question, history, page):
     with pytest.raises(H.HelpInputError):
         H.answer(question, history, page, reg=registry, provider=m)
     assert m.calls == []
+
+
+def test_doc_cleaning_keeps_path_placeholders():
+    from pipeline.help_chat import _clean
+    out = _clean('<p align="center"><b>Hi</b></p> Facts live in `knowledge/<id>/facts.json` for each <brand>.')
+    assert "knowledge/<id>/facts.json" in out and "<brand>" in out and "<p" not in out and "<b>" not in out
