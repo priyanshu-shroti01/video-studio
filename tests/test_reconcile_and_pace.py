@@ -57,3 +57,19 @@ def test_a_brief_without_voice_leaves_the_preset_untouched():
 def test_pace_is_a_valid_brief_field():
     from pipeline.intelligence.brief import BRIEF_SCHEMA
     assert BRIEF_SCHEMA["properties"]["pace"]["enum"] == ["calm", "normal", "brisk"]
+
+
+def test_a_hand_saved_storyboard_gets_every_format_the_brief_asks_for():
+    p = {"id": "P1", "brand": "videostudio", "brief": {"format": "short", "formats": ["short", "landscape"]}}
+    assert api.default_project(p)["formats"] == ["short", "landscape"]
+    assert api.default_project({**p, "brief": {"format": "landscape"}})["formats"] == ["landscape"]
+
+
+def test_the_preview_gate_catches_a_dark_scene_that_opens_empty():
+    from pipeline.preview_gate import scene_open_report
+    scenes = [{"id": "a", "start": 0.0, "end": 4.0, "backdrop": "deep", "blocks": [{"at": 1.4}]},
+              {"id": "b", "start": 4.0, "end": 8.0, "backdrop": "light", "blocks": [{"at": 5.0}]},
+              {"id": "c", "start": 8.0, "end": 12.0, "backdrop": "deep", "blocks": [{"at": 8.05}]}]
+    r = {x["scene"]: x for x in scene_open_report(scenes)}
+    assert r["a"]["dark"] and r["a"]["opens_s"] == 1.4
+    assert not r["b"]["dark"] and "c" not in r

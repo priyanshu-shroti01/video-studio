@@ -62,6 +62,14 @@
   and the real results. Developer setup moved to "For developers". Every sentence the Video Studio brand's facts
   quote is kept word for word.
 
+### Fixed
+- **A dark scene that opened empty was only caught after the full render** (QA's black-frame check). The preview
+  gate's new `storyboard.scene_opens` fails a scene that shows only a dark backdrop for more than 0.6 s.
+- **Hinglish words read wrongly:** "two" (त्वो), "pass" (पैस), "banaoge", "awaaz", "ideas" and "agency" are
+  now in the word list with their usual readings, with a few more words from the first Hinglish test film.
+- **A storyboard saved by hand rendered only the brief's first format:** the default project ignored `formats`
+  (e.g. both 9:16 and 16:9). It now takes every format the brief asks for.
+
 ## 0.5.1 — 2026-11-15
 
 A help chat inside the Studio, calmer narration, steadier footage, recovery from killed renders, a clean

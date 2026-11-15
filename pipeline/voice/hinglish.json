@@ -2,6 +2,7 @@
  "$comment": "Hinglish narration (voice.lang \"hinglish\"): Latin-script display word -> Devanagari spoken form for the Kokoro Hindi phonemizer (pipeline/voice/hinglish.py). 'hindi' holds common Hindi words in the usual Latin spellings; 'english' holds English words Hinglish scripts use, written the way Indians say them. Keys are lowercase; matching is case-insensitive. Words not listed here go through rules: Hindi-looking words through the Latin -> Devanagari spelling rules, everything else through espeak's English pronunciation mapped to Devanagari. Per-project overrides (voice.pronunciation {\"display\": \"देवनागरी\"}) win over this file. Ambiguous spellings use the reading most common in marketing scripts: ki = की, main = मैं, me/mein = में, to = तो, do = दो, is = इस, in = इन, use = यूज़, or = ऑर.",
  "version": 1,
  "hindi": {
+  "awaaz": "आवाज़", "aawaz": "आवाज़", "awaz": "आवाज़", "banaoge": "बनाओगे", "banaenge": "बनाएँगे", "banayenge": "बनाएँगे", "milo": "मिलो", "likho": "लिखो", "kharcha": "खर्चा",
   "main": "मैं", "mai": "मैं", "mein": "में", "me": "में", "mujhe": "मुझे", "mujh": "मुझ", "mera": "मेरा", "meri": "मेरी", "mere": "मेरे",
   "maine": "मैंने", "hum": "हम", "ham": "हम", "humein": "हमें", "hamein": "हमें", "hume": "हमें", "hame": "हमें", "humne": "हमने",
   "hamara": "हमारा", "hamari": "हमारी", "hamare": "हमारे", "humara": "हमारा", "humari": "हमारी", "humare": "हमारे",
@@ -83,6 +84,7 @@
   "bhari": "भारी", "halka": "हल्का", "lamba": "लंबा", "lambi": "लंबी", "jyadatar": "ज़्यादातर", "zyadatar": "ज़्यादातर", "aksar": "अक्सर", "baar": "बार", "bar": "बार", "baari": "बारी"
  },
  "english": {
+  "two": "टू", "three": "थ्री", "four": "फ़ोर", "five": "फ़ाइव", "pass": "पास", "ideas": "आइडियाज़", "idea": "आइडिया", "agency": "एजेंसी", "key": "की", "code": "कोड", "film": "फ़िल्म", "ad": "ऐड", "brief": "ब्रीफ़", "frame": "फ़्रेम", "checks": "चेक्स", "blocking": "ब्लॉकिंग", "subscription": "सब्सक्रिप्शन", "mac": "मैक", "github": "गिटहब",
   "plan": "प्लान", "plans": "प्लान्स", "website": "वेबसाइट", "websites": "वेबसाइट्स", "site": "साइट", "sites": "साइट्स", "hosting": "होस्टिंग", "host": "होस्ट",
   "domain": "डोमेन", "domains": "डोमेन्स", "server": "सर्वर", "servers": "सर्वर्स", "online": "ऑनलाइन", "offline": "ऑफ़लाइन", "business": "बिज़नेस",
   "video": "वीडियो", "videos": "वीडियोज़", "product": "प्रोडक्ट", "products": "प्रोडक्ट्स", "free": "फ़्री", "offer": "ऑफ़र", "offers": "ऑफ़र्स",

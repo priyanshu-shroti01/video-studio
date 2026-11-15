@@ -7,6 +7,7 @@ Automated checks on the low-cost preview (one still per scene) and the storyboar
   * invented labels  — on-screen "Label: ₹N" patterns, or numbers not found in verified facts FAIL
   * text overflow    — from the engine's layout manifest                                    FAIL
   * narration sync   — voice runs >3 s over a frozen screen, or a number shows before it is spoken  FAIL (pipeline/sync_check.py)
+  * scene opens     — a scene shows only its backdrop for > 0.6 s: FAIL on a dark backdrop (near-black), WARN on light
   * variety          — fewer than 5 distinct block types in the video                       WARN
   * backdrop rhythm  — the same backdrop in more than 3 consecutive scenes                  WARN
 
@@ -32,6 +33,23 @@ TEXT_FIELDS = ("text", "label", "note", "sub", "title", "name", "price", "value"
                # v3 explainer blocks
                "body", "question", "term", "kicker", "keyword", "prompt")
 
+
+
+OPEN_LIMIT_S = 0.6      # s a scene may show only its backdrop before its first block appears
+LIGHT_BACKDROPS = {"light"}
+
+
+def scene_open_report(scenes: list[dict]) -> list[dict]:
+    """Scenes whose first block appears more than OPEN_LIMIT_S after the scene starts. On a dark backdrop that is
+    near-black on screen, which QA's black-frame check fails after a full render; catch it here first."""
+    out = []
+    for sc in scenes:
+        ats = [b["at"] for b in sc.get("blocks", []) if isinstance(b.get("at"), (int, float))]
+        opens = round(max(0.0, min(ats) - sc["start"]), 2) if ats else round(sc["end"] - sc["start"], 2)
+        if opens > OPEN_LIMIT_S:
+            bd = sc.get("backdrop") or "glow"
+            out.append({"scene": sc["id"], "opens_s": opens, "backdrop": bd, "dark": bd not in LIGHT_BACKDROPS})
+    return out
 
 def _gray(png: Path, w: int = 64) -> np.ndarray:
     info = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height",
@@ -159,6 +177,10 @@ def evaluate(prod_dir: Path, cfg: dict) -> dict:
     sync = sync_check.evaluate(tl.resolved, tm["words"], tl.duration, hud=tl.hud)
     metrics["sync"] = {k: sync[k] for k in ("longest_static_s", "static_share_pct", "static", "early_numbers")}
     add("storyboard.narration_sync", sync["status"], sync_check.summary(sync))
+    late = scene_open_report(tl.resolved)
+    add("storyboard.scene_opens", "FAIL" if any(r["dark"] for r in late) else ("WARN" if late else "PASS"),
+        "; ".join(f"{r['scene']}: nothing but the {r['backdrop']} backdrop for {r['opens_s']} s" for r in late)
+        if late else f"every scene shows content within {OPEN_LIMIT_S} s")
     types = {b["type"] for s in sb["scenes"] for b in s["blocks"]}
     add("storyboard.variety", "PASS" if len(types) >= 5 else "WARN", f"{len(types)} distinct block types: {sorted(types)}")
     bd = [s.get("backdrop", "glow") for s in sb["scenes"]]

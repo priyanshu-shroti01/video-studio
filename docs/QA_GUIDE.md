@@ -23,6 +23,7 @@ TTS), builds `preview/contact-sheet.jpg`, and writes `preview/gate.json` and `pr
 | `storyboard.numbers_verified` | FAIL: a number on screen (including `price.amount`, `plan-card.price`, HUD stakes values and digits in HUD chips / steps / labels) that is not in `knowledge/<brand>/facts.json` |
 | `layout.overflow` | FAIL: text overflows its box in the engine's layout manifest |
 | `storyboard.narration_sync` | FAIL: narration runs more than 3 s with no visual event, or a number appears more than 0.3 s before it is spoken; WARN above 2.5 s (`pipeline/sync_check.py`). HUD changes count as visual events, and a HUD stakes value counts as a number shown (when its part appears, or when a count lands); step numbers and series counts ("STEP 2", "DAY 03 / 30") are structure, not claims |
+| `storyboard.scene_opens` | FAIL: a scene shows only its backdrop for more than 0.6 s on a dark backdrop (it would render near-black and fail `visual.black_frames` after the full render); WARN on a light backdrop |
 | `storyboard.variety` | WARN: fewer than 5 distinct block types in the video |
 | `storyboard.backdrop_rhythm` | WARN: the same backdrop in more than 3 consecutive scenes |
 

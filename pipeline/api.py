@@ -310,7 +310,8 @@ def default_project(p: dict) -> dict:
     from .quality import apply_to_project
     fmt = p["brief"].get("format", "short")
     project = apply_to_project({"name": f"{p['brand']}-{p['id']}".lower(), "brand": p["brand"],
-                                "preset": FORMAT_PRESET.get(fmt, "shorts"), "formats": [fmt], "storyboard": "",
+                                "preset": FORMAT_PRESET.get(fmt, "shorts"), "formats": list(p["brief"].get("formats") or [fmt]),
+                                "storyboard": "",
                                 "audio": {"music": f"mood:{p['brief'].get('musicMood', 'corporate')}"}}, p["brief"])
     apply_brief_voice(project, p["brief"])
     from .brands import load_profile

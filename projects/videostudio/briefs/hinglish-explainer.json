@@ -1,0 +1,16 @@
+{
+ "brand": "Video Studio",
+ "product": "Video Studio",
+ "audience": "Indian marketers and founders",
+ "goal": "launch",
+ "tone": "direct, playful, myth-busting",
+ "cta": "Explore the code",
+ "request": "A Hinglish explainer in the short-form creator style: a myth crossed out and rejected, three steps on a persistent step header with term chips, the QA score on a gauge, the zero-cost line, and a poll ending.",
+ "format": "short",
+ "duration_seconds": 45,
+ "duration_flexible": true,
+ "formats": ["short", "landscape"],
+ "language": "hinglish",
+ "voice": "hm_omega",
+ "quality": "smooth"
+}
