@@ -2,73 +2,94 @@
 
 # Video Studio
 
-**Turn a product brief into a branded, narrated, animated and fact-checked marketing video, entirely on your Mac.**
-Local AI, multiple brands, and a person approving every step that matters.
+**Make product videos with AI, on your own Mac, for free.**
 
-**₹0 per video. No subscription, no API keys, no LLM account. The AI runs on your Mac.**
+Turn a product brief into a branded, narrated, animated and fact-checked marketing video, entirely on your Mac.
+It writes the script, records the voice, animates your real product, checks every price against your site and hands
+you the finished video in 9:16 and 16:9.
 
-<img src="docs/images/teaser.gif" width="250" alt="Video Studio's 30-second teaser, made with Video Studio: the price promise, the real Create-a-video wizard, the local stack and the frame-by-frame preview">
+**₹0 per video. No subscription, no API keys, no LLM account.** Nothing goes to the cloud.
 
-<sub>Video Studio's own 30 s teaser, made with Video Studio from a short brief.
-**[▶ Watch the 88-second walkthrough](https://github.com/priyanshu-shroti01/video-studio/releases/download/v0.5.0/video-studio-walkthrough-landscape.mp4)**
-(the whole Studio, from brief to approved film) · [vertical version](https://github.com/priyanshu-shroti01/video-studio/releases/download/v0.5.0/video-studio-walkthrough-vertical.mp4)</sub>
+<img src="docs/images/teaser.gif" width="280" alt="Video Studio's 30-second teaser, made with Video Studio: the price promise, the real Create-a-video wizard, the local stack and the frame-by-frame preview">
 
-<img src="docs/images/demo-opening.gif" width="250" alt="Opening of the WordPress Hosting Short: hook, terminal errors, logo reveal">&nbsp;&nbsp;
-<img src="docs/images/demo-wordpress-short.gif" width="250" alt="One-click WordPress install, plan comparison and the ₹69 plan card">
+<sub>This 30-second teaser was made with Video Studio.</sub>
 
-<sub>A real output: a 36.7 s YouTube Short for Shroti Host WordPress Hosting, made from a 10-line brief.
-The voice, captions, music, animation and QA all ran locally; a person approved it before it was published.
-**[▶ Watch it on YouTube](https://youtube.com/shorts/mGSbWJHqiXo)**</sub>
+**[▶ Watch the 88-second walkthrough](https://github.com/priyanshu-shroti01/video-studio/releases/download/v0.5.0/video-studio-walkthrough-landscape.mp4)** ·
+**[Install in two commands](#install-in-two-commands)** ·
+**[See a real Short on YouTube](https://youtube.com/shorts/mGSbWJHqiXo)**
 
-[![Watch on YouTube](https://img.shields.io/badge/Watch-on%20YouTube-FF0000?logo=youtube&logoColor=white)](https://youtube.com/shorts/mGSbWJHqiXo)
+[![GitHub stars](https://img.shields.io/github/stars/priyanshu-shroti01/video-studio?style=social)](https://github.com/priyanshu-shroti01/video-studio/stargazers)
+[![Latest release](https://img.shields.io/github/v/release/priyanshu-shroti01/video-studio)](https://github.com/priyanshu-shroti01/video-studio/releases/latest)
 ![macOS](https://img.shields.io/badge/macOS-Apple%20silicon-000?logo=apple)
-![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
-![Remotion](https://img.shields.io/badge/Remotion-4-0B84F3)
 ![Local AI](https://img.shields.io/badge/AI-100%25%20local-6d5efc)
+![Cost](https://img.shields.io/badge/cost-%E2%82%B90%20per%20video-2ea44f)
 [![License: PolyForm Shield 1.0.0](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0%20(source--available)-lightgrey)](LICENSE)
 
 </div>
 
 ---
 
-## Why
+## Install in two commands
 
-Short-form product video usually means an agency retainer, or a SaaS tool that sends your briefs, scripts and voice
-to someone else's servers. This studio does the whole job on one laptop, at no running cost.
+On an Apple-silicon Mac with about 7 GB free, open the Terminal app and paste:
 
-| | |
-|---|---|
-| 🔒 **Private** | Briefs, narration, voice and assets stay on the machine. It is designed to run fully offline; the only online features (publishing, keyword research, an optional online voice) are opt-in. |
-| ✅ **Accurate** | Every price, plan, spec and URL shown or spoken is checked against a fact base verified on the brand's own website. |
-| 🎬 **Designed, then checked** | Professionally composed scene templates own layout and animation. An opt-in component generator designs new scene graphics, scored by the same layout, sync and fact rules. AI drafts copy only inside validated slots. |
-| 🧑‍⚖️ **Accountable** | No expensive render, approval or publish happens without a named person's decision, bound to the exact files by SHA-256. |
-| 🏷️ **Multi-brand** | One studio for many websites. Each brand's logos, facts, voice and social accounts are strictly isolated. |
+```bash
+curl -fsSL https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/install.sh | bash
+videostudio
+```
 
-## Why not just ask ChatGPT for a video?
+The Studio opens in your browser at http://127.0.0.1:8765/. You don't need VS Code, Git or any developer tools. The
+first install downloads about 4 GB (the AI model, the voices and a browser for rendering). After that,
+`videostudio` opens it, `videostudio stop` closes it and `videostudio update` updates it.
+Step-by-step help: [docs/INSTALL.md](docs/INSTALL.md).
 
-AI video generators (Sora in ChatGPT, Veo, Runway, Kling and others) make striking, cinematic footage. For a product
-video, a marketer still runs into a few problems:
+## What you get
 
-- **Cost.** They are paid by subscription or by credits per clip. Video Studio costs ₹0 per video and needs no API key.
-- **Your real product.** A generator invents a product that looks plausible. Video Studio shows screen recordings of
-  your real app or website.
-- **Prices and claims.** Text inside generated frames is often wrong or garbled, and nothing checks it. Here every
-  number is checked against the brand's own site, and the finished file is read back with OCR, digit by digit.
-- **Your brand.** Generators approximate logos and colours. Video Studio uses the brand's real logo, colours, fonts
-  and the right pronunciation of its name.
-- **A whole video.** Instead of short clips to stitch together, you get a complete 30 s to 3 min video with voice,
-  music and captions, in both 9:16 and 16:9.
-- **Editing.** You can change one line or one scene and keep the rest, instead of regenerating and hoping.
-- **Privacy and sign-off.** Your brief and assets stay on your Mac, and a named person approves the exact file
-  before it is published.
+- **A complete video.** Voice-over, captions, music and animation, 30 seconds to 3 minutes, in 9:16 for Shorts and
+  Reels and 16:9 for YouTube.
+- **Your real product.** Screen recordings of your app or site, with the camera moving to each detail as the voice
+  names it.
+- **Prices you can trust.** Every price, plan and claim is checked against your own website, and the finished file
+  is read back with OCR, digit by digit.
+- **Every frame before it renders.** A frame-accurate preview with the real voice, so you approve the video before
+  the Mac spends time making it.
+- **Your Mac only.** The AI model, the voice and the render run locally, and it works offline. Your briefs never
+  leave the machine.
+- **A person signs off.** Nothing is rendered in full, approved or posted without a named person's decision, bound
+  to the exact files.
+- **Many brands, one studio.** Each website keeps its own logo, colours, fonts, facts, voice and social accounts.
+- **Help on every page.** A chat in the corner answers how-to questions with the same local AI.
 
-Where they are better: the look. Generated footage is photographic and Video Studio's motion graphics are not, and
-template-built scenes can look alike from one video to the next. You can use both: clips from any AI video tool can
-be imported as `footage` scenes.
+## How it compares
 
-## Results
+| | **Video Studio** | AI video generators (Sora, Veo, Runway, Kling) | Video SaaS or an agency |
+|---|---|---|---|
+| Cost | **₹0 per video** | subscription or credits per clip | subscription or retainer |
+| Where it runs | **your Mac, offline** | their cloud | their cloud or their team |
+| Shows your real product | **screen recordings of it** | a plausible lookalike | yes, with work |
+| Prices and claims | **checked against your site, then by OCR** | not checked, often garbled | checked by hand |
+| Your logo, fonts, name pronunciation | **exact** | approximated | yes |
+| Change one line, keep the rest | **yes** | regenerate and hope | depends |
+| Photographic footage | no, motion graphics | **yes** | yes |
 
-### The final video
+Generated footage looks better than motion graphics, and scenes built from templates can resemble each other from
+one video to the next. You can use both: clips from any AI video tool can be imported as `footage` scenes.
+
+<sub>Video Studio itself is free. It renders with [Remotion](https://www.remotion.dev/license), which is free for
+individuals, non-profits and companies of up to 3 people; larger companies need a Remotion company licence.</sub>
+
+If Video Studio saves you a subscription, a ⭐ helps other marketers and founders find it.
+
+## Real results
+
+### A real YouTube Short
+
+<p align="center"><img src="docs/images/demo-opening.gif" width="250" alt="Opening of the WordPress Hosting Short: hook, terminal errors, logo reveal">&nbsp;&nbsp;
+<img src="docs/images/demo-wordpress-short.gif" width="250" alt="One-click WordPress install, plan comparison and the ₹69 plan card"></p>
+
+A real output: a 36.7 s YouTube Short for Shroti Host WordPress Hosting, made from a 10-line brief.
+The voice, captions, music, animation and QA all ran locally, and a person approved it before it was published.
+**[▶ Watch it on YouTube](https://youtube.com/shorts/mGSbWJHqiXo)**
 
 | Measure | Result |
 |---|---|
@@ -270,22 +291,9 @@ Each brand gets its own folders:
 | `.pipeline/secrets/<id>/` | social accounts |
 | `video-out/<id>/` | finished videos |
 
-## Quick start
+## For developers
 
-Open the Terminal app on your Mac (Apple silicon) and paste these two commands:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/priyanshu-shroti01/video-studio/main/install.sh | bash
-videostudio
-```
-
-The second command opens the Studio at http://127.0.0.1:8765/ in your browser. You don't need VS Code, Git or any
-developer tools. The first install downloads about 4 GB (the local AI model, voices and a browser for rendering), so
-allow some time on a slow connection. Later, `videostudio` opens it, `videostudio stop` closes it and
-`videostudio update` updates it. Step-by-step help: [docs/INSTALL.md](docs/INSTALL.md).
-
-<details>
-<summary>For developers</summary>
+The two-command install above is all most people need. To work on the code:
 
 ```bash
 # install (once) from a clone; uses Python 3.14 (onnxruntime has no 3.15 build yet)
@@ -315,8 +323,6 @@ uv run video-pipeline production mark-published --id $P --platform linkedin --ur
 The Studio: `bin/videostudio` (or `uv run video-pipeline studio --open`). To keep things tidy,
 `video-pipeline archive --all-except $P` moves the rest to `output/_archive/`; `video-pipeline archive --list` and
 `--restore $P --actor "Your Name"` bring them back.
-
-</details>
 
 ## Performance
 

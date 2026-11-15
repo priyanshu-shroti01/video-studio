@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+- **README rewritten for first-time visitors:** the pitch, the teaser and the two-command install come first,
+  then what you get, a comparison with AI video generators and video SaaS (including the Remotion licence note),
+  and the real results. Developer setup moved to "For developers". Every sentence the Video Studio brand's facts
+  quote is kept word for word.
+
 ## 0.5.1 — 2026-11-15
 
 A help chat inside the Studio, calmer narration, steadier footage, recovery from killed renders, a clean
