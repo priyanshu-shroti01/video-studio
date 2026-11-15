@@ -35,6 +35,8 @@ BRIEF_SCHEMA = {
         "cta": {"type": "string", "maxLength": 60},
         "tone": {"type": "string", "maxLength": 120},
         "voice": {"type": "string", "maxLength": 60},
+        # how fast the narrator speaks (pipeline/api.PACE_RATE): calm -8%, normal (the preset), brisk +5%
+        "pace": {"type": "string", "enum": ["calm", "normal", "brisk"]},
         # caption look for this video (pipeline/captions.py STYLES); default: brand creative.captions.style -> format
         "captions": {"type": "object", "additionalProperties": False, "properties": {
             "style": {"type": "string", "enum": ["classic", "pop", "highlight", "karaoke", "minimal"]}}},

@@ -131,8 +131,9 @@ In tests, scripted "LLM" output containing "Browser: 39 rupees", the headline "B
   complete video.
 - The hosting pack relies on this knowledge base's fact-id convention (`policy.same_renewal`, `wp.setup_demo`…).
   A brand without a given fact silently loses the templates and lines that need it.
-- Sync and duration use estimated timings calibrated to the local voice: Kokoro am_michael at +5% measured
-  2.37 words/s over three renders, and the estimators use 2.33 (`anchors.WPS`). At that rate a 6-scene video
+- Sync and duration use estimated timings at 2.33 words/s (`anchors.WPS`), measured on the local voice at its
+  old +5% pace. The presets now speak at normal speed and keep longer pauses (about 2.3 words/s), so a film runs
+  a little longer than its estimate. At that rate a 6-scene video
   fits 30–35 s with about 62–70 words (roughly 11 a scene; 9–10 a scene for 7 scenes). The copy bank keeps short
   variants for every template so the director can fit the window. A CTA that ends on "seven-day money-back
   guarantee" leaves 2.43 s after the pill's cue word, which is over the 2.4 s design gap. The bank says

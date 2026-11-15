@@ -1,0 +1,19 @@
+{
+ "brand": "Video Studio",
+ "product": "Video Studio",
+ "audience": "Marketers and founders",
+ "goal": "launch",
+ "tone": "confident, quick, plain",
+ "cta": "Explore the code",
+ "request": "A 30–35 second teaser for the top of the README: product videos for zero cost on your own Mac, the real app, what it runs on, and watching every frame before it renders.",
+ "format": "short",
+ "duration_seconds": 33,
+ "formats": [
+  "short",
+  "landscape"
+ ],
+ "voice": "am_fenrir",
+ "components": "generate",
+ "quality": "smooth",
+ "pace": "calm"
+}

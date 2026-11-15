@@ -50,6 +50,9 @@ class Voiceover:
     removed_s: float = 0.0
 
 
+FIRST_LEAD = 0.05   # seconds of silence kept before the film's first word
+
+
 def build_voiceover(scenes: list[SceneVoice], out: Path, *, max_pause: float, pad: float, gap: float,
                     lead: float = 0.0) -> Voiceover:
     """Per scene: shorten long pauses (cut from the middle of the gap), trim to last word + pad, then
@@ -61,7 +64,9 @@ def build_voiceover(scenes: list[SceneVoice], out: Path, *, max_pause: float, pa
         ws = [Word(w.text, w.start, w.end, w.interpolated) for w in sc.words]
         cuts = pause_cuts(ws, max_pause)
         end = min(sc.duration, ws[-1].end + pad)
-        keep, cur = [], max(0.0, ws[0].start - 0.08) if si else 0.0  # scenes after the first start tight
+        # every scene starts tight; the film's first word comes almost at once (a hook can't open on silence, and the
+        # TTS engine's own ~0.4 s lead-in left the first frames black)
+        keep, cur = [], max(0.0, ws[0].start - (0.08 if si else FIRST_LEAD))
         head_trim = cur
         for cs, cl in cuts:
             keep.append((cur, cs)); cur = cs + cl

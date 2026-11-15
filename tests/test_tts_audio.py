@@ -117,3 +117,11 @@ def test_corrupted_audio_input_fails_cleanly(tmp_path):
 def test_unknown_sound_spec_rejected():
     with pytest.raises(AssetError):
         A.Kit(Path("audio/kit")).resolve("definitely-not-a-sound")
+
+
+def test_the_film_starts_on_its_first_word_not_on_the_engine_lead_in(tmp_path):
+    t = "Hello there."
+    r = synth(t, tmp_path)
+    ws = align(t, r.boundaries, r.duration)
+    vo = A.build_voiceover([A.SceneVoice(r.audio, ws, r.duration)], tmp_path / "vo.wav", max_pause=0.5, pad=0.2, gap=0.3)
+    assert vo.words[0].start <= A.FIRST_LEAD + 1e-6 or ws[0].start <= A.FIRST_LEAD

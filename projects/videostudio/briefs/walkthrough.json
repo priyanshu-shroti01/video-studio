@@ -1,0 +1,20 @@
+{
+ "brand": "Video Studio",
+ "product": "Video Studio",
+ "audience": "Marketers and founders",
+ "goal": "launch",
+ "tone": "clear, confident, unhurried",
+ "cta": "Explore the code",
+ "request": "A walkthrough of the whole Studio in the redesigned app: pick a website and its checked facts, write the brief, choose an idea, watch every frame with the real voice before rendering, render, QA, approve and download. Everything local, for zero cost.",
+ "format": "short",
+ "duration_seconds": 80,
+ "duration_flexible": true,
+ "formats": [
+  "short",
+  "landscape"
+ ],
+ "voice": "am_fenrir",
+ "components": "generate",
+ "quality": "smooth",
+ "pace": "calm"
+}

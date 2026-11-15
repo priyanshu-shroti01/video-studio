@@ -45,8 +45,8 @@ flag for the final approval.
 ### Timing estimates
 
 Preview, creative rules, concept fitting and the Studio estimate durations at **2.33 words/s**. The local voice
-(Kokoro `am_michael` at +5 %) measured **2.37 words/s** over three renders; the slightly lower estimate absorbs
-pauses. QA on the real voice timings remains the final check.
+at the presets' calm pace (normal speed, pauses up to 0.5 s kept, 0.35 s between scenes) speaks about **2.3 words/s**,
+so films run slightly longer than estimated. QA on the real voice timings remains the final check.
 
 ## Checks on the final file
 
@@ -71,7 +71,7 @@ uv run video-pipeline qa --job-id <JOB_ID>      # exit 0 = PASS/WARN, 3 = FAIL
 | `video.duration` | structure | yes | differs from the timeline by more than 1.5 frames |
 | `audio.duration` | audio | yes | audio and video lengths differ by more than 120 ms (truncation) |
 | `decode.full` | structure | yes | full `ffmpeg -f null` decode reports any error |
-| `visual.black_frames` | visual | yes | black ≥ 0.1 s anywhere except the planned end fade |
+| `visual.black_frames` | visual | yes | black ≥ 0.1 s anywhere except the planned end fade and the first 0.25 s (the opening fade-in) |
 | `visual.frozen` | visual | no | picture static ≥ 3 s (`qa.freezeWarnS`) |
 | `visual.blank_scenes` | visual | yes | a scene sample frame is a flat colour (luma range < 24): missing images, failed fonts, empty scene |
 | `visual.caption_safe_area` | visual | no | Shorts caption box below `qa.shortsOverlayFrac` (default 20%) |
@@ -116,7 +116,7 @@ Earlier stages also validate:
 brand and technical term with its spoken form and timestamp. **Look at the contact sheet before approving.**
 Automated checks catch broken files, not bad taste.
 
-Check the length against the target too. The voice speaks about 2.37 words/s, so a six-scene 30–35 s video fits
+Check the length against the target too. The voice speaks about 2.3 words/s, so a six-scene 30–35 s video fits
 about 62–70 words once scene gaps and the end tail are counted ([CREATIVE_SYSTEM.md](CREATIVE_SYSTEM.md)), and every
 `holdAfter` adds its seconds after the scene's last word.
 

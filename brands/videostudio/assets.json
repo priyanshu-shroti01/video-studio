@@ -149,6 +149,12 @@
    "source": "screen recording of the running Video Studio app (0.5 redesign): step 1 of the Create-a-video wizard (\"Which website is this video for?\") with the website cards, hovered (nothing created) (scripts/capture_studio.mjs, preset phone-legible: uiScale 1.6, scale 2, sidebar cropped, tight crop; plan scripts/capture-plans/videostudio/studio-create-v3.json)",
    "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
    "attribution": ""
+  },
+  {
+   "path": "brands/videostudio/footage/studio-wizard-v3.mp4",
+   "source": "screen recording of the running Video Studio app (0.5 redesign): the Create-a-video wizard picking the Video Studio website, typing the product and audience, then step 3 \"Pick an idea\" of an existing production (scripts/capture_studio.mjs, preset phone-legible; plan scripts/capture-plans/videostudio/studio-wizard-v3.json)",
+   "license": "PROPRIETARY (self-recorded product footage, all rights reserved)",
+   "attribution": ""
   }
  ]
 }

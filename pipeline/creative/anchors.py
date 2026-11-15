@@ -94,6 +94,16 @@ class Anchors:
             self.last = (base, o, t)
         return expr
 
+    def time_of(self, expr: str) -> float:
+        """Estimated scene time of an expression this object made ("@word:w#n+off")."""
+        m = re.fullmatch(r"@word:([^#+\-]+)(?:#(\d+))?([+-][\d.]+)?", expr)
+        if not m:
+            return 0.0
+        w, nth, off = m.group(1), int(m.group(2) or 1), float(m.group(3) or 0)
+        hits = [i for i, t in enumerate(self.tokens) if word_matches(t, w)]
+        i = hits[nth - 1] if len(hits) >= nth else (hits[0] if hits else 0)
+        return (self.times[i] if self.times else 0.0) + off
+
     def after(self, off: float, name: str = "") -> str:
         """Previous cue + off (does not need a word)."""
         if not self.last:

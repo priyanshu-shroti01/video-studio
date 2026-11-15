@@ -63,8 +63,17 @@ def footage_block(ctx, A, clip_id: str, name: str = "footage") -> dict:
     # 9:16: no browser chrome, the clip fills the column and the crop follows the beats (16:9 keeps the window)
     b["fit"] = {"short": "fill"}
     zooms, callouts = [], []
+    prev_t = None
     for i, beat in enumerate(spec.get("beats") or []):
-        at = A.at(beat["cues"], -0.15, name=f"zoom:{i}")
+        at = A.at(beat["cues"], -0.15, name=f"zoom:{i}", advance=False)
+        if A.used[-1]["word"] is None:
+            continue            # its words aren't spoken: no move (a fallback would stack moves 0.45 s apart)
+        t = A.time_of(at)
+        if prev_t is not None and t - prev_t < MIN_ZOOM_GAP:
+            continue            # let the view settle and be read before the camera moves again
+        A.at(beat["cues"], -0.15, name=f"zoom:{i}")      # advance the cue cursor past the kept move
+        A.used.pop()
+        prev_t = t
         z = {"at": at, "x": beat["x"], "y": beat["y"], "scale": beat["scale"]}
         region = beat.get("region")
         if region and _wants_callout(beat):
@@ -81,6 +90,7 @@ def footage_block(ctx, A, clip_id: str, name: str = "footage") -> dict:
     return b
 
 
+MIN_ZOOM_GAP = 0.8            # seconds between camera moves on footage: at 0.45 s apart the view never settled to be read
 CALLOUT_MAX_SIDE = 0.25       # beats naming a small element (both sides <= 1/4 of the clip) get a callout ("zoom lens");
                               # a wide element (a form row) is framed by the zoom instead, which already fills the width
 CALLOUT_CONTEXT_SCALE = 1.6   # ... and the view behind the lens zooms only this far, so the viewer keeps the context

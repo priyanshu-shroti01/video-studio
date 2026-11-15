@@ -156,7 +156,7 @@ Tests: `uv run pytest tests/test_studio_server.py tests/test_studio_token.py tes
 ```
 GET  /api/session | /api/dashboard[?brand=] | /api/brands | /api/storyboard/schema | /api/productions | /api/jobs | /api/tasks[/<id>]
 GET  /api/productions/cards                          Home grid: id, name, brand, state, format, thumbnail, job progress, preview_approved, has_concepts, posted[]
-POST /api/productions                                {brand, name?, brief{product, price, audience, format, duration_seconds, goal, tone, voice, cta, request}}
+POST /api/productions                                {brand, name?, brief{product, price, audience, format, duration_seconds, goal, tone, voice, pace, cta, request}}
 GET  /api/productions/<id>  ·  /api/productions/<id>/outputs
 POST /api/productions/<id>/concepts | /select {conceptId} | /preview | /render          -> {task}
 POST /api/productions/<id>/approve-preview {reviewer, note?}

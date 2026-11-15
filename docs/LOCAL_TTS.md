@@ -23,13 +23,19 @@ captions show "shrotihost.in", "₹49", "NVMe"            the engine said "Shro-
 Voice config (`presets/*.json` → `voice`, overridable per project):
 
 ```json
-"voice": {"provider": "kokoro", "voice": "am_michael", "rate": "+5%", "pitch": "+0Hz",
-          "pronunciation": {"Shroti": "Shrow-tee"}, "maxPause": 0.35, "pad": 0.25, "sceneGap": 0.2}
+"voice": {"provider": "kokoro", "voice": "am_michael", "rate": "+0%", "pitch": "+0Hz",
+          "pronunciation": {"Shroti": "Shrow-tee"}, "maxPause": 0.5, "pad": 0.25, "sceneGap": 0.35}
 ```
 
 * `rate` maps to Kokoro `speed` / Piper `length_scale`. `pitch` is ignored by local engines (warning).
 * `lang` (Kokoro only): phonemizer accent, default from the voice prefix (`a*` en-us, `b*` en-gb, `h*` en-us).
 * `pronunciation`: per-project `{display: spoken}` overrides; they win over the shared dictionary.
+* A brief's `voice` (a voice id such as `"am_fenrir"`) and `pace` (`calm` = -8 %, `normal` = the preset, `brisk` =
+  +5 %) override the preset for that production. Voices differ: at the same rate `am_fenrir` speaks about 8 %
+  faster than `am_michael`, so `calm` suits it.
+* Assembly (`pipeline/audio.build_voiceover`): pauses longer than `maxPause` are shortened, each scene ends `pad` s
+  after its last word and scenes are joined by `sceneGap`. Every scene starts tight on its first word; the film's
+  first word starts 0.05 s in (`FIRST_LEAD`), so a video never opens on the engine's own lead-in silence.
 * Legacy online voice: `{"provider": "edge", "voice": "en-IN-PrabhatNeural", "allowOnline": true}`.
 
 ## Models (all in `models/voice/`, git-ignored; registry: `pipeline/voice/registry.json`)

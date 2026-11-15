@@ -16,7 +16,8 @@
  *
  * type: [selector, text, chars per second]; select: [selector, value]; click: selector; clickText: visible button text;
  * checkIndex: n-th checkbox; selectIndex: [n, value]; setValue: [selector, value];
- * waitFor: selector (up to 120 s); scroll: pixels (smooth); hold/wait: ms; record: true/false starts/stops recording. The screencast only emits frames on change;
+ * waitFor: selector (up to 120 s); scroll: pixels (smooth); hold/wait: ms; record: true/false starts/stops recording (time off camera is
+ * cut from the clip and from region times). The screencast only emits frames on change;
  * frame durations come from their timestamps, so pauses are kept exactly. Output: H.264 30 fps, yuv420p, BT.709.
  *
  * Recording for video (text must stay readable when the film shows the clip on a phone):
@@ -79,6 +80,8 @@ const frames = [];
 const tmp = mkdtempSync(join(tmpdir(), 'capture-'));
 let recording = false;
 let t0 = null;                                          // wall time of the first recorded frame (clip time 0)
+let paused = 0;                                         // seconds spent with recording off (cut from the clip)
+let pauseAt = null;
 ws.addEventListener('message', (e) => {
   const m = JSON.parse(e.data);
   if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
@@ -88,15 +91,51 @@ ws.addEventListener('message', (e) => {
       const f = join(tmp, `f${String(frames.length).padStart(6, '0')}.jpg`);
       writeFileSync(f, Buffer.from(data, 'base64'));
       if (!frames.length) t0 = Date.now() / 1000;
-      frames.push({f, t: metadata.timestamp, wall: Date.now() / 1000});
+      frames.push({f, t: metadata.timestamp - paused, wall: Date.now() / 1000 - paused});
     }
     ws.send(JSON.stringify({id: ++id, method: 'Page.screencastFrameAck', params: {sessionId}}));
   }
 });
 const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({id: i, method, params})); });
-const evaluate = async (expr) => (await send('Runtime.evaluate', {expression: expr, awaitPromise: true, returnByValue: true})).result?.result?.value;
-const centre = async (js) => evaluate(`(() => { const el = ${js}; if (!el) return null; el.scrollIntoView({block: 'center', inline: 'center'});
-  const r = el.getBoundingClientRect(); return {x: r.x + r.width / 2, y: r.y + r.height / 2}; })()`);
+// Page code is a fixed function; plan values (selectors, texts, numbers) only ever travel as call arguments
+// (Runtime.callFunctionOn), never spliced into source.
+const call = async (fn, ...args) => {
+  const g = await send('Runtime.evaluate', {expression: 'globalThis'});
+  const r = await send('Runtime.callFunctionOn', {functionDeclaration: fn.toString(), objectId: g.result?.result?.objectId,
+    arguments: args.map((value) => ({value})), awaitPromise: true, returnByValue: true});
+  return r.result?.result?.value;
+};
+// Runs in the page. loc: {sel} | {text, up} (the smallest visible element whose text starts with `text`, or its
+// closest `up` ancestor, e.g. its card) | {button} (a button or link by its text) | {all, i} (the i-th match).
+function act(loc, action, arg) {
+  let el = null;
+  if (loc.sel !== undefined) el = document.querySelector(loc.sel);
+  else if (loc.button !== undefined) el = [...document.querySelectorAll('button, a')].find((b) => b.textContent.trim().startsWith(loc.button));
+  else if (loc.all !== undefined) el = document.querySelectorAll(loc.all)[loc.i];
+  else if (loc.text !== undefined) {
+    el = [...document.querySelectorAll('body *')].filter((e) => e.getClientRects().length && e.textContent.trim().startsWith(loc.text)
+      && (!loc.up || e.closest(loc.up))).sort((a, b) => a.textContent.length - b.textContent.length)[0] || null;
+    if (el && loc.up) el = el.closest(loc.up);
+  }
+  if (!el) return action === 'exists' ? false : null;
+  const mid = () => { const r = el.getBoundingClientRect(); return {x: r.x + r.width / 2, y: r.y + r.height / 2}; };
+  const setValue = (proto, value, event) => {
+    Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, value); el.dispatchEvent(new Event(event, {bubbles: true})); return true;
+  };
+  switch (action) {
+    case 'exists': return true;
+    case 'point': return mid();
+    case 'centre': el.scrollIntoView({block: 'center', inline: 'center'}); return mid();
+    case 'rect': { const r = el.getBoundingClientRect(); return {x: r.x / arg, y: r.y / arg, w: r.width / arg, h: r.height / arg}; }
+    case 'scroll': el.scrollIntoView({behavior: 'smooth', block: 'center'}); return true;
+    case 'play': el.muted = true; return el.play().then(() => true, () => false);
+    case 'select': return setValue(HTMLSelectElement.prototype, arg, 'change');
+    case 'input': return setValue(HTMLInputElement.prototype, arg, 'input');
+    default: return null;
+  }
+}
+const at = (loc, action, arg = null) => call(act, loc, action, arg);
+const centre = (loc) => at(loc, 'centre');
 let hoverAt = null;                                     // last pointer position of a hover step
 const clickAt = async (p) => {
   for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) {
@@ -104,54 +143,57 @@ const clickAt = async (p) => {
     await sleep(type === 'mouseMoved' ? 120 : 40);
   }
 };
-const q = (sel) => `document.querySelector(${JSON.stringify(sel)})`;
-// the smallest visible element whose text starts with `text` (or its closest `up` ancestor, e.g. its card)
-const byText = (text, up) => `(() => { const el = [...document.querySelectorAll('body *')].filter((e) => e.getClientRects().length &&
-  e.textContent.trim().startsWith(${JSON.stringify(text)})${up ? ` && e.closest(${JSON.stringify(up)})` : ''}).sort((a, b) => a.textContent.length - b.textContent.length)[0];
-  return el && ${up ? `el.closest(${JSON.stringify(up)})` : 'el'}; })()`;
+const q = (sel) => ({sel});
+const byText = (text, up) => ({text, up});
 
 await send('Page.enable');
 await send('Runtime.enable');
 // The screencast captures at layout size, so render the page at width*scale with CSS zoom = scale: same layout as a
 // width x height screen, scale-times the pixels (sharp when the film zooms in). Input coordinates are viewport pixels.
 await send('Emulation.setDeviceMetricsOverride', {width: vp.width * vp.scale, height: vp.height * vp.scale, deviceScaleFactor: 1, mobile: false});
-await send('Page.addScriptToEvaluateOnNewDocument', {source: `document.addEventListener('DOMContentLoaded', () => { document.documentElement.style.zoom = '${zoom}'; });`});
+// fixed source: the zoom itself is stored per origin by the call below, so later navigations open zoomed from the first paint
+await send('Page.addScriptToEvaluateOnNewDocument', {source: "document.addEventListener('DOMContentLoaded', () => { "
+  + "const z = sessionStorage.getItem('capture-studio-zoom'); if (z) document.documentElement.style.zoom = z; });"});
 await send('Page.navigate', {url: plan.url});
 await sleep(2500);                                      // token → cookie → app shell
 const base = new URL(plan.url).origin + '/';
-await evaluate(`document.documentElement.style.zoom = '${zoom}'`);
+await call((z) => { sessionStorage.setItem('capture-studio-zoom', z); document.documentElement.style.zoom = z; }, String(zoom));
 // an element's rect in layout px of the viewport (getBoundingClientRect is in viewport px of the width*scale metrics)
-const rectOf = async (js) => evaluate(`(() => { const el = ${js}; if (!el) return null; const r = el.getBoundingClientRect();
-  return {x: r.x / ${vp.scale}, y: r.y / ${vp.scale}, w: r.width / ${vp.scale}, h: r.height / ${vp.scale}}; })()`);
-const record = async (name, js) => {
-  const r = await rectOf(js); if (!r) throw new Error(`no region element for ${name}`);
+const rectOf = (loc) => at(loc, 'rect', vp.scale);   // an element's rect in layout px of the viewport
+const record = async (name, loc) => {
+  const r = await rectOf(loc); if (!r) throw new Error(`no region element for ${name}`);
   const c = crop || {x: 0, y: 0, w: vp.width, h: vp.height};
   const n = (v) => +Math.min(1, Math.max(0, v)).toFixed(4);
   const x0 = n((r.x - c.x) / c.w), y0 = n((r.y - c.y) / c.h), x1 = n((r.x + r.w - c.x) / c.w), y1 = n((r.y + r.h - c.y) / c.h);
-  const t = t0 === null ? 0 : +((Date.now() / 1000) - t0).toFixed(2);
+  const t = t0 === null ? 0 : +((Date.now() / 1000) - t0 - paused).toFixed(2);
   regions.push({name, t, x: x0, y: y0, w: +(x1 - x0).toFixed(4), h: +(y1 - y0).toFixed(4)});
 };
 await send('Page.startScreencast', {format: 'jpeg', quality: 92, maxWidth: vp.width * vp.scale, maxHeight: vp.height * vp.scale, everyNthFrame: 1});
 for (const s of plan.steps) {
   if (s.record === true && !recording) {   // restart the screencast so a static page still yields its first frame now
+    if (pauseAt !== null) { paused += Date.now() / 1000 - pauseAt; pauseAt = null; }
     recording = true;
     await send('Page.stopScreencast');
     await send('Page.startScreencast', {format: 'jpeg', quality: 92, maxWidth: vp.width * vp.scale, maxHeight: vp.height * vp.scale, everyNthFrame: 1});
     for (let i = 0; i < 10 && !frames.length; i++) {   // no frame yet: repaint one invisible pixel to get one
-      await evaluate(`(() => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;background:rgba(0,0,0,0.004);pointer-events:none';
-        document.body.appendChild(d); setTimeout(() => d.remove(), 60); })()`);
+      await call(() => { const d = document.createElement('div'); d.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;background:rgba(0,0,0,0.004);pointer-events:none';
+        document.body.appendChild(d); setTimeout(() => d.remove(), 60); });
       await sleep(150);
     }
   }
-  if (s.record === false) recording = false;
+  if (s.record === false && recording) {   // the last frame holds until now; the time off camera is cut, not kept
+    recording = false;
+    pauseAt = Date.now() / 1000;
+    if (frames.length) { const last = frames.at(-1); frames.push({f: last.f, t: last.t + (pauseAt - paused - last.wall), wall: pauseAt - paused}); }
+  }
   if (s.nav !== undefined) { await send('Page.navigate', {url: base + s.nav}); await sleep(1800); }
   if (s.wait || s.hold) await sleep(s.wait || s.hold);
   if (s.waitFor) {
-    for (let i = 0; i < 600 && !(await evaluate(`!!${q(s.waitFor)}`)); i++) await sleep(200);
+    for (let i = 0; i < 600 && !(await at(q(s.waitFor), 'exists')); i++) await sleep(200);
   }
   if (s.click) { const p = await centre(q(s.click)); if (!p) throw new Error(`no element ${s.click}`); await clickAt(p); }
   if (s.clickText) {
-    const p = await centre(`[...document.querySelectorAll('button, a')].find((b) => b.textContent.trim().startsWith(${JSON.stringify(s.clickText)}))`);
+    const p = await centre({button: s.clickText});
     if (!p) throw new Error(`no button "${s.clickText}"`);
     await clickAt(p);
   }
@@ -159,14 +201,14 @@ for (const s of plan.steps) {
   if (s.regionText) await record(s.regionText[0], byText(s.regionText[1], s.regionText[2]));
   if (s.scrollTo || s.scrollToText) {       // smooth-scroll an element to the middle of the view (selector / visible text)
     const el = s.scrollTo ? q(s.scrollTo) : byText(...[s.scrollToText].flat());   // text or [text, ancestor selector]
-    if (!(await evaluate(`(() => { const el = ${el}; if (!el) return false; el.scrollIntoView({behavior: 'smooth', block: 'center'}); return true; })()`))) {
+    if (!(await at(el, 'scroll'))) {
       throw new Error(`no element ${s.scrollTo || s.scrollToText}`);
     }
     await sleep(900);
   }
   if (s.hover || s.hoverText) {              // move the mouse onto an element (hover styles), without clicking or scrolling
     const el = s.hover ? q(s.hover) : byText(...[s.hoverText].flat());
-    const p = await evaluate(`(() => { const el = ${el}; if (!el) return null; const r = el.getBoundingClientRect(); return {x: r.x + r.width / 2, y: r.y + r.height / 2}; })()`);
+    const p = await at(el, 'point');
     if (!p) throw new Error(`no element ${s.hover || s.hoverText}`);
     for (let i = 1; i <= 12; i++) {           // a short glide from the last position, so the pointer path looks human
       const k = i / 12, from = hoverAt || p;
@@ -176,29 +218,25 @@ for (const s of plan.steps) {
     hoverAt = p;
   }
   if (s.play) {                              // start a <video>/<audio> (muted: no autoplay prompt)
-    await evaluate(`(() => { const el = ${q(s.play)}; if (el) { el.muted = true; return el.play().then(() => true, () => false); } return false; })()`);
+    await at(q(s.play), 'play');
   }
   if (s.select) {
-    await evaluate(`(() => { const el = ${q(s.select[0])}; const set = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;
-      set.call(el, ${JSON.stringify(s.select[1])}); el.dispatchEvent(new Event('change', {bubbles: true})); })()`);
+    await at(q(s.select[0]), 'select', String(s.select[1]));
     await sleep(300);
   }
   if (s.check) {
     const p = await centre(q(s.check)); if (p) await clickAt(p);
   }
   if (s.checkIndex !== undefined) {         // the n-th checkbox on the page (labels share selectors)
-    const p = await centre(`document.querySelectorAll('input[type=checkbox]')[${s.checkIndex}]`); if (p) await clickAt(p);
+    const p = await centre({all: 'input[type=checkbox]', i: Number(s.checkIndex)}); if (p) await clickAt(p);
   }
   if (s.selectIndex) {                      // [n, value]: the n-th <select> on the page
-    await evaluate(`(() => { const el = document.querySelectorAll('select')[${s.selectIndex[0]}];
-      const set = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;
-      set.call(el, ${JSON.stringify(s.selectIndex[1])}); el.dispatchEvent(new Event('change', {bubbles: true})); })()`);
+    await at({all: 'select', i: Number(s.selectIndex[0])}, 'select', String(s.selectIndex[1]));
     await sleep(300);
   }
   if (s.setValue) {                         // [selector, value]: replace an input's value (e.g. a number field)
     const p = await centre(q(s.setValue[0])); if (p) await clickAt(p);
-    await evaluate(`(() => { const el = ${q(s.setValue[0])}; const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
-      set.call(el, ${JSON.stringify(String(s.setValue[1]))}); el.dispatchEvent(new Event('input', {bubbles: true})); })()`);
+    await at(q(s.setValue[0]), 'input', String(s.setValue[1]));
     await sleep(250);
   }
   if (s.type) {
@@ -211,17 +249,17 @@ for (const s of plan.steps) {
     const n = 30;
     for (let i = 0; i < n; i++) {
       // the page itself counts too (its overflow is 'visible'): otherwise a small scrolling panel would win
-      await evaluate(`(() => { const all = [...document.querySelectorAll('*')].filter((el) => el.scrollHeight > el.clientHeight + 4 &&
+      await call((dy) => { const all = [...document.querySelectorAll('*')].filter((el) => el.scrollHeight > el.clientHeight + 4 &&
         /(auto|scroll)/.test(getComputedStyle(el).overflowY)); const page = document.scrollingElement;
         if (page.scrollHeight > page.clientHeight + 4) all.push(page);
         const el = all.sort((a, b) => b.clientHeight - a.clientHeight)[0] || page;
-        el.scrollBy(0, ${s.scroll / n}); })()`);
+        el.scrollBy(0, dy); }, s.scroll / n);
       await sleep(22);
     }
   }
 }
 await sleep(400);
-const endT = Date.now() / 1000;                // keep the time after the last on-screen change (the screencast only sends changes)
+const endT = Date.now() / 1000 - paused;       // keep the time after the last on-screen change (the screencast only sends changes)
 await send('Page.stopScreencast');
 ws.close();
 proc.kill();

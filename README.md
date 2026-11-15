@@ -318,7 +318,7 @@ Measured on an M1 Pro (16 GB) with other apps running ([benchmark](docs/reports/
 | Render throughput (1080p, 6 Chromium tabs) | **68–70 fps**, no swapping |
 | Brief → video awaiting approval, fully offline | **≈ 4 minutes** |
 | Final 36.7 s Short, render + QA | ≈ 1 minute |
-| Local voice | ≈ 11 s per Short; speaks 2.37 words/s, which every length estimate is calibrated to |
+| Local voice | ≈ 11 s per Short; speaks about 2.3 words/s at the default calm pace; length estimates use 2.33 |
 
 ## Repository layout
 

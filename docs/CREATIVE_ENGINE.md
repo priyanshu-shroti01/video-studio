@@ -99,8 +99,8 @@ risky terms (fastest, best, guaranteed, unlimited, customers, award, discount, u
 At most 3 blocks per scene. `danger` mood on problem scenes, `brand` on turn and CTA scenes. The brand bar
 appears after the logo reveal (not on logo or CTA scenes). The CTA URL is forced to the brand site. Prices
 in narration are spelled out for TTS ("39 rupees a month"). Auto-SFX come from the theme's sound family.
-`structure` comes from the pattern. Duration is estimated at 2.33 words/s (calibrated to the local voice, which
-measured 2.37) + 0.2 s per scene + 0.5 s pad, with a tolerance of 0.85–1.12× the target.
+`structure` comes from the pattern. Duration is estimated at 2.33 words/s (the local voice speaks about 2.3 at the
+presets' calm pace) + 0.2 s per scene + 0.5 s pad, with a tolerance of 0.85–1.12× the target.
 
 Why scene by scene: measured on qwen3-4B (LOCAL_AI.md), one-shot storyboards came back with 4 short scenes,
 missing beats and anchors outside the scene. Scene-level generation with grammar-enforced required blocks made

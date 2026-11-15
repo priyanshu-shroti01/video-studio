@@ -110,23 +110,35 @@ def test_director_uses_fill_in_shorts_regions_and_callouts_for_small_elements():
 
     from pipeline.creative.industries.software import CALLOUT_CONTEXT_SCALE, footage_block
 
-    class A:
-        def first_word(self, off, name):
-            return "@start"
-
-        def at(self, cues, off, name=""):
-            return f"@word:{cues[0]}"
+    from pipeline.creative.anchors import Anchors
 
     spec = {"asset": "brands/videostudio/footage/render-monitor-v2.mp4", "frame": "browser",
             "beats": [{"cues": ["stages"], "x": 0.5, "y": 0.6, "scale": 1.3, "region": {"x": 0.1, "y": 0.6, "w": 0.8, "h": 0.15}},
                       {"cues": ["voice"], "x": 0.3, "y": 0.68, "scale": 4.0, "region": {"x": 0.24, "y": 0.6, "w": 0.13, "h": 0.15}},
                       {"cues": ["wide"], "x": 0.5, "y": 0.5, "scale": 1.0}]}
     ctx = SimpleNamespace(pf=SimpleNamespace(media={"render": spec}), L=lambda s, src: s)
-    b = footage_block(ctx, A(), "render")
+    b = footage_block(ctx, Anchors("Six stages run here, and then the voice is ready, all in one wide view."), "render")
     assert b["fit"] == {"short": "fill"}
     assert b["zooms"][0]["region"] == spec["beats"][0]["region"]                  # a wide element: framed by the zoom
     assert "region" not in b["zooms"][1] and b["zooms"][1]["scale"] == CALLOUT_CONTEXT_SCALE
-    assert b["callouts"] == [{"at": "@word:voice", "x": 0.24, "y": 0.6, "w": 0.13, "h": 0.15}]
+    assert b["callouts"] == [{"at": "@word:voice-0.15", "x": 0.24, "y": 0.6, "w": 0.13, "h": 0.15}]
     assert "region" not in b["zooms"][2]
     assert _footage_errors({**b, "zooms": [{**z, "at": 1} for z in b["zooms"]],
                             "callouts": [{**c, "at": 1} for c in b["callouts"]]}, "b") == []
+
+
+def test_footage_moves_only_on_spoken_words_and_never_in_a_rush():
+    from types import SimpleNamespace
+
+    from pipeline.creative.anchors import Anchors
+    from pipeline.creative.industries.software import MIN_ZOOM_GAP, footage_block
+    spec = {"asset": "x.mp4", "beats": [{"cues": ["watch"], "x": 0.5, "y": 0.5, "scale": 1.3},
+                                         {"cues": ["every"], "x": 0.4, "y": 0.4, "scale": 1.6},      # too soon after "watch"
+                                         {"cues": ["animation"], "x": 0.3, "y": 0.3, "scale": 2.0},  # never spoken
+                                         {"cues": ["approve"], "x": 0.6, "y": 0.6, "scale": 1.5}]}
+    ctx = SimpleNamespace(pf=SimpleNamespace(media={"p": spec}), L=lambda s, src: s)
+    A = Anchors("Before anything renders, watch every frame with the real voice and approve it.")
+    b = footage_block(ctx, A, "p")
+    assert [z["at"] for z in b["zooms"]] == ["@word:watch-0.15", "@word:approve-0.15"]
+    times = [A.time_of(z["at"]) for z in b["zooms"]]
+    assert all(t2 - t1 >= MIN_ZOOM_GAP for t1, t2 in zip(times, times[1:]))

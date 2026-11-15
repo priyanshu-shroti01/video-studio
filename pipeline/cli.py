@@ -154,7 +154,17 @@ def cmd_retry(a) -> int:
     if job["state"] not in ("FAILED", "CANCELLED"):
         _err(f"job {a.job_id} is {job['state']}; only FAILED or CANCELLED jobs can be retried")
         return 2
-    return cmd_render(a)
+    from .api import reconcile_productions
+    from .productions import Productions
+    prod = Productions(reg)
+    with reg.conn() as c:     # a production's render job: it renders again, then finishes like any render
+        r = c.execute("SELECT id, state FROM productions WHERE job_id=?", (a.job_id,)).fetchone()
+    if r and r["state"] == "FAILED":
+        prod.transition(r["id"], "RENDERING", note=f"retry of job {a.job_id}")
+    try:
+        return cmd_render(a)
+    finally:
+        reconcile_productions(reg)
 
 
 def cmd_qa(a) -> int:
@@ -175,6 +185,8 @@ def cmd_cancel(a) -> int:
 def cmd_status(a) -> int:
     reg = Registry()
     stale = reg.recover_stale()
+    from .api import reconcile_productions
+    reconcile_productions(reg)
     if a.job_id:
         job = reg.get(a.job_id)
         job.pop("config", None)

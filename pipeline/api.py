@@ -239,6 +239,7 @@ def select_concept(pid: str, concept_id: str) -> dict:
                                          provider=p["brief"].get("provider", "ollama"))
     from .quality import apply_to_project
     apply_to_project(project, p["brief"])                 # brief "quality" -> project render.quality
+    apply_brief_voice(project, p["brief"])
     res = save_storyboard(pid, sb, project=project)
     # generated copy: fix text overflow before any voice/render is spent (recorded for the reviewer)
     from .layout_fit import fit_storyboard
@@ -285,12 +286,29 @@ def save_storyboard(pid: str, storyboard: dict, project: dict | None = None) -> 
     return {"warnings": warns + cwarn, "hash": config_hash(cfg)}
 
 
+PACE_RATE = {"calm": "-8%", "normal": None, "brisk": "+5%"}
+
+
+def apply_brief_voice(project: dict, brief: dict) -> dict:
+    """The brief's `voice` (a voice id) and `pace` (calm / normal / brisk) override the preset's voice for this
+    production; the preset still supplies everything the brief leaves out."""
+    over = {}
+    if isinstance(brief.get("voice"), str) and brief["voice"].strip():
+        over["voice"] = brief["voice"].strip()
+    if PACE_RATE.get(brief.get("pace")):
+        over["rate"] = PACE_RATE[brief["pace"]]
+    if over:
+        project["voice"] = {**(project.get("voice") or {}), **over}
+    return project
+
+
 def default_project(p: dict) -> dict:
     from .quality import apply_to_project
     fmt = p["brief"].get("format", "short")
     project = apply_to_project({"name": f"{p['brand']}-{p['id']}".lower(), "brand": p["brand"],
                                 "preset": FORMAT_PRESET.get(fmt, "shorts"), "formats": [fmt], "storyboard": "",
                                 "audio": {"music": f"mood:{p['brief'].get('musicMood', 'corporate')}"}}, p["brief"])
+    apply_brief_voice(project, p["brief"])
     from .brands import load_profile
     from .captions import apply_default_style
     return apply_default_style(project, load_profile(p["brand"]), p["brief"])   # caption style: brief -> brand -> format
@@ -351,6 +369,8 @@ def _preview_approved(reg, p: dict) -> bool:
 
 def start_render(pid: str, *, wait: bool = False, skip_preview_review: str | None = None, actor: str = "operator") -> dict:
     reg = _reg()
+    reg.recover_stale()
+    reconcile_productions(reg)        # a render killed earlier leaves the production FAILED, so it can render again
     prod = Productions(reg)
     p = prod.get(pid)
     if p["state"] not in ("STORYBOARD_READY", "PREVIEW_READY", "FAILED"):
@@ -388,7 +408,13 @@ def run_production_job(pid: str) -> dict:
     except Exception as e:  # noqa: BLE001 - the job record has the details
         prod.transition(pid, "FAILED", note=str(e)[:300])
         raise
-    job = reg.get(p["job_id"])
+    return _finish_production(prod, pid)
+
+
+def _finish_production(prod: Productions, pid: str) -> dict:
+    """After the render job completed: reports join the package, QA_COMPLETE, review flags, approval package."""
+    p = prod.get(pid)
+    job = prod.reg.get(p["job_id"])
     out = Path(job["output_dir"])
     for name in ("claims-report.json", "review.json", "creative-plan.json", "layout-fit.json"):   # creative reports join the package
         src = Path(p["dir"]) / "concepts" / name
@@ -397,6 +423,29 @@ def run_production_job(pid: str) -> dict:
     prod.transition(pid, "QA_COMPLETE", note=f"QA {job['qa_status']}")
     flags_from_job(prod, pid, out)
     return prod.build_package(pid)
+
+
+def reconcile_productions(reg=None) -> list[str]:
+    """Productions left in RENDERING by a worker that died (the editor or Mac restarted, the process was killed).
+    A failed or cancelled job fails the production, so it can be rendered again; a job that completed anyway
+    (e.g. through `video-pipeline retry`) gets the normal finishing steps. -> ids that changed."""
+    reg = reg or _reg()
+    prod = Productions(reg)
+    changed = []
+    with reg.conn() as c:
+        rows = c.execute("SELECT id, job_id FROM productions WHERE state='RENDERING' AND job_id IS NOT NULL").fetchall()
+    for r in rows:
+        try:
+            job = reg.get(r["job_id"])
+        except NotFound:
+            continue
+        if job["state"] in ("FAILED", "CANCELLED"):
+            prod.transition(r["id"], "FAILED", note=f"render job {r['job_id']} {job['state'].lower()}")
+            changed.append(r["id"])
+        elif job["state"] == "COMPLETED":
+            _finish_production(prod, r["id"])
+            changed.append(r["id"])
+    return changed
 
 
 def assets(brand: str | None = None) -> dict:

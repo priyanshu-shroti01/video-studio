@@ -3,18 +3,41 @@
 ## Unreleased
 
 ### Added
+- **README teaser and walkthrough briefs** (projects/videostudio/briefs/) for the demo films.
 - **"Zero Cost" teaser blueprint** (software pack): a 30–35 s film — the price promise, the real app, the local stack
   and the frame-by-frame preview — backed by a new `product.cost` fact taken verbatim from the README.
 - **Footage of the redesigned Studio** (videostudio brand, `studio-*-v3.mp4` with region sidecars and plans in
   scripts/capture-plans/videostudio/): Home, the storyboard's frame-accurate player, "Your video is ready", Websites
   & facts (verified and suggested facts), the Render Monitor and the wizard's first step. Footage ids `app-tour`,
-  `preview`, `self`, `render` and `publishing` now use them, plus new ids `home` and `facts`. Recorded with the new
+  `preview`, `self`, `render` and `publishing` now use them, plus new ids `home` and `facts`. `app-tour` is
+  `studio-wizard-v3.mp4`: the wizard picking a website, typing the brief, then three ideas. Recorded with the new
   `phone-legible` approach (tight crops); every clip passes footage.legibility in 9:16 with fit "fill" (34–72 px
   median against 28.8 px). The older recordings stay in place.
 - **capture_studio.mjs `hover` / `hoverText` steps:** glide the mouse onto a card or button (hover styles) without
   clicking or scrolling, for read-only tours.
 
 ### Fixed
+- **capture_studio.mjs kept the time spent off camera:** after `record: false`, the last frame held until recording
+  resumed, so a clip showed seconds of a still page while the script navigated away. That time is now cut from the
+  clip and from region times.
+- **capture_studio.mjs no longer builds page code from strings (CodeQL):** plan values (selectors, texts, numbers)
+  go to one fixed in-page function as `Runtime.callFunctionOn` arguments.
+- **Videos felt rushed:** the vertical presets spoke 5% fast, cut every pause to 0.35 s and left 0.2 s between
+  scenes. They now speak at normal speed, keep pauses up to 0.5 s and leave 0.35 s between scenes (landscape
+  too). Duration estimates stay at 2.33 words/s, so films run a little longer than the estimate.
+- **Footage camera moved too often:** a beat whose words weren't spoken still zoomed, 0.45 s after the previous
+  move, so a 5 s recording scene made 7 camera moves. Zooms now fire only on spoken words and at least 0.8 s apart.
+- **A render killed mid-way left its production stuck in "rendering"** (the job was recovered as failed, the
+  production wasn't), so it could neither render again nor be approved. Productions now follow their job: a dead
+  render fails the production so it can render again, and a job finished through `video-pipeline retry` gets
+  the usual QA and approval package.
+- **An opening fade-in counted as black:** QA allowed 0.2 s of black at the start; a first word fading in over a
+  dark backdrop takes about 0.22 s in 16:9. The allowance is now 0.25 s.
+- **The brief's `voice` was ignored:** every production used the preset voice. It now applies to the production,
+  and a new brief field `pace` (`calm`, `normal`, `brisk`) sets how fast the narrator speaks.
+- **Films no longer open on silence and black:** the voice engine's own ~0.4 s lead-in before the first word was
+  kept, so a hook that starts with text showed 0.45 s of near-black backdrop and failed QA's black-frame check.
+  The first word now starts 0.05 s in, like every later scene already starts tight.
 - **The teaser copy names no currency:** the software pack says the price through the brand's `product.cost` fact
   (`{cost_spoken}`), so shared code stays brand-neutral; the hook and stack lines now open on what they show.
 - **Code-scanning hardening (CodeQL):** the Studio server refuses any response header value that contains a line

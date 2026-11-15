@@ -55,6 +55,9 @@ class Expect:
     scale: int = 1                  # render scale (quality "ultra" = 2): pixels = design size x scale
 
 
+OPENING_FADE_S = 0.25   # black allowed at the very start: the first word or visual fading in
+
+
 def ffprobe(path: Path) -> dict:
     p = subprocess.run(["ffprobe", "-v", "error", "-show_format", "-show_streams", "-of", "json", str(path)],
                        capture_output=True, text=True, timeout=60)
@@ -138,7 +141,7 @@ def visual(path: Path, ex: Expect, dur: float) -> list[Check]:
     log = _filter_log(path, "blackdetect=d=0.1:pic_th=0.98:pix_th=0.06")
     blacks = [(float(m.group(1)), float(m.group(2))) for m in
               re.finditer(r"black_start:([\d.]+) black_end:([\d.]+)", log)]
-    unexpected = [(s, e) for s, e in blacks if not (e >= dur - 0.05 and s >= dur - ex.end_fade_s - 0.05) and not e <= 0.2]
+    unexpected = [(s, e) for s, e in blacks if not (e >= dur - 0.05 and s >= dur - ex.end_fade_s - 0.05) and not e <= OPENING_FADE_S]
     cs.append(Check("visual.black_frames", "visual", FAIL if unexpected else PASS, True,
                     f"unexpected black: {unexpected}" if unexpected else
                     ("only the planned end fade" if blacks else "none"), {"black_segments": blacks}))
