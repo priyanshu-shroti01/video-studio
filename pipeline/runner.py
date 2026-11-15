@@ -170,7 +170,9 @@ class JobRunner:
     def stage_generating_audio(self, ctx):
         v = self.cfg["voice"]
         scenes = self.cfg["storyboard"]["scenes"]
+        from .voice.delivery import scene_delivery
         ih = sha256_json({"voice": v, "vfp": tts.voice_fingerprint(v), "narr": [s["narration"] for s in scenes],
+                          "delivery": [scene_delivery(s) for s in scenes],
                           "hold": [s.get("holdAfter", 0) for s in scenes], "v": __version__})
         if (o := self.cached("GENERATING_AUDIO", ih)):
             ctx["timing"] = json.loads((ROOT / o["files"]["timing"]["path"]).read_text())
@@ -199,7 +201,8 @@ class JobRunner:
         for k, sc in enumerate(scenes):
             if self.cancelled():
                 raise Cancelled("cancelled during voice generation")
-            res = tts.synthesize_from_config(sc["narration"], v,
+            from .voice.delivery import scene_voice
+            res = tts.synthesize_from_config(sc["narration"], scene_voice(v, sc),   # per-scene delivery (urgent, calm, ...)
                                              on_retry=lambda n, e, d: self.log(f"TTS retry {n} in {d:.1f}s: {e}",
                                                                                "warn", "GENERATING_AUDIO"))
             words = align(sc["narration"], res.boundaries, res.duration)

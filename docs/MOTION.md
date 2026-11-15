@@ -298,6 +298,8 @@ New time key: `pulseAt`. The storyboard scene option `holdAfter` (0–3 s, `pipe
 scene's last word so a payoff (count-up, install completion) can play out; Python extends the scene, the engine just
 draws it. New icons: `app`, `cpu`, `memory`, `disk`, `refresh`, `plug`, `palette`, `settings`,
 `download`, `gauge` (Lucide, ISC).
+The scene option `delivery` (`neutral`, `urgent`, `serious`, `excited`, `upbeat`, `calm`) sets how the narrator
+says the scene; without it the delivery follows the scene's `purpose` ([LOCAL_TTS](LOCAL_TTS.md#delivery-per-scene)).
 
 Fixtures: `sample-v2b-{short,landscape}.json` (~25 s, every backdrop, the three blocks, WP Starter facts only):
 

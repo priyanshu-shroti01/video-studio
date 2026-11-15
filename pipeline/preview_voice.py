@@ -40,7 +40,9 @@ def voice_key(cfg: dict) -> str:
     """Cache key of a resolved project config's voiceover (identical to the runner's GENERATING_AUDIO input hash)."""
     v = cfg["voice"]
     scenes = cfg["storyboard"]["scenes"]
+    from .voice.delivery import scene_delivery
     return sha256_json({"voice": v, "vfp": tts.voice_fingerprint(v), "narr": [s["narration"] for s in scenes],
+                        "delivery": [scene_delivery(s) for s in scenes],
                         "hold": [s.get("holdAfter", 0) for s in scenes], "v": __version__})
 
 

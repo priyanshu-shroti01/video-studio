@@ -80,7 +80,9 @@ def test_cache_key_is_the_render_audio_stage_input_hash(registry, ws_tmp, monkey
     _, _, pd, _, _ = _prod(ws_tmp, monkeypatch)
     cfg = _cfg(pd)
     v, scenes = cfg["voice"], cfg["storyboard"]["scenes"]
+    from pipeline.voice.delivery import scene_delivery
     runner_ih = sha256_json({"voice": v, "vfp": tts.voice_fingerprint(v), "narr": [s["narration"] for s in scenes],
+                             "delivery": [scene_delivery(s) for s in scenes],
                              "hold": [s.get("holdAfter", 0) for s in scenes], "v": __version__})
     key = PV.voice_key(cfg)
     assert key == runner_ih and PV.voice_key(_cfg(pd)) == key                 # stable
@@ -89,6 +91,7 @@ def test_cache_key_is_the_render_audio_stage_input_hash(registry, ws_tmp, monkey
                    lambda c: c["storyboard"]["scenes"][1].update(holdAfter=c["storyboard"]["scenes"][1].get("holdAfter", 0) + 0.37),
                    lambda c: c["voice"].update(voice="af_heart"),
                    lambda c: c["voice"].update(rate="+10%"),
+                   lambda c: c["storyboard"]["scenes"][0].update(delivery="calm" if c["storyboard"]["scenes"][0].get("delivery") != "calm" else "urgent"),
                    lambda c: c["voice"].setdefault("pronunciation", {}).update({"Zyxquor": "zix-kwor"})):
         c = copy.deepcopy(cfg)
         mutate(c)

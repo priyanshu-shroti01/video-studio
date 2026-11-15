@@ -188,6 +188,24 @@ source. Guesses (spelling rules or English pronunciation) come first and are mar
   changes how the narration is spoken. Write the Hinglish narration in the storyboard (Studio storyboard editor or
   `pipeline.api.save_storyboard`).
 
+## Delivery per scene
+
+The narrator doesn't say every scene the same way (`pipeline/voice/delivery.py`). Each scene has a delivery, a
+small change of speaking rate (every engine) and pitch (Microsoft voices only; local engines ignore pitch) on top of
+the production's voice:
+
+| Delivery | Rate | Pitch | Default for scene purpose |
+|---|---|---|---|
+| `urgent` | +8 % | +3 Hz | `hook` |
+| `serious` | −4 % | −4 Hz | `problem` |
+| `excited` | +6 % | +6 Hz | `turn` |
+| `upbeat` | +4 % | +4 Hz | `resolution` |
+| `calm` | −5 % | −2 Hz | `cta`, `conclusion` |
+| `neutral` | 0 | 0 | everything else |
+
+A scene can name its own with `"delivery": "calm"` when the story needs it (a quiet hook, a serious turn). The
+delivery is part of the voice cache key, so changing it re-synthesises only that scene.
+
 ## Word timing (no network)
 
 1. Engines report per-phoneme durations; phonemes are grouped back into the spoken words. espeak

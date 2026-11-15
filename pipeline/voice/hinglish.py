@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from functools import lru_cache
 from pathlib import Path
 
@@ -357,12 +358,24 @@ _KI_THAT = {"hai", "hain", "tha", "thi", "hoga", "hogi", "lagta", "lagti", "lage
 LATIN_IN_MIXED = {"english", "english-rules", "letters", "dictionary", "domain"}
 
 
+_URDU_NUKTA = str.maketrans({"\u0958": "\u0915", "\u0959": "\u0916", "\u095a": "\u0917"})   # क़ ख़ ग़ -> क ख ग
+
+
+def everyday(word: str) -> str:
+    """Everyday Hindi says क़/ख़/ग़ as क/ख/ग ("galat", not "ghalat"); ज़ and फ़ stay ("zero", "frame")."""
+    w = unicodedata.normalize("NFC", word)
+    w = re.sub("([\u0915\u0916\u0917])\u093c", r"\1", w)   # decomposed क़ / ख़ / ग़
+    return w.translate(_URDU_NUKTA)
+
+
 def speak(core: str, d, prev: str = "", mixed: bool = False) -> tuple[list[str], str]:
     """Spoken words for one display token (punctuation already split off) and where they came from (a key of
     SOURCES). `d` is the pronunciation.Dictionary (overrides + shared entries); `prev` is the previous display
     token (context for "ki"). Devanagari for the Kokoro Hindi phonemizer; with `mixed` (a voice that reads both
     scripts) English words, letters and domains stay as written and only Hindi words become Devanagari."""
     words, src = _speak(core, d, prev)
+    if src != "override":
+        words = [everyday(w) for w in words]
     if mixed and src in LATIN_IN_MIXED:
         return [core], src
     if mixed and src == "override":

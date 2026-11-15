@@ -2,6 +2,7 @@
  "$comment": "Hinglish narration (voice.lang \"hinglish\"): Latin-script display word -> Devanagari spoken form for the Kokoro Hindi phonemizer (pipeline/voice/hinglish.py). 'hindi' holds common Hindi words in the usual Latin spellings; 'english' holds English words Hinglish scripts use, written the way Indians say them. Keys are lowercase; matching is case-insensitive. Words not listed here go through rules: Hindi-looking words through the Latin -> Devanagari spelling rules, everything else through espeak's English pronunciation mapped to Devanagari. Per-project overrides (voice.pronunciation {\"display\": \"देवनागरी\"}) win over this file. Ambiguous spellings use the reading most common in marketing scripts: ki = की, main = मैं, me/mein = में, to = तो, do = दो, is = इस, in = इन, use = यूज़, or = ऑर.",
  "version": 1,
  "hindi": {
+  "dono": "दोनों",
   "rupees": "रुपये", "rupee": "रुपया",
   "awaaz": "आवाज़", "aawaz": "आवाज़", "awaz": "आवाज़", "banaoge": "बनाओगे", "banaenge": "बनाएँगे", "banayenge": "बनाएँगे", "milo": "मिलो", "likho": "लिखो", "kharcha": "खर्चा",
   "main": "मैं", "mai": "मैं", "mein": "में", "me": "में", "mujhe": "मुझे", "mujh": "मुझ", "mera": "मेरा", "meri": "मेरी", "mere": "मेरे",
@@ -75,7 +76,7 @@
   "grahak": "ग्राहक", "dhandha": "धंधा", "vyapar": "व्यापार", "vyaapaar": "व्यापार", "kamai": "कमाई", "kamaai": "कमाई",
   "fayda": "फ़ायदा", "faayda": "फ़ायदा", "fayada": "फ़ायदा", "nuksaan": "नुक़सान", "nuksan": "नुक़सान", "tarika": "तरीक़ा", "tareeka": "तरीक़ा", "tarah": "तरह", "jagah": "जगह",
   "sawaal": "सवाल", "sawal": "सवाल", "jawab": "जवाब", "jawaab": "जवाब", "madad": "मदद", "bharosa": "भरोसा", "zindagi": "ज़िंदगी", "khushi": "ख़ुशी", "dil": "दिल", "naam": "नाम",
-  "shuruaat": "शुरुआत", "shuruat": "शुरुआत", "mauka": "मौक़ा", "zaroorat": "ज़रूरत", "zarurat": "ज़रूरत", "jarurat": "ज़रूरत", "dikkat": "दिक़्क़त", "pareshani": "परेशानी",
+  "shuruaat": "शुरुआत", "shuruat": "शुरुआत", "mauka": "मौक़ा", "zaroorat": "ज़रूरत", "zarurat": "ज़रूरत", "jarurat": "जरूरत", "dikkat": "दिक़्क़त", "pareshani": "परेशानी",
   "jhanjhat": "झंझट", "suvidha": "सुविधा", "sewa": "सेवा", "seva": "सेवा", "keemat": "क़ीमत", "kimat": "क़ीमत", "daam": "दाम", "chhoot": "छूट", "chhut": "छूट", "behen": "बहन",
   "ek": "एक", "teen": "तीन", "char": "चार", "chaar": "चार", "paanch": "पाँच", "panch": "पाँच", "chhe": "छह", "chhah": "छह", "saat": "सात", "aath": "आठ", "nau": "नौ", "das": "दस",
   "bees": "बीस", "pachaas": "पचास", "pachas": "पचास", "sau": "सौ", "hazaar": "हज़ार", "hazar": "हज़ार", "lakh": "लाख", "karod": "करोड़", "crore": "करोड़", "lac": "लाख", "aadha": "आधा", "dugna": "दुगना",

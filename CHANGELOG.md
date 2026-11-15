@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Added
+- **The narrator's tone follows each scene:** a hook is said urgently, a problem seriously, a reveal with
+  excitement, proof upbeat and a call to action calmly, as small rate and pitch changes (pitch on Microsoft voices).
+  A scene can choose its own with `"delivery"`. See docs/LOCAL_TTS.md#delivery-per-scene.
 - **Microsoft Hindi voices for Hinglish (online, opt-in):** `hi-IN-MadhurNeural` / `hi-IN-SwaraNeural` read a mixed
   spoken form (Hindi words in Devanagari, English words as written), which sounded far more natural than Kokoro's
   Hindi voices in a listening test. A brief needs `"allow_online_voice": true`; captions stay in Latin-script
@@ -67,6 +70,8 @@
   quote is kept word for word.
 
 ### Fixed
+- **Hinglish words with Urdu sounds** (क़, ख़, ग़) are said the everyday Hindi way (क, ख, ग): "dikkat", "mauka";
+  "jarurat" is जरूरत and "dono" is दोनों. ज़ and फ़ stay ("zero", "frame").
 - **"Galat" was said "ghalat"** (ग़लत in the Hinglish word list); it is now गलत, and "rupees" is said रुपये.
 - **A dark scene that opened empty was only caught after the full render** (QA's black-frame check). The preview
   gate's new `storyboard.scene_opens` fails a scene that shows only a dark backdrop for more than 0.6 s.

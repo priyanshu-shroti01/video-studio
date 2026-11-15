@@ -60,6 +60,8 @@ SCENE_SCHEMA = {
         # seconds of silence after this scene's last word, so a visual payoff (install finished, domain
         # available) plays out on screen before the next scene starts
         "holdAfter": {"type": "number", "minimum": 0, "maximum": 3},
+        # how the narrator says this scene (pipeline/voice/delivery.py); default follows the scene's purpose
+        "delivery": {"type": "string", "enum": ["neutral", "urgent", "serious", "excited", "upbeat", "calm"]},
         # v3 (pipeline/hud.py): word-anchored HUD events, caption meaning colours per word, the speaker(s)
         "hud": HUD.SCENE_HUD_SCHEMA,
         "captionTones": HUD.CAPTION_TONES_SCHEMA,

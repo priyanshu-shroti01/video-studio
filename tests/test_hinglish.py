@@ -257,3 +257,21 @@ def test_edge_hinglish_goes_through_the_mixed_form_and_maps_back_to_display_word
                        provider_obj=FakeEdge(), cache_dir=tmp_path, options={"lang": "hinglish"})
     assert seen["text"] == "आज product video बनता है."
     assert [b.text for b in r.boundaries] == ["Aaj", "product", "video", "banta", "hai."]
+
+
+def test_everyday_hindi_drops_the_urdu_dots_but_keeps_z_and_f():
+    from pipeline.voice import pronunciation as P
+    assert P.prepare("Galat. Dono ki jarurat nahi. Dikkat? Mauka.", None, lang="hinglish").spoken == \
+        "गलत. दोनों की जरूरत नहीं. दिक्कत? मौका."
+    assert "ज़" in P.prepare("Zero", None, lang="hinglish").spoken
+
+
+def test_each_scene_is_said_the_way_its_purpose_needs():
+    from pipeline.voice.delivery import scene_delivery, scene_voice
+    edge = {"provider": "edge", "voice": "hi-IN-MadhurNeural", "rate": "+0%", "pitch": "+0Hz"}
+    assert scene_voice(edge, {"purpose": "hook"}) == {**edge, "rate": "+8%", "pitch": "+3Hz"}
+    assert scene_voice(edge, {"purpose": "cta"})["rate"] == "-5%"
+    assert scene_voice(edge, {"purpose": "journey"}) is edge
+    assert scene_delivery({"purpose": "hook", "delivery": "calm"}) == "calm"     # the storyboard can override
+    kokoro = scene_voice({"provider": "kokoro", "voice": "hm_omega", "rate": "+5%"}, {"purpose": "hook"})
+    assert kokoro == {"provider": "kokoro", "voice": "hm_omega", "rate": "+13%"}   # no pitch for local engines
