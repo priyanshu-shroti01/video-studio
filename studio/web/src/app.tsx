@@ -14,6 +14,7 @@ import {Setup} from './sections/setup';
 import {Home, homeTitle} from './sections/home';
 import {Icon} from './icons';
 import {CreateWizard} from './sections/wizard';
+import {HelpChat} from './helpchat';
 
 export type Route = {section: string; arg?: string};
 /** Sidebar order: the everyday pages first, then the power-user tools ("advanced"). Keys 1–9 follow this order. */
@@ -166,6 +167,8 @@ export const App: React.FC = () => {
         </tbody></table>
       </Dialog>
       <Toasts />
+      <HelpChat page={sec.needsProd && !pid ? `${sec.label} (choosing a production)` : sec.label}
+        state={(sec.needsProd || (sec.key === 'create' && route.arg)) ? current?.state : null} />
     </div>
   );
 };

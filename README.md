@@ -211,6 +211,9 @@ a terminal.
 - **Library:** archive and restore productions, and record "I posted it on…" for posts you made yourself.
 - **Storyboard (Advanced):** edit scenes and watch every frame before rendering.
 - **Setup:** a plain checklist of what's installed.
+- **Help chat:** a round **?** button on every page answers how-to questions ("Why did my render fail?") with the
+  local AI model, from the Studio guides. It only explains: it can't approve or post anything and never quotes
+  prices, and it pauses while a video renders.
 
 <table>
 <tr><td><img src="docs/images/studio-home.jpg" alt="Home: video cards with status"></td>

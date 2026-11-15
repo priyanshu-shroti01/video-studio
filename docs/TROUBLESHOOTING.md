@@ -25,6 +25,8 @@ review flags.
 |---|---|---|
 | Banner **"The Studio server is not running"** | The Studio process stopped (closed terminal, Ctrl-C, reboot) | `uv run video-pipeline studio`. The page keeps its last data and reconnects by itself; the session token survives restarts |
 | Banner **"Not signed in to this Studio"** (or `401 UNAUTHORIZED`) | This browser has no valid session cookie (for example the token was rotated with `--new-token`) | Open `http://127.0.0.1:8765/` in the browser's address bar; that signs the browser in |
+| Help chat says **"The helper is paused while a video renders"** | The help chat uses the local AI model, which never runs alongside a render (memory) | Wait for the render to finish (Render Monitor shows it), then ask again |
+| Help chat says **"The helper needs the local AI model, and it isn't installed"** (or **"couldn't start"**, **"low on free memory"**) | Ollama or the model is missing, the runtime didn't come up, or there isn't enough free memory to load the model | Open **Setup** (or run `videostudio doctor`) and follow its fix for the AI model; close apps if memory is low. The guides answer the same questions meanwhile |
 | "Dashboard unavailable" with no banner | An error from the service layer | Read the error box; the CLI equivalent (`video-pipeline production show`, `status`) shows the same detail |
 
 ## Publishing

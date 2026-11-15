@@ -34,6 +34,7 @@ From Python: `from studio import serve; serve(8765, open_browser=False)`.
 - **Connection banner:** if the server stops, a banner says "The Studio server is not running" with the command
   to start it again; the page keeps its last data and reconnects by itself. If the session is not valid, it says
   "Not signed in to this Studio" and points to the link printed in the terminal.
+- **Help button:** a round **?** button at the bottom right of every page opens the [help chat](#help-chat).
 - **Look:** a brand-neutral dark theme with its own accent colour and the shared OFL fonts
   (`public/shared/fonts/`). Brand colours appear only as data (brand dots, previews), never as the Studio's chrome.
 
@@ -125,6 +126,34 @@ YouTube or writes an export package; Instagram Reels are published from the CLI
 Long operations (concepts, storyboard generation, preview, render start, YouTube upload) run in background threads;
 the UI polls `GET /api/tasks/<id>`. Renders are detached processes (`api.start_render`) and keep running if the Studio stops.
 
+## Help chat
+
+The round **?** button at the bottom right of every page opens a small chat panel for how-to questions ("How do I
+add my website?", "Why did my render fail?", "What does Preview & QA mean?"). It is answered by the same local AI
+model the Studio already uses, so it costs nothing and nothing leaves the Mac.
+
+- **Grounded in the guides.** The sections of this guide, [TROUBLESHOOTING.md](TROUBLESHOOTING.md),
+  [INSTALL.md](INSTALL.md) and the README that best match the question (simple keyword match) go into the prompt,
+  together with the page you are on (for example "Create a video, step 3 of 6 (Pick an idea)"). The answer names
+  the sections it came from, and says so when the guides don't cover a question.
+- **It only explains.** It has no buttons and calls no workflow action: it cannot approve, reject, render, archive
+  or publish anything. It never states prices, plans or product facts; those come only from a brand's verified facts
+  (a sentence with a price in an answer is replaced by a pointer to **Websites & facts**).
+- **Scheduled like all AI work.** It runs under the scheduler (never alongside a render or the voice) and starts the
+  local runtime only if needed, stopping it again if it started it; the model is unloaded after each answer. While a
+  video renders it answers "The helper is paused while a video renders. Try again in a few minutes." instead of
+  waiting. If the model isn't installed, or memory is too low, it says so in plain words (Setup shows how to add the
+  model).
+- **Limits.** A question is at most 500 characters; a chat holds 6 questions and answers (the server refuses more,
+  and the panel offers **New chat**). One question is answered at a time. The conversation lives only in that tab;
+  whether the panel is open is remembered for the browser session only (closed by default).
+- **Keyboard.** The button and panel are reachable with Tab; Enter sends, Shift+Enter adds a line, Esc closes the
+  panel and returns focus to the button. Answers are announced to screen readers. At narrow widths the panel spans
+  the window. The pages keep enough space at the bottom that the closed button never covers their last buttons.
+
+Route: `POST /api/help/ask {question, history?: [{role: user|assistant, content}], page?}` → `{status: ok | paused |
+unavailable | error, message, sources[]}`; same cookie, Host, Origin and JSON checks as every other POST.
+
 ## Rules the Studio cannot break
 
 * A full render needs a preview approval by a named person for the current storyboard (same rule as
@@ -149,7 +178,8 @@ the UI polls `GET /api/tasks/<id>`. Renders are detached processes (`api.start_r
   `Content-Security-Policy: sandbox` and HTML/JS as text/plain.
 * No shell commands; the token is never logged.
 
-Tests: `uv run pytest tests/test_studio_server.py tests/test_studio_token.py tests/test_dashboard.py`.
+Tests: `uv run pytest tests/test_studio_server.py tests/test_studio_token.py tests/test_dashboard.py tests/test_help_chat.py`
+(the help chat's model is always a stand-in there) and `npm test` (`studio/web/src/__tests__/`).
 
 ## Endpoints
 
@@ -166,6 +196,7 @@ POST /api/productions/<id>/decision {decision: REJECTED|CHANGES_REQUESTED, revie
 POST /api/productions/<id>/export {confirm: true, actor, format?}
 POST /api/productions/<id>/publish {confirm: true, actor, typedProductionId, platform: youtube|export, format?}
 GET  /api/publish/status?brand= · /api/assets?brand= · /api/jobs/<job>/monitor   ·  POST /api/jobs/<job>/cancel
+POST /api/help/ask {question, history?, page?}       help chat: {status: ok|paused|unavailable|error, message, sources[]}
 GET  /files/<output/… | public/… | audio/kit/… | audio/music/…>   (Range supported)   ·   /static/app.{js,css}
 ```
 

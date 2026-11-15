@@ -4,6 +4,7 @@ import {Alert, Badge, Button, ErrorBox, Field, Progress, Spinner, estSeconds, to
 import type {Nav} from '../app';
 import {PLATFORM_NAMES, platformName, plainStatus} from './home';
 import {Icon, PlatformLogo} from '../icons';
+import {setHelpDetail} from '../helpchat-logic';
 
 /** "Create a video": the whole workflow one step at a time, in plain words. Every step calls the same endpoints
  * as the power-user pages (and so the same rules): a named person approves the preview and the final video,
@@ -29,21 +30,25 @@ function stepFor(p: Any): number {
   }
 }
 
-const StepHeader: React.FC<{current: number; reached: number; onPick?: (i: number) => void}> = ({current, reached, onPick}) => (
-  <ol className="wsteps" aria-label="Steps">
-    {STEPS.map((s, i) => {
-      const st = i === current ? 'cur' : i <= reached ? 'done' : 'todo';
-      const can = onPick && i <= reached && i !== current;
-      return (
-        <li key={s} className={`wstep ${st}`} aria-current={i === current ? 'step' : undefined}>
-          <button type="button" disabled={!can} onClick={() => can && onPick!(i)}>
-            <span className="wstep-n">{i < reached && i !== current ? <Icon name="check" size={13} /> : i + 1}</span><span className="wstep-l">{s}</span>
-          </button>
-        </li>
-      );
-    })}
-  </ol>
-);
+const StepHeader: React.FC<{current: number; reached: number; onPick?: (i: number) => void}> = ({current, reached, onPick}) => {
+  // the help chat tells the model which step the user is on
+  useEffect(() => { setHelpDetail(`step ${current + 1} of ${STEPS.length} (${STEPS[current]})`); return () => setHelpDetail(''); }, [current]);
+  return (
+    <ol className="wsteps" aria-label="Steps">
+      {STEPS.map((s, i) => {
+        const st = i === current ? 'cur' : i <= reached ? 'done' : 'todo';
+        const can = onPick && i <= reached && i !== current;
+        return (
+          <li key={s} className={`wstep ${st}`} aria-current={i === current ? 'step' : undefined}>
+            <button type="button" disabled={!can} onClick={() => can && onPick!(i)}>
+              <span className="wstep-n">{i < reached && i !== current ? <Icon name="check" size={13} /> : i + 1}</span><span className="wstep-l">{s}</span>
+            </button>
+          </li>
+        );
+      })}
+    </ol>
+  );
+};
 
 const Panel: React.FC<{title: React.ReactNode; sub?: React.ReactNode; children?: React.ReactNode; foot?: React.ReactNode}> = ({title, sub, children, foot}) => (
   <section className="wpanel">

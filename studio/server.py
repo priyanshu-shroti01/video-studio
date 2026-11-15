@@ -848,6 +848,21 @@ def _llm_model_status() -> dict | None:
             "fix": None if ok else f"Optional: storyboards are built without it. To use it, install Ollama and run `ollama pull {m['id']}`."}
 
 
+# ---- help chat ---------------------------------------------------------------------------------------------
+def help_ask(body: dict) -> dict:
+    """The help panel: a plain how-to answer from the local model, grounded in the guides (pipeline.help_chat).
+    Explains only: it calls no workflow action. Busy (a render is running) or a missing model is a plain message
+    with status "paused" / "unavailable", never an error page."""
+    from pipeline import help_chat
+    try:
+        return help_chat.answer(body.get("question"), body.get("history"), body.get("page"))
+    except help_chat.HelpInputError as e:
+        raise BadRequest(e.message)
+    except Exception:  # noqa: BLE001 - the panel shows a plain sentence; the trace goes to the server log only
+        traceback.print_exc()
+        return {"status": "error", "message": help_chat.FAILED, "sources": []}
+
+
 # ---- HTTP --------------------------------------------------------------------------------------------
 class StudioServer(ThreadingHTTPServer):
     daemon_threads = True
@@ -889,6 +904,7 @@ def _routes():
         ("POST", rf"/api/brands/({B})/candidates/extract", lambda h, m, b: extract_candidates(m[1], h.server.tasks)),
         ("POST", rf"/api/brands/({B})/candidates/confirm", lambda h, m, b: confirm_candidate(m[1], b)),
         ("POST", rf"/api/brands/({B})/candidates/reject", lambda h, m, b: reject_candidate(m[1], b)),
+        ("POST", r"/api/help/ask", lambda h, m, b: help_ask(b)),
         ("POST", r"/api/setup/check", lambda h, m, b: {"task": h.server.tasks.start("setup", "", setup_checks)}),
         ("GET", r"/api/storyboard/schema", lambda h, m, b: storyboard_schema()),
         ("GET", r"/api/productions", lambda h, m, b: productions_list()),

@@ -697,11 +697,12 @@ def test_built_bundle_has_the_home_and_create_a_video_pages():
         pytest.skip("frontend not built")
     src = js.read_text(encoding="utf-8")
     for s in ("/api/productions/cards", "Create a video", "Let the story decide", "Pick an idea", "Approve preview",
-              "Make the video", "Approve the video", "I posted it on", "Overview", "Needs your review", "Ready to post"):
+              "Make the video", "Approve the video", "I posted it on", "Overview", "Needs your review", "Ready to post",
+              "/api/help/ask", "studio.help.open", "Close help"):
         assert s in src, s
     assert "home" in src and "create" in src
     css = (S.DIST_DIR / "app.css").read_text(encoding="utf-8")
-    assert ".pgrid" in css and ".wsteps" in css
+    assert ".pgrid" in css and ".wsteps" in css and ".help-fab" in css and ".help-panel" in css
 
 
 # ---- suggested facts (pipeline/fact_extract.py) ------------------------------------------------------------
@@ -799,3 +800,72 @@ def test_header_values_with_line_breaks_are_refused_and_static_names_are_bounded
     with pytest.raises(ValueError):
         h._headers(200, "text/plain", 0, {"Content-Disposition": "inline\nSet-Cookie: x=1"})
     assert req(srv, "GET", "/static/" + "-" * 5000 + ".js")[0] == 404
+
+
+# ---- help chat (pipeline/help_chat.py; the model is a stand-in, nothing loads an LLM) ----------------------------
+def test_help_route_keeps_the_security_rules(studio):
+    srv, _ = studio
+    path = "/api/help/ask"
+    body = {"question": "How do I add my website?"}
+    assert req(srv, "POST", path, body, cookie=False)[0] == 401
+    assert req(srv, "POST", path, body, headers={"Origin": "https://evil.example"})[0] == 403
+    assert req(srv, "POST", path, body, headers={"Sec-Fetch-Site": "cross-site"})[0] == 403
+    assert req(srv, "POST", path, json.dumps(body).encode(), ctype="text/plain")[0] == 415
+    assert req(srv, "POST", path, body, host="evil.example")[0] == 421
+    assert req(srv, "GET", path)[0] == 405
+
+
+class _HelpModel:
+    """Stand-in for the local model: records each request, answers with a fixed how-to sentence."""
+    name = "mock"
+
+    def __init__(self):
+        self.asked = []
+
+    def available(self):
+        return True, "ok"
+
+    def generate_json(self, **kw):
+        from pipeline.intelligence.providers import GenResult, GenStats
+        self.asked.append(kw)
+        return GenResult({"answer": "Open Websites & facts, then Add a website.", "covered": True}, "", GenStats("mock", "m"), [])
+
+    def unload(self):
+        pass
+
+
+def test_help_route_caps_input_and_answers_plainly(studio, monkeypatch):
+    from pipeline import help_chat as H
+    model = _HelpModel()
+    monkeypatch.setattr(H, "_provider", lambda: model)
+    srv, _ = studio
+    st, _, js, _ = req(srv, "POST", "/api/help/ask", {"question": "x" * (H.MAX_QUESTION + 1)})
+    assert st == 400 and "too long" in js["error"]["message"]
+    st, _, js, _ = req(srv, "POST", "/api/help/ask",
+                       {"question": "ok", "history": [{"role": "user", "content": "x"}] * (H.MAX_HISTORY + 1)})
+    assert st == 400 and "full" in js["error"]["message"]
+    assert model.asked == []
+    st, _, js, _ = req(srv, "POST", "/api/help/ask", {"question": "How do I add my website?", "page": "Home"})
+    assert st == 200 and js["status"] == "ok" and js["message"].startswith("Open Websites") and js["sources"]
+    assert "The user is on: Home" in model.asked[0]["system"]
+
+    def boom(*a, **k):
+        raise RuntimeError("internal detail that must not reach the page")
+    monkeypatch.setattr(H, "answer", boom)
+    st, _, js, raw = req(srv, "POST", "/api/help/ask", {"question": "hello"})
+    assert st == 200 and js == {"status": "error", "message": H.FAILED, "sources": []}
+    assert b"internal detail" not in raw and b"Traceback" not in raw
+
+
+def test_help_route_is_paused_while_a_video_renders(studio, registry, monkeypatch):
+    from pipeline import help_chat as H
+
+    def no_model():
+        raise AssertionError("the model must not be touched during a render")
+    monkeypatch.setattr(H, "_provider", no_model)
+    with registry.conn() as c:
+        c.execute("INSERT INTO sched_queue (kind,priority,pid,job_ref,state,enqueued_at,granted_at,heartbeat) "
+                  "VALUES ('render',1,?,'job','granted',?,?,?)", (os.getpid(), time.time(), time.time(), time.time()))
+    srv, _ = studio
+    st, _, js, _ = req(srv, "POST", "/api/help/ask", {"question": "Why did my render fail?"})
+    assert st == 200 and js["status"] == "paused" and js["message"] == H.PAUSED_RENDER

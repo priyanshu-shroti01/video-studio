@@ -126,6 +126,7 @@ the account named in `brand.json → publishing.accounts`. See [SOCIAL_PUBLISHIN
 |---|---|
 | `pipeline/api.py` | service layer for CLI + Studio: dashboard (attention queue, brand overview), productions, concepts, storyboard save (validated, versioned), preview + preview approval, render, monitor, assets, safe file serving |
 | `pipeline/intelligence_bridge.py` | engine selection per brief, scheduler-gated LLM work, claim reports |
+| `pipeline/help_chat.py` | the Studio help chat: picks guide sections by keyword, asks the local model under the scheduler (paused while a video renders), caps input and conversation, strips prices from answers |
 | `pipeline/creative/` | hybrid engine: templates, copy bank, copywriter (LLM slots), director, rules, anchors, industry packs; opt-in (`"components": "generate"`) component generator (`composer.py`), freshness memory, component store + brand library (`components.py`) |
 | `pipeline/intelligence/` | local LLM provider (Ollama, mock), model registry, brief schema, narrative patterns, LLM-only concepts and storyboards, claim verification, fact base refresh, benchmarks |
 | `pipeline/preview.py`, `preview_gate.py`, `sync_check.py` | preview stills and contact sheet, storyboard quality gate, narration ↔ visual sync and measured A/V offset |

@@ -3,6 +3,13 @@
 ## Unreleased
 
 ### Added
+- **Help chat in the Studio:** a round **?** button at the bottom right of every page opens a small chat that
+  answers how-to questions with the local AI model, grounded in the guide sections that match the question
+  (STUDIO_GUIDE, TROUBLESHOOTING, INSTALL, README) and told which page and wizard step you are on. It only explains
+  (no actions), never states prices or plans, runs under the scheduler and is paused while a video renders; a
+  missing model or low memory is a plain message. Questions and chats are capped on the server
+  (`POST /api/help/ask`, `pipeline/help_chat.py`). Closed by default, Esc closes it, keyboard and screen-reader
+  accessible. See docs/STUDIO_GUIDE.md#help-chat.
 - **README teaser and walkthrough briefs** (projects/videostudio/briefs/) for the demo films.
 - **"Zero Cost" teaser blueprint** (software pack): a 30–35 s film — the price promise, the real app, the local stack
   and the frame-by-frame preview — backed by a new `product.cost` fact taken verbatim from the README.
