@@ -9,8 +9,12 @@
  "format": "short",
  "duration_seconds": 45,
  "duration_flexible": true,
- "formats": ["short", "landscape"],
+ "formats": [
+  "short",
+  "landscape"
+ ],
  "language": "hinglish",
- "voice": "hm_omega",
- "quality": "smooth"
+ "voice": "hi-IN-MadhurNeural",
+ "quality": "smooth",
+ "allow_online_voice": true
 }
