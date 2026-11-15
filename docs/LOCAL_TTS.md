@@ -122,6 +122,11 @@ chahiye?" → "Product video के लिए agency चाहिए?"). In a li
 all-Devanagari or all-Latin. Microsoft's word boundaries give native timings, which map back onto the Latin
 caption words as above. Every production that uses one records the online voice in its project.
 
+A sentence that ends on a Hindi word gets the Devanagari full stop (danda, ।) in the spoken form, for every Hindi
+voice. Microsoft's voices read a Latin full stop after a Hindi word as no sentence end and ran straight on
+("…Studio से. Brief दो" had no pause at all); with "से। Brief" they pause about 0.9 s. Captions keep the full stop.
+QA's `audio.sentence_pauses` flags any sentence end that still runs on.
+
 **What happens.** Every display word gets a Devanagari spoken form ("Aaj dekhte hain ki" → "आज देखते हैं कि",
 "₹49/mo" → "उनचास रुपये पर मंथ"). Kokoro phonemizes that with espeak-ng's Hindi rules (`hi`). The spoken-word
 timings map back onto the Latin display words through the same `Prepared.groups` mapping as English respellings,

@@ -231,7 +231,10 @@ def prepare(text: str, overrides: dict[str, str] | None = None, d: Dictionary | 
         if hi:
             p.sources.append(src)
         words = list(words)
-        words[-1] += _spoken_trail(trail)
+        end = _spoken_trail(trail)
+        if hi and end == "." and hinglish.has_devanagari(words[-1]):
+            end = "।"            # Hindi voices treat a Latin full stop after a Hindi word as no sentence end at all
+        words[-1] += end
         p.groups.append((cand, len(words)))
         p.spoken_tokens += words
         i += len(cand)

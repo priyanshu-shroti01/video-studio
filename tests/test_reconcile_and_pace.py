@@ -73,3 +73,13 @@ def test_the_preview_gate_catches_a_dark_scene_that_opens_empty():
     r = {x["scene"]: x for x in scene_open_report(scenes)}
     assert r["a"]["dark"] and r["a"]["opens_s"] == 1.4
     assert not r["b"]["dark"] and "c" not in r
+
+
+def test_qa_flags_a_sentence_that_runs_straight_into_the_next():
+    from pipeline.qa import sentence_pause_check
+    ok = [{"text": "se.", "start": 0.0, "end": 0.4}, {"text": "Brief", "start": 1.0, "end": 1.3}]
+    assert sentence_pause_check(ok).status == "PASS"
+    bad = [{"text": "se.", "start": 0.0, "end": 0.4}, {"text": "Brief", "start": 0.4, "end": 0.7},
+           {"text": "do,", "start": 0.7, "end": 0.9}, {"text": "aur", "start": 0.9, "end": 1.0}]
+    c = sentence_pause_check(bad)
+    assert c.status == "WARN" and "se. → Brief" in c.detail and "do," not in c.detail

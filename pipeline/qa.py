@@ -273,6 +273,21 @@ def previews(path: Path, out_dir: Path, scene_starts: list[float], dur: float, w
     return {"contact_sheet": str(sheet), "frames": paths}
 
 
+MIN_SENTENCE_PAUSE = 0.15   # s: a voice that runs one sentence straight into the next sounds rushed and unclear
+
+
+def sentence_pause_check(words: list[dict]) -> Check:
+    """Every sentence end (. ? ! । in the narration) is followed by an audible pause. Some voices read a full stop
+    after a Hindi word as no sentence end at all and run on ("se. Brief" at 0.00 s)."""
+    bad = []
+    for a, b in zip(words, words[1:]):
+        if re.search(r"[.?!।]['\"”’)]*$", a["text"]) and b["start"] - a["end"] < MIN_SENTENCE_PAUSE:
+            bad.append(f"{a['text']} → {b['text']} at {a['end']:.1f}s ({max(0.0, b['start'] - a['end']):.2f}s)")
+    return Check("audio.sentence_pauses", "audio", WARN if bad else PASS, False,
+                 ("no pause after a sentence end: " + "; ".join(bad[:5])) if bad
+                 else f"every sentence end is followed by a pause of at least {MIN_SENTENCE_PAUSE} s")
+
+
 def run_qa(video: Path, ex: Expect, *, srt: Path | None, ass: Path | None, words: list[dict],
            reports_dir: Path, previews_dir: Path, max_cps: float = 25.0, title: str = "",
            extra: list[Check] | None = None) -> dict:
@@ -289,6 +304,7 @@ def run_qa(video: Path, ex: Expect, *, srt: Path | None, ass: Path | None, words
             ac, audio_rep = audio_checks(video, ex)
             checks += ac
         checks += caption_checks(srt, ass, ex.duration, words, max_cps, window=ex.caption_window)
+        checks.append(sentence_pause_check(words))
         w, h = FORMATS[ex.fmt]
         prev = previews(video, previews_dir, ex.scene_starts, dur, w, h, fps=ex.fps)
     failed = [c for c in checks if c.status == FAIL and c.critical]

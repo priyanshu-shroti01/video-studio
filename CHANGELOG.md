@@ -70,6 +70,9 @@
   quote is kept word for word.
 
 ### Fixed
+- **No pause between some Hinglish sentences** ("Milo Video Studio se. Brief do" ran together): a sentence ending on a
+  Hindi word now gets a danda (।) in the spoken form, which Hindi voices pause on. New QA check
+  `audio.sentence_pauses` flags any sentence end that still runs straight into the next one.
 - **Hinglish words with Urdu sounds** (क़, ख़, ग़) are said the everyday Hindi way (क, ख, ग): "dikkat", "mauka";
   "jarurat" is जरूरत and "dono" is दोनों. ज़ and फ़ stay ("zero", "frame").
 - **"Galat" was said "ghalat"** (ग़लत in the Hinglish word list); it is now गलत, and "rupees" is said रुपये.

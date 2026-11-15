@@ -81,6 +81,7 @@ uv run video-pipeline qa --job-id <JOB_ID>      # exit 0 = PASS/WARN, 3 = FAIL
 | `audio.true_peak` | audio | yes | true peak above `qa.maxTruePeak` (default −1.0 dBTP) |
 | `audio.clipping` | audio | yes | any sample at full scale |
 | `audio.silence` | audio | yes | ≥ 0.5 s silence overlapping narration |
+| `audio.sentence_pauses` | audio | no | a sentence end (. ? ! ।) followed by less than 0.15 s before the next word: the voice ran two sentences together |
 | `audio.voice_present` | audio | yes | more than 10% of words below −45 dBFS (silent or missing voiceover) |
 | `audio.sfx_placed` | audio | no | fewer sound effects placed than planned |
 | `captions.srt_valid` / `captions.ass_valid` | captions | yes / no | file unparsable / wrong dialogue count |

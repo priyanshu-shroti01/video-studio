@@ -29,7 +29,7 @@ def _pairs(text, overrides=None):
 
 def test_every_display_word_gets_a_devanagari_spoken_form():
     p, pairs = _pairs(LINE)
-    assert p.spoken == ("आज देखते हैं कि प्रोडक्ट वीडियो कैसे बनता है. सिर्फ़ उनचास रुपये पर मंथ में अपनी वेबसाइट "
+    assert p.spoken == ("आज देखते हैं कि प्रोडक्ट वीडियो कैसे बनता है। सिर्फ़ उनचास रुपये पर मंथ में अपनी वेबसाइट "
                         "लॉन्च करो!")
     assert [t for g, _ in p.groups for t in g] == tokenize(LINE)          # display tokens kept verbatim, in order
     assert sum(n for _, n in p.groups) == len(p.spoken_tokens) == len(tokenize(p.spoken))
@@ -209,13 +209,13 @@ def test_checklist_lists_every_transliterated_word_with_its_devanagari_form():
 def test_mixed_form_keeps_english_words_and_writes_hindi_in_devanagari():
     from pipeline.voice import pronunciation as P
     p = P.prepare("Product video ke liye agency chahiye? Galat. Zero rupees, na API key.", None, lang="hinglish-mixed")
-    assert p.spoken == "Product video के लिए agency चाहिए? गलत. Zero रुपये, ना API key."
+    assert p.spoken == "Product video के लिए agency चाहिए? गलत। Zero रुपये, ना API key."
     assert len(p.groups) == len(p.display_tokens)
 
 
 def test_galat_is_said_galat_not_ghalat():
     from pipeline.voice import pronunciation as P
-    assert P.prepare("Galat.", None, lang="hinglish").spoken == "गलत."
+    assert P.prepare("Galat.", None, lang="hinglish").spoken == "गलत।"
 
 
 def test_edge_may_speak_hinglish_only_when_online_is_allowed():
@@ -255,14 +255,14 @@ def test_edge_hinglish_goes_through_the_mixed_form_and_maps_back_to_display_word
 
     r = tts.synthesize("Aaj product video banta hai.", provider="edge", voice="hi-IN-MadhurNeural", allow_online=True,
                        provider_obj=FakeEdge(), cache_dir=tmp_path, options={"lang": "hinglish"})
-    assert seen["text"] == "आज product video बनता है."
+    assert seen["text"] == "आज product video बनता है।"
     assert [b.text for b in r.boundaries] == ["Aaj", "product", "video", "banta", "hai."]
 
 
 def test_everyday_hindi_drops_the_urdu_dots_but_keeps_z_and_f():
     from pipeline.voice import pronunciation as P
     assert P.prepare("Galat. Dono ki jarurat nahi. Dikkat? Mauka.", None, lang="hinglish").spoken == \
-        "गलत. दोनों की जरूरत नहीं. दिक्कत? मौका."
+        "गलत। दोनों की जरूरत नहीं। दिक्कत? मौका।"
     assert "ज़" in P.prepare("Zero", None, lang="hinglish").spoken
 
 
@@ -275,3 +275,10 @@ def test_each_scene_is_said_the_way_its_purpose_needs():
     assert scene_delivery({"purpose": "hook", "delivery": "calm"}) == "calm"     # the storyboard can override
     kokoro = scene_voice({"provider": "kokoro", "voice": "hm_omega", "rate": "+5%"}, {"purpose": "hook"})
     assert kokoro == {"provider": "kokoro", "voice": "hm_omega", "rate": "+13%"}   # no pitch for local engines
+
+
+def test_a_sentence_ending_on_a_hindi_word_gets_a_danda_so_the_voice_pauses():
+    from pipeline.voice import pronunciation as P
+    p = P.prepare("Milo Video Studio se. Brief do, aur video lo. Code GitHub par hai.", None, lang="hinglish-mixed")
+    assert p.spoken == "मिलो Video Studio से। Brief दो, और video लो। Code GitHub पर है।"
+    assert P.prepare("Na API key.", None, lang="hinglish-mixed").spoken == "ना API key."   # Latin word: a full stop
