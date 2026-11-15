@@ -164,7 +164,7 @@ flowchart LR
     C --> S[Storyboard<br/>templates + verified facts<br/>+ word-anchored copy]
     S --> P[Scene preview<br/>+ quality gate]
     P -->|human approves| R[Render<br/>local voice → timeline → Remotion → mix]
-    R --> Q[QA on the real file<br/>~43 checks]
+    R --> Q[QA on the real file<br/>~46 checks]
     Q -->|human approves| A[Approval<br/>hash-bound]
     A -->|explicit confirm| X[YouTube · Instagram · export]
 ```
@@ -181,18 +181,21 @@ flowchart LR
      scrub, step frame by frame or loop a scene, with the real local voice and exact timing once you press
      "Use the real voice".
    - The gate rejects empty or repetitive scenes, scenes without a hero visual, invented labels, unverified numbers,
-     overflowing text, and narration that runs over a frozen screen.
+     overflowing text, narration that runs over a frozen screen, and a scene that opens on an empty dark background.
    - **A person approves the preview before the full render.**
 4. **Render.**
    - A local voice (Kokoro) speaks the script; Python resolves every animation to the exact word that names it.
    - Narration in English, or in Hinglish: Latin-script Hinglish captions, spoken by a Kokoro Hindi voice from a
      Devanagari form of every word (brief `"language": "hinglish"`, see [LOCAL_TTS](docs/LOCAL_TTS.md#hinglish)),
      or, opt-in and online, by Microsoft's Hindi neural voices (`"voice": "hi-IN-MadhurNeural"`, `"allow_online_voice": true`).
+   - The narrator's tone follows each scene: urgent for a hook, serious for a problem, excited for a reveal, upbeat
+     for proof and calm for the call to action ([delivery](docs/LOCAL_TTS.md#delivery-per-scene)).
    - Quality presets: Standard (1080p, 30 fps), Smooth (1080p, 60 fps) or Ultra (4K, 60 fps).
    - Memory, disk and OCR are checked first; problems come back as a plain sentence with what to do next.
    - Remotion renders in parallel headless Chromium tabs; FFmpeg mixes voice, licensed music and sound effects.
 5. **QA on the actual file.** Container, full decode, black or frozen frames, loudness and peaks, caption timing,
-   measured A/V offset, narration sync, layout, digit-exact OCR of prices and URLs, and brand presence.
+   measured A/V offset, narration sync, a pause after every sentence, layout, digit-exact OCR of prices and URLs,
+   and brand presence.
 6. **Approval → publishing.**
    - A reviewer approves the exact package (video, captions, title, description, tags).
    - Publishing to YouTube or Instagram is a separate, confirmed step.

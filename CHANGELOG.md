@@ -61,6 +61,8 @@
   - Fixtures `sample-explainer-{short,landscape}.json`, built from `tests/fixtures/explainer-storyboard.json`.
 
 ### Changed
+- **README "How it works"** mentions the per-scene narrator tone, the scene-opening check and the sentence-pause
+  check; the QA count in the diagram is now about 46.
 - **Render contract v3** (`CONTRACT_VERSION` 3 in `src/engine/types.ts` and `pipeline/contract.py`). v3 is a
   superset of v2 (HUD, caption tones and speakers, headline captions, explainer blocks): the engine still draws v1
   and v2 props unchanged, and a `hud` in props below v3 is ignored.
