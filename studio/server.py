@@ -130,6 +130,16 @@ class Tasks:
 
 
 # ---- helpers -----------------------------------------------------------------------------------------
+STATIC_EXT = (".js", ".css", ".map")
+
+
+def _dist_files() -> dict[str, Path]:
+    """The built frontend's files by name (listed fresh, so a rebuild is served without a restart)."""
+    if not DIST_DIR.is_dir():
+        return {}
+    return {f.name: f for f in DIST_DIR.iterdir() if f.is_file() and f.suffix in STATIC_EXT and not f.name.startswith(".")}
+
+
 def _read_json(p: Path):
     try:
         return json.loads(p.read_text(encoding="utf-8"))
@@ -1130,10 +1140,9 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, idx.read_bytes(), "text/html; charset=utf-8", {"Set-Cookie": cookie} if cookie else None)
 
     def _static(self, name: str) -> None:
-        if len(name) > 100 or not re.fullmatch(r"[A-Za-z0-9_-]+\.(js|css|map)", name):   # length first: no slow regex
-            return self._text(404, "not found")
-        f = (DIST_DIR / name).resolve()
-        if f.parent != DIST_DIR.resolve() or not f.is_file():
+        # only a file that is in the built frontend folder, looked up by name (the request never builds a path)
+        f = _dist_files().get(name) if len(name) <= 100 else None
+        if f is None:
             return self._text(404, "not found")
         ctype = {"js": "text/javascript; charset=utf-8", "css": "text/css; charset=utf-8",
                  "map": "application/json"}[name.rsplit(".", 1)[1]]

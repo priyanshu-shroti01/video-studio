@@ -40,6 +40,11 @@
   The first word now starts 0.05 s in, like every later scene already starts tight.
 - **The teaser copy names no currency:** the software pack says the price through the brand's `product.cost` fact
   (`{cost_spoken}`), so shared code stays brand-neutral; the hook and stack lines now open on what they show.
+- **More code-scanning hardening (CodeQL):** `safe_path` now checks a path lexically against the approved roots
+  before touching the filesystem (and again after following symlinks), and the Studio serves frontend files by
+  looking the requested name up in the built folder's listing instead of building a path from it.
+- **Dependency alerts (Dependabot):** pytest 9.0.3 (tmpdir handling) and minimatch 11 through an npm override
+  (a denial-of-service in glob patterns; only used by the linter). `npm audit` reports no vulnerabilities.
 - **Code-scanning hardening (CodeQL):** the Studio server refuses any response header value that contains a line
   break, and checks a static file name's length before matching it. Neither was exploitable (header values were
   built from fixed types and numbers; the name regex is anchored), but both now hold by construction.

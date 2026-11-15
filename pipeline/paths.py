@@ -33,9 +33,13 @@ def safe_path(p: str | os.PathLike, *, must_exist: bool = False, roots: list[Pat
         raise PathError("empty path")
     if "\x00" in str(p):
         raise PathError("NUL byte in path")
-    raw = Path(p)
-    full = (raw if raw.is_absolute() else ROOT / raw).resolve()
     roots = roots or approved_roots()
+    # 1. lexically (no filesystem access yet): normalise and require an approved root prefix
+    norm = os.path.normpath(os.path.join(str(ROOT), str(p)))      # an absolute `p` replaces ROOT
+    if not any(norm == str(r) or norm.startswith(str(r) + os.sep) for r in roots):
+        raise PathError(f"path escapes the workspace: {p}", detail=norm)
+    # 2. after following symlinks, it must still be inside
+    full = Path(norm).resolve()
     if not any(full == r or r in full.parents for r in roots):
         raise PathError(f"path escapes the workspace: {p}", detail=str(full))
     if must_exist and not full.exists():
