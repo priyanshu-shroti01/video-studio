@@ -100,8 +100,27 @@ write it ("Aaj dekhte hain ki product video kaise banta hai"), and has a Kokoro 
 
 A brief can say `"language": "hinglish"` instead. That sets `provider: kokoro`, `lang: hinglish` and the voice
 `hm_omega`, unless the brief also names a `voice` (`hm_psi`, `hf_alpha` or `hf_beta`). The Studio API accepts the
-field. The brief form has no language picker yet. `validate` refuses `hinglish` with Piper or Edge (neither has a
-Hindi voice this studio may use), and it warns when the voice isn't one of the four Hindi ones.
+field. The brief form has no language picker yet. `validate` refuses `hinglish` with Piper, and it warns when the
+voice isn't a Hindi one.
+
+### Microsoft Hindi voices (online, opt-in)
+
+Kokoro's Hindi voices are the weakest part of the model. For natural Hinglish narration you can use Microsoft's
+Hindi neural voices instead, `hi-IN-MadhurNeural` (male) or `hi-IN-SwaraNeural` (female). They are free but
+**online**: the narration text is sent to Microsoft, so they need an explicit opt-in.
+
+```json
+"voice": {"provider": "edge", "voice": "hi-IN-MadhurNeural", "lang": "hinglish", "allowOnline": true}
+```
+
+or, in a brief: `"language": "hinglish", "voice": "hi-IN-MadhurNeural", "allow_online_voice": true`. Without
+`allow_online_voice: true` the brief sets `allowOnline: false` and `validate` refuses the voice.
+
+These voices read both scripts, so they get a **mixed** spoken form instead of all-Devanagari: Hindi words in
+Devanagari, English words, letters, domains and dictionary terms left as written ("Product video ke liye agency
+chahiye?" → "Product video के लिए agency चाहिए?"). In a listening test this sounded clearly better than either
+all-Devanagari or all-Latin. Microsoft's word boundaries give native timings, which map back onto the Latin
+caption words as above. Every production that uses one records the online voice in its project.
 
 **What happens.** Every display word gets a Devanagari spoken form ("Aaj dekhte hain ki" → "आज देखते हैं कि",
 "₹49/mo" → "उनचास रुपये पर मंथ"). Kokoro phonemizes that with espeak-ng's Hindi rules (`hi`). The spoken-word

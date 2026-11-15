@@ -110,7 +110,9 @@ def load(overrides: dict[str, str] | None = None, lang: str | None = None) -> Di
     fpd = {"dict": raw, "overrides": overrides or {}}
     if hinglish.is_hinglish(lang):
         fpd["hinglish"] = hinglish.fingerprint_data()   # English keys stay exactly as before
-    lang = hinglish.LANG if hinglish.is_hinglish(lang) else None
+    if hinglish.is_hinglish(lang):
+        fpd["mixed"] = hinglish.is_mixed(lang)
+    lang = (hinglish.MIXED if hinglish.is_mixed(lang) else hinglish.LANG) if hinglish.is_hinglish(lang) else None
     return Dictionary(entries, raw.get("units", {}), raw.get("currency", {}), set(raw.get("tlds", [])),
                       sha256_json(fpd), lang)
 
@@ -194,7 +196,8 @@ def prepare(text: str, overrides: dict[str, str] | None = None, d: Dictionary | 
             lang: str | None = None) -> Prepared:
     """lang "hinglish": Devanagari spoken forms for the Hindi phonemizer; anything else: English spoken forms."""
     d = d or load(overrides, lang)
-    hi = d.lang == hinglish.LANG
+    hi = hinglish.is_hinglish(d.lang)
+    mixed = hinglish.is_mixed(d.lang)
     toks = tokenize(text)
     p = Prepared(text, toks, [], [])
     multi = sorted((e for e in d.entries if e.n > 1), key=lambda e: -e.n)
@@ -209,14 +212,15 @@ def prepare(text: str, overrides: dict[str, str] | None = None, d: Dictionary | 
             if any(tr for _, _, tr in parts[:-1]) or any(ld for ld, _, _ in parts[1:]):
                 continue  # punctuation inside the phrase: not the same phrase
             if e.matches(" ".join(c for _, c, _ in parts)):
-                words = hinglish.to_devanagari_words(e.spoken) if hi else e.spoken.split()
+                words = (hinglish.to_devanagari_words(e.spoken) if hi and not (mixed and not hinglish.has_devanagari(e.spoken))
+                         else e.spoken.split())
                 hit = (cand, words, parts[-1][2], "override" if e.src == "override" else "dictionary")
                 break
         if hit is None:
             _, core, trail = _split(toks[i])
             src = ""
             if hi:
-                words, src = hinglish.speak(core, d, toks[i - 1] if i else "")
+                words, src = hinglish.speak(core, d, toks[i - 1] if i else "", mixed=mixed)
             else:
                 words = speak_core(core, d)
                 prev = _split(toks[i - 1])[1] if i else ""

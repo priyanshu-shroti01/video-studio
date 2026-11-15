@@ -72,9 +72,13 @@ def check_voice_config(v: dict, *, check_models: bool = True) -> tuple[list[str]
     elif prov == "mock" and voice != "mock":
         errors.append("$.voice.voice: the mock provider only has voice 'mock'")
     if v.get("lang") == "hinglish":
-        if prov not in ("kokoro", "mock"):
-            errors.append(f"$.voice.lang: 'hinglish' needs the kokoro provider ({prov!r} has no Hindi voice this "
-                          "studio may use)")
+        if prov == "edge":
+            if not str(voice).startswith("hi-IN-"):
+                warnings.append(f"$.voice: lang 'hinglish' with {voice!r}, which is not a Hindi voice; Microsoft's "
+                                "Hindi voices are hi-IN-MadhurNeural and hi-IN-SwaraNeural")
+        elif prov not in ("kokoro", "mock"):
+            errors.append(f"$.voice.lang: 'hinglish' needs the kokoro provider, or edge with allowOnline "
+                          f"({prov!r} has no Hindi voice this studio may use)")
         elif prov == "kokoro" and not voice.startswith("h"):
             warnings.append(f"$.voice: lang 'hinglish' with {voice!r}, which is not a Hindi voice; the Hindi voices "
                             "are hm_omega, hm_psi, hf_alpha and hf_beta")

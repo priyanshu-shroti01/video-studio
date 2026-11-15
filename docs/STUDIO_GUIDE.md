@@ -201,7 +201,9 @@ GET  /files/<output/… | public/… | audio/kit/… | audio/music/…>   (Range
 ```
 
 `brief.language` is `english` (default) or `hinglish`. Hinglish means Latin-script Hinglish captions, spoken by the
-Kokoro Hindi voice `hm_omega` unless `voice` names another one ([LOCAL_TTS](LOCAL_TTS.md#hinglish)). The brief
+Kokoro Hindi voice `hm_omega` unless `voice` names another one ([LOCAL_TTS](LOCAL_TTS.md#hinglish)). A Microsoft
+Hindi voice (`"voice": "hi-IN-MadhurNeural"` or `"hi-IN-SwaraNeural"`) sounds more natural but is online, so it also
+needs `"allow_online_voice": true` in the brief. The brief
 form has no language picker yet, so set it through the API or the brief file. Write the narration itself in
 Hinglish in the storyboard editor.
 

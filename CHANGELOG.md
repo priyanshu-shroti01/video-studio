@@ -3,6 +3,10 @@
 ## Unreleased
 
 ### Added
+- **Microsoft Hindi voices for Hinglish (online, opt-in):** `hi-IN-MadhurNeural` / `hi-IN-SwaraNeural` read a mixed
+  spoken form (Hindi words in Devanagari, English words as written), which sounded far more natural than Kokoro's
+  Hindi voices in a listening test. A brief needs `"allow_online_voice": true`; captions stay in Latin-script
+  Hinglish and Microsoft's word boundaries map back onto them. See docs/LOCAL_TTS.md#hinglish.
 - **Hinglish narration:** set `voice.lang: "hinglish"` (or `"language": "hinglish"` in a brief, which picks the Kokoro
   Hindi voice `hm_omega` unless the brief names another). The script and captions stay in Latin-script Hinglish
   ("Aaj dekhte hain ki…"). Every display word gets a Devanagari spoken form, which Kokoro reads with espeak's Hindi
@@ -63,6 +67,7 @@
   quote is kept word for word.
 
 ### Fixed
+- **"Galat" was said "ghalat"** (ग़लत in the Hinglish word list); it is now गलत, and "rupees" is said रुपये.
 - **A dark scene that opened empty was only caught after the full render** (QA's black-frame check). The preview
   gate's new `storyboard.scene_opens` fails a scene that shows only a dark backdrop for more than 0.6 s.
 - **Hinglish words read wrongly:** "two" (त्वो), "pass" (पैस), "banaoge", "awaaz", "ideas" and "agency" are

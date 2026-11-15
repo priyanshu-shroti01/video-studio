@@ -59,7 +59,7 @@ Step-by-step help: [docs/INSTALL.md](docs/INSTALL.md).
   to the exact files.
 - **Many brands, one studio.** Each website keeps its own logo, colours, fonts, facts, voice and social accounts.
 - **English or Hinglish.** Hinglish captions as creators write them ("Aaj dekhte hain..."), spoken by a local Hindi
-  voice.
+  voice, or by Microsoft's natural Hindi voices if you allow an online voice.
 - **Help on every page.** A chat in the corner answers how-to questions with the same local AI.
 
 ## How it compares
@@ -186,7 +186,8 @@ flowchart LR
 4. **Render.**
    - A local voice (Kokoro) speaks the script; Python resolves every animation to the exact word that names it.
    - Narration in English, or in Hinglish: Latin-script Hinglish captions, spoken by a Kokoro Hindi voice from a
-     Devanagari form of every word (brief `"language": "hinglish"`, see [LOCAL_TTS](docs/LOCAL_TTS.md#hinglish)).
+     Devanagari form of every word (brief `"language": "hinglish"`, see [LOCAL_TTS](docs/LOCAL_TTS.md#hinglish)),
+     or, opt-in and online, by Microsoft's Hindi neural voices (`"voice": "hi-IN-MadhurNeural"`, `"allow_online_voice": true`).
    - Quality presets: Standard (1080p, 30 fps), Smooth (1080p, 60 fps) or Ultra (4K, 60 fps).
    - Memory, disk and OCR are checked first; problems come back as a plain sentence with what to do next.
    - Remotion renders in parallel headless Chromium tabs; FFmpeg mixes voice, licensed music and sound effects.

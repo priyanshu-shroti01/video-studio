@@ -89,7 +89,7 @@ class EdgeProvider:
         except ImportError as e:  # pragma: no cover - environment issue
             raise TTSError("edge-tts is not installed (uv sync)") from e
 
-    def synthesize(self, text, voice, rate, pitch, out, timeout):
+    def synthesize(self, text, voice, rate, pitch, out, timeout, options=None):
         import aiohttp
         import edge_tts
 
@@ -198,7 +198,9 @@ def voice_fingerprint(v: dict) -> str:
     """Everything outside the voice config that changes local audio: pronunciation dictionary and
     model hashes. Add to stage cache keys so a dictionary edit re-synthesises."""
     from .voice import pronunciation, registry
-    fp = {"pron": pronunciation.load(v.get("pronunciation"), v.get("lang")).fingerprint}
+    from .voice import hinglish
+    lang = hinglish.MIXED if v.get("provider") == "edge" and hinglish.is_hinglish(v.get("lang")) else v.get("lang")
+    fp = {"pron": pronunciation.load(v.get("pronunciation"), lang).fingerprint}
     if v.get("provider") in LOCAL_PROVIDERS:
         try:
             fp["files"] = {i: registry.entry(i)["sha256"] for i in registry.voice_files(v["provider"], v["voice"])}
@@ -229,10 +231,13 @@ def synthesize(text: str, *, provider: str, voice: str, rate: str = "+0%", pitch
     if getattr(prov, "online", False) and not allow_online:
         raise online_refusal(prov.name)
     prep = None
-    if getattr(prov, "uses_pronunciation", False):
+    lang = (options or {}).get("lang")
+    from .voice import hinglish as _H
+    edge_hinglish = prov.name == "edge" and _H.is_hinglish(lang)
+    if getattr(prov, "uses_pronunciation", False) or edge_hinglish:
         from .voice import pronunciation as P
-        try:
-            prep = P.prepare(text, pronunciation, lang=(options or {}).get("lang"))
+        try:   # Microsoft hi-IN voices read both scripts: Hindi words in Devanagari, English words as written
+            prep = P.prepare(text, pronunciation, lang=_H.MIXED if edge_hinglish else lang)
         except ValueError as e:
             raise TTSError(str(e)) from e
     spoken = prep.spoken if prep else text

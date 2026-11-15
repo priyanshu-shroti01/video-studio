@@ -299,6 +299,8 @@ def apply_brief_voice(project: dict, brief: dict) -> dict:
         over.update({"provider": "kokoro", "lang": "hinglish", "voice": HINGLISH_VOICE})
     if isinstance(brief.get("voice"), str) and brief["voice"].strip():
         over["voice"] = brief["voice"].strip()
+        if over["voice"].startswith("hi-IN-"):     # a Microsoft Hindi neural voice: online, only when the brief allows it
+            over.update({"provider": "edge", "lang": "hinglish", "allowOnline": brief.get("allow_online_voice") is True})
     if PACE_RATE.get(brief.get("pace")):
         over["rate"] = PACE_RATE[brief["pace"]]
     if over:

@@ -28,6 +28,8 @@ from pathlib import Path
 
 LEX_PATH = Path(__file__).with_name("hinglish.json")
 LANG = "hinglish"
+MIXED = "hinglish-mixed"     # spoken form for voices that read both scripts (Microsoft hi-IN): Hindi words in
+                             # Devanagari, English words left as written
 PHONEMIZER_LANG = "hi"
 DEVA = "ऀ-ॣ०-ॿ"           # Devanagari letters, signs and digits (the dandas are punctuation)
 _DEVA_RE = re.compile(f"[{DEVA}]")
@@ -48,7 +50,11 @@ SOURCES = {
 
 
 def is_hinglish(lang: str | None) -> bool:
-    return (lang or "").lower() == LANG
+    return (lang or "").lower() in (LANG, MIXED)
+
+
+def is_mixed(lang: str | None) -> bool:
+    return (lang or "").lower() == MIXED
 
 
 def has_devanagari(s: str) -> bool:
@@ -348,10 +354,25 @@ _KI_THAT = {"hai", "hain", "tha", "thi", "hoga", "hogi", "lagta", "lagti", "lage
             "dekhiye", "chahte", "chahta", "chahti", "kaha", "bataya", "batao", "samjho", "yaad", "maloom", "ummeed"}
 
 
-def speak(core: str, d, prev: str = "") -> tuple[list[str], str]:
-    """Spoken Devanagari words for one display token (punctuation already split off) and where they came from
-    (a key of SOURCES). `d` is the pronunciation.Dictionary (overrides + shared entries); `prev` is the previous
-    display token (context for "ki")."""
+LATIN_IN_MIXED = {"english", "english-rules", "letters", "dictionary", "domain"}
+
+
+def speak(core: str, d, prev: str = "", mixed: bool = False) -> tuple[list[str], str]:
+    """Spoken words for one display token (punctuation already split off) and where they came from (a key of
+    SOURCES). `d` is the pronunciation.Dictionary (overrides + shared entries); `prev` is the previous display
+    token (context for "ki"). Devanagari for the Kokoro Hindi phonemizer; with `mixed` (a voice that reads both
+    scripts) English words, letters and domains stay as written and only Hindi words become Devanagari."""
+    words, src = _speak(core, d, prev)
+    if mixed and src in LATIN_IN_MIXED:
+        return [core], src
+    if mixed and src == "override":
+        e = d.lookup_entry(core)
+        if e is not None and not has_devanagari(e.spoken):
+            return e.spoken.split(), src
+    return words, src
+
+
+def _speak(core: str, d, prev: str = "") -> tuple[list[str], str]:
     from . import pronunciation as P
     if not core:
         return [], ""
@@ -372,7 +393,7 @@ def speak(core: str, d, prev: str = "") -> tuple[list[str], str]:
         return to_devanagari_words(e.spoken), "dictionary"
     m = re.fullmatch(r"(.+?)(/[A-Za-z]+)", core)
     if m and m.group(2).lower() in L["suffixes"] and re.search(r"\d", m.group(1)):
-        head, _ = speak(m.group(1), d)
+        head, _ = _speak(m.group(1), d)
         return [*head, *L["suffixes"][m.group(2).lower()].split()], "number"
     for sym in sorted(L["currency"], key=len, reverse=True):
         m = re.fullmatch(re.escape(sym) + r"\s?(\d[\d,]*(?:\.\d+)?)", core)
@@ -399,7 +420,7 @@ def speak(core: str, d, prev: str = "") -> tuple[list[str], str]:
     if "-" in core.strip("-"):
         out, srcs = [], set()
         for part in (p for p in core.split("-") if p):
-            w, s = speak(part, d)
+            w, s = _speak(part, d)
             out += w; srcs.add(s)
         return out, (srcs.pop() if len(srcs) == 1 else "english-rules")
     word = re.sub(r"[^A-Za-z'’]", "", core)

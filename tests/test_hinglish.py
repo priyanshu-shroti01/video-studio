@@ -203,3 +203,57 @@ def test_checklist_lists_every_transliterated_word_with_its_devanagari_form():
     assert by["₹49"]["spoken"] == "उनचास रुपये" and by["analytics"]["guess"]
     assert "| analytics | ऐनलिटिक्स | *guess*" in md and "Hinglish" in md
     assert md.index("analytics") < md.index("| Shroti |")                    # guesses first
+
+
+# ---- Microsoft hi-IN voices (online, opt-in): mixed spoken form ----------------------------------------------
+def test_mixed_form_keeps_english_words_and_writes_hindi_in_devanagari():
+    from pipeline.voice import pronunciation as P
+    p = P.prepare("Product video ke liye agency chahiye? Galat. Zero rupees, na API key.", None, lang="hinglish-mixed")
+    assert p.spoken == "Product video के लिए agency चाहिए? गलत. Zero रुपये, ना API key."
+    assert len(p.groups) == len(p.display_tokens)
+
+
+def test_galat_is_said_galat_not_ghalat():
+    from pipeline.voice import pronunciation as P
+    assert P.prepare("Galat.", None, lang="hinglish").spoken == "गलत."
+
+
+def test_edge_may_speak_hinglish_only_when_online_is_allowed():
+    from pipeline.voice.schema import check_voice_config
+    ok = {"provider": "edge", "voice": "hi-IN-MadhurNeural", "lang": "hinglish", "allowOnline": True}
+    errs, warns = check_voice_config(ok)
+    assert not errs and any("online" in w.lower() or "Microsoft" in w for w in warns)
+    errs, _ = check_voice_config({**ok, "allowOnline": False})
+    assert errs
+    _, warns = check_voice_config({**ok, "voice": "en-US-GuyNeural"})
+    assert any("not a Hindi voice" in w for w in warns)
+
+
+def test_a_brief_naming_a_microsoft_hindi_voice_needs_its_own_online_consent():
+    from pipeline import api
+    on = api.apply_brief_voice({}, {"language": "hinglish", "voice": "hi-IN-MadhurNeural", "allow_online_voice": True})
+    assert on["voice"] == {"provider": "edge", "lang": "hinglish", "voice": "hi-IN-MadhurNeural", "allowOnline": True}
+    off = api.apply_brief_voice({}, {"language": "hinglish", "voice": "hi-IN-MadhurNeural"})
+    assert off["voice"]["allowOnline"] is False
+
+
+def test_edge_hinglish_goes_through_the_mixed_form_and_maps_back_to_display_words(tmp_path, monkeypatch):
+    from pipeline import tts
+    from pipeline.timing import Boundary
+    seen = {}
+
+    class FakeEdge:
+        name, online, version, ext = "edge", True, "t", ".mp3"
+
+        def synthesize(self, text, voice, rate, pitch, out, timeout, options=None):
+            import subprocess
+            seen["text"] = text
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=f=200:d=2", "-c:a", "libmp3lame",
+                            str(out)], check=True)
+            words = text.split()
+            return [Boundary(w.strip(".,?"), round(0.1 + 0.4 * i, 3), round(0.4 + 0.4 * i, 3)) for i, w in enumerate(words)]
+
+    r = tts.synthesize("Aaj product video banta hai.", provider="edge", voice="hi-IN-MadhurNeural", allow_online=True,
+                       provider_obj=FakeEdge(), cache_dir=tmp_path, options={"lang": "hinglish"})
+    assert seen["text"] == "आज product video बनता है."
+    assert [b.text for b in r.boundaries] == ["Aaj", "product", "video", "banta", "hai."]

@@ -38,6 +38,9 @@ BRIEF_SCHEMA = {
         # narration language: "hinglish" = Latin-script Hinglish captions spoken by a Kokoro Hindi voice
         # (voice.lang "hinglish", default voice hm_omega; pipeline/api.apply_brief_voice, docs/LOCAL_TTS.md)
         "language": {"type": "string", "enum": ["english", "hinglish"]},
+        # true = the brief allows an ONLINE voice (Microsoft hi-IN-* for Hinglish): the narration text is sent to
+        # Microsoft. Off unless a person sets it.
+        "allow_online_voice": {"type": "boolean"},
         # how fast the narrator speaks (pipeline/api.PACE_RATE): calm -8%, normal (the preset), brisk +5%
         "pace": {"type": "string", "enum": ["calm", "normal", "brisk"]},
         # caption look for this video (pipeline/captions.py STYLES); default: brand creative.captions.style -> format
