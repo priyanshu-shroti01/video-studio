@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Added
+- **Hinglish narration:** set `voice.lang: "hinglish"` (or `"language": "hinglish"` in a brief, which picks the Kokoro
+  Hindi voice `hm_omega` unless the brief names another). The script and captions stay in Latin-script Hinglish
+  ("Aaj dekhte hain ki…"). Every display word gets a Devanagari spoken form, which Kokoro reads with espeak's Hindi
+  rules. The timings map back onto the Latin words, so captions and `@word:` anchors work unchanged.
+  - The Devanagari comes from, in order: project/brand overrides, a word list of about 900 common Hindi words and
+    the English words Hinglish uses (`pipeline/voice/hinglish.json`), the shared dictionary and number rules, and
+    otherwise a guess. A guessed word is read either with Hindi spelling rules or with espeak's English pronunciation
+    rewritten in Indian-English Devanagari.
+  - Amounts are spoken as Hindi numbers: "₹49" → "उनचास रुपये", and "₹0" → "ज़ीरो रुपये".
+  - `(en)`/`(hi)` language-switch markers are removed from the phonemes, and espeak's `r.` for ड़ becomes `ɽ`.
+  - The pronunciation checklist lists every word with its Devanagari form and source, guesses first.
+  - `timing.norm` keeps Devanagari letters; English scripts behave exactly as before.
+  - The Studio API accepts `brief.language`. See docs/LOCAL_TTS.md#hinglish.
+
 ### Changed
 - **README rewritten for first-time visitors:** the pitch, the teaser and the two-command install come first,
   then what you get, a comparison with AI video generators and video SaaS (including the Remotion licence note),

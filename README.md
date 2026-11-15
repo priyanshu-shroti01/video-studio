@@ -58,6 +58,8 @@ Step-by-step help: [docs/INSTALL.md](docs/INSTALL.md).
 - **A person signs off.** Nothing is rendered in full, approved or posted without a named person's decision, bound
   to the exact files.
 - **Many brands, one studio.** Each website keeps its own logo, colours, fonts, facts, voice and social accounts.
+- **English or Hinglish.** Hinglish captions as creators write them ("Aaj dekhte hain..."), spoken by a local Hindi
+  voice.
 - **Help on every page.** A chat in the corner answers how-to questions with the same local AI.
 
 ## How it compares
@@ -183,6 +185,8 @@ flowchart LR
    - **A person approves the preview before the full render.**
 4. **Render.**
    - A local voice (Kokoro) speaks the script; Python resolves every animation to the exact word that names it.
+   - Narration in English, or in Hinglish: Latin-script Hinglish captions, spoken by a Kokoro Hindi voice from a
+     Devanagari form of every word (brief `"language": "hinglish"`, see [LOCAL_TTS](docs/LOCAL_TTS.md#hinglish)).
    - Quality presets: Standard (1080p, 30 fps), Smooth (1080p, 60 fps) or Ultra (4K, 60 fps).
    - Memory, disk and OCR are checked first; problems come back as a plain sentence with what to do next.
    - Remotion renders in parallel headless Chromium tabs; FFmpeg mixes voice, licensed music and sound effects.
@@ -342,7 +346,7 @@ pipeline/            orchestrator: CLI, productions, jobs, scheduler, timeline, 
   creative/          hybrid creative engine: templates, copy bank, rules, component generator (+ industries/ packs)
   intelligence/      local LLM runtime, claim checking, fact base
   social/            YouTube / Instagram: routing, metadata, adapters, MCP server
-  voice/ visual_qa/  local TTS + alignment; OCR, layout and branding checks
+  voice/ visual_qa/  local TTS + alignment, Hinglish transliteration; OCR, layout and branding checks
 src/engine/          Remotion engine: Storyboard composition, 32 blocks, backdrops, motion tokens
 studio/              local web Studio (Python server + React frontend)
 install.sh bin/      one-command installer and the `videostudio` launcher

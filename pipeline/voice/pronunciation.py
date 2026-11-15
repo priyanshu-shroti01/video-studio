@@ -5,7 +5,10 @@ Captions show the script exactly ("shrotihost.in", "₹49", "NVMe"); the engine 
 between them; `timing.map_to_display()` turns spoken-word timings into display-token timings.
 
 Sources, highest priority first: per-project overrides (voice.pronunciation), the shared dictionary
-(pronunciation.json), then rules (currency, units, percentages, numbers, domain names)."""
+(pronunciation.json), then rules (currency, units, percentages, numbers, domain names).
+
+With lang "hinglish" every display word gets a Devanagari spoken form instead (pipeline/voice/hinglish.py):
+"Aaj dekhte hain" -> "आज देखते हैं", "₹49" -> "उनचास रुपये"; `Prepared.sources` says where each one came from."""
 from __future__ import annotations
 
 import json
@@ -16,10 +19,12 @@ from pathlib import Path
 
 from ..paths import sha256_json
 from ..timing import tokenize
+from . import hinglish
 
 DICT_PATH = Path(__file__).with_name("pronunciation.json")
-_LEAD = re.compile(r"^[^\w₹$]+")
-_TRAIL = re.compile(r"[^\w%]+$")
+_W = rf"\w{hinglish.DEVA}"                          # word characters, incl. Devanagari vowel signs
+_LEAD = re.compile(rf"^[^{_W}₹$]+")
+_TRAIL = re.compile(rf"[^{_W}%]+$")
 _SPOKEN_PUNCT = {"—": ",", "–": ",", "…": "...", ";": ",", ":": ","}
 _KEEP_PUNCT = set(".,?!")
 
@@ -61,6 +66,7 @@ class Entry:
     display: str
     spoken: str
     case: bool = False
+    src: str = "shared"         # "override" (project/brand) or "shared" (pronunciation.json)
 
     @property
     def n(self) -> int:
@@ -78,11 +84,17 @@ class Dictionary:
     tlds: set[str]
     fingerprint: str = ""
 
-    def lookup(self, core: str) -> str | None:
+    lang: str | None = None
+
+    def lookup_entry(self, core: str) -> Entry | None:
         for e in self.entries:
             if e.n == 1 and e.matches(core):
-                return e.spoken
+                return e
         return None
+
+    def lookup(self, core: str) -> str | None:
+        e = self.lookup_entry(core)
+        return e.spoken if e else None
 
 
 @lru_cache(maxsize=1)
@@ -90,13 +102,17 @@ def _base() -> dict:
     return json.loads(DICT_PATH.read_text())
 
 
-def load(overrides: dict[str, str] | None = None) -> Dictionary:
+def load(overrides: dict[str, str] | None = None, lang: str | None = None) -> Dictionary:
     raw = _base()
-    entries = [Entry(d, s, True) for d, s in (overrides or {}).items()]  # project overrides win, exact case first
-    entries += [Entry(d, s, False) for d, s in (overrides or {}).items()]
+    entries = [Entry(d, s, True, "override") for d, s in (overrides or {}).items()]  # overrides win, exact case first
+    entries += [Entry(d, s, False, "override") for d, s in (overrides or {}).items()]
     entries += [Entry(e["display"], e["spoken"], bool(e.get("case"))) for e in raw["entries"]]
-    fp = sha256_json({"dict": raw, "overrides": overrides or {}})
-    return Dictionary(entries, raw.get("units", {}), raw.get("currency", {}), set(raw.get("tlds", [])), fp)
+    fpd = {"dict": raw, "overrides": overrides or {}}
+    if hinglish.is_hinglish(lang):
+        fpd["hinglish"] = hinglish.fingerprint_data()   # English keys stay exactly as before
+    lang = hinglish.LANG if hinglish.is_hinglish(lang) else None
+    return Dictionary(entries, raw.get("units", {}), raw.get("currency", {}), set(raw.get("tlds", [])),
+                      sha256_json(fpd), lang)
 
 
 @dataclass
@@ -105,6 +121,7 @@ class Prepared:
     display_tokens: list[str]
     spoken_tokens: list[str]
     groups: list[tuple[list[str], int]] = field(default_factory=list)   # (display tokens, n spoken words)
+    sources: list[str] = field(default_factory=list)   # per group, Hinglish only: a key of hinglish.SOURCES
 
     @property
     def spoken(self) -> str:
@@ -173,8 +190,11 @@ def _spoken_trail(trail: str) -> str:
     return out
 
 
-def prepare(text: str, overrides: dict[str, str] | None = None, d: Dictionary | None = None) -> Prepared:
-    d = d or load(overrides)
+def prepare(text: str, overrides: dict[str, str] | None = None, d: Dictionary | None = None,
+            lang: str | None = None) -> Prepared:
+    """lang "hinglish": Devanagari spoken forms for the Hindi phonemizer; anything else: English spoken forms."""
+    d = d or load(overrides, lang)
+    hi = d.lang == hinglish.LANG
     toks = tokenize(text)
     p = Prepared(text, toks, [], [])
     multi = sorted((e for e in d.entries if e.n > 1), key=lambda e: -e.n)
@@ -189,16 +209,23 @@ def prepare(text: str, overrides: dict[str, str] | None = None, d: Dictionary | 
             if any(tr for _, _, tr in parts[:-1]) or any(ld for ld, _, _ in parts[1:]):
                 continue  # punctuation inside the phrase: not the same phrase
             if e.matches(" ".join(c for _, c, _ in parts)):
-                hit = (cand, e.spoken.split(), parts[-1][2])
+                words = hinglish.to_devanagari_words(e.spoken) if hi else e.spoken.split()
+                hit = (cand, words, parts[-1][2], "override" if e.src == "override" else "dictionary")
                 break
         if hit is None:
             _, core, trail = _split(toks[i])
-            words = speak_core(core, d)
-            prev = _split(toks[i - 1])[1] if i else ""
-            if core.upper() in d.units and d.lookup(core) is None and re.fullmatch(r"[\d.,]+", prev):
-                words = [_plural(d.units[core.upper()], prev)]  # "1 GB" -> "one gigabyte"
-            hit = ([toks[i]], words or [toks[i]], trail)
-        cand, words, trail = hit
+            src = ""
+            if hi:
+                words, src = hinglish.speak(core, d, toks[i - 1] if i else "")
+            else:
+                words = speak_core(core, d)
+                prev = _split(toks[i - 1])[1] if i else ""
+                if core.upper() in d.units and d.lookup(core) is None and re.fullmatch(r"[\d.,]+", prev):
+                    words = [_plural(d.units[core.upper()], prev)]  # "1 GB" -> "one gigabyte"
+            hit = ([toks[i]], words or [toks[i]], trail, src)
+        cand, words, trail, src = hit
+        if hi:
+            p.sources.append(src)
         words = list(words)
         words[-1] += _spoken_trail(trail)
         p.groups.append((cand, len(words)))

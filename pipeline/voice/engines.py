@@ -20,7 +20,7 @@ from pathlib import Path
 
 from ..errors import TTSError
 from ..timing import tokenize
-from . import registry
+from . import hinglish, registry
 from .native import PUNCT, Ph, refine_with_energy, words_from_phonemes
 
 KOKORO_SR = 24000
@@ -90,6 +90,24 @@ def _ort_session(model: Path, threads: int = _THREADS):
     return rt.InferenceSession(str(model), sess_options=so, providers=["CPUExecutionProvider"])
 
 
+_LANG_SWITCH = re.compile(r"\((?:[a-z]{2,3}(?:-[a-z0-9]+)*)\)")
+
+
+def clean_phonemes(ph: str, lang: str) -> str:
+    """espeak Hindi output -> Kokoro input (other languages pass through unchanged). espeak marks a switch of
+    language inside a sentence with "(en)" / "(hi)": the brackets are in Kokoro's vocabulary and would be spoken,
+    so they go. It writes the flap ड़/ढ़ as "r." / "r.h"; the dot would be read as a full stop (a pause inside
+    the word), so it becomes ɽ (Hindi र is ɾ, or r before a consonant, never followed by a dot)."""
+    if lang != hinglish.PHONEMIZER_LANG:
+        return ph
+    return " ".join(_LANG_SWITCH.sub(" ", ph).replace("r.", "ɽ").split())
+
+
+def _isolated(t: str) -> str:
+    """A token without its punctuation, for phonemizing it alone (Devanagari vowel signs are not \\w)."""
+    return re.sub(rf"[^\w{hinglish.DEVA}'’-]", "", t) or t
+
+
 def _fallback_whisper(tokens_text: str, audio_path: Path, info: dict):
     from . import asr
     info["timing_method"] = "whisper"
@@ -144,7 +162,7 @@ class KokoroProvider(_IdleUnload):
     @staticmethod
     def lang_for(voice: str, override: str | None = None) -> str:
         if override:
-            return override
+            return hinglish.PHONEMIZER_LANG if hinglish.is_hinglish(override) else override
         return "en-gb" if voice.startswith("b") else "en-us"  # a*: American; h*: Hindi voices read English as en-us
 
     def _run(self, phonemes: str, style, speed: float):
@@ -165,7 +183,7 @@ class KokoroProvider(_IdleUnload):
         return audio, phs
 
     def phonemize(self, text: str, lang: str) -> str:
-        return self.tok.phonemize(text, lang)
+        return clean_phonemes(self.tok.phonemize(text, lang), lang)
 
     def _synthesize(self, text, voice, rate, pitch, out, timeout, options=None):
         import numpy as np
@@ -204,7 +222,7 @@ class KokoroProvider(_IdleUnload):
             bounds, info["timing_method"] = words_from_phonemes(toks, phs)
         except ValueError:
             try:
-                iso = [self.phonemize(re.sub(r"[^\w'’-]", "", t) or t, lang) for t in toks]
+                iso = [self.phonemize(_isolated(t), lang) for t in toks]
                 bounds, info["timing_method"] = words_from_phonemes(toks, phs, iso)
             except ValueError:
                 bounds = _fallback_whisper(text, Path(out), info)
@@ -289,7 +307,7 @@ class PiperProvider(_IdleUnload):
                 bounds, info["timing_method"] = words_from_phonemes(toks, phs)
             except ValueError:
                 try:
-                    iso = ["".join(p for s in pv.phonemize(re.sub(r"[^\w'’-]", "", t) or t) for p in s
+                    iso = ["".join(p for s in pv.phonemize(_isolated(t)) for p in s
                                    if p not in PUNCT) for t in toks]
                     bounds, info["timing_method"] = words_from_phonemes(toks, phs, iso)
                 except ValueError:

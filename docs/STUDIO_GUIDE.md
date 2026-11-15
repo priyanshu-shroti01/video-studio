@@ -186,7 +186,7 @@ Tests: `uv run pytest tests/test_studio_server.py tests/test_studio_token.py tes
 ```
 GET  /api/session | /api/dashboard[?brand=] | /api/brands | /api/storyboard/schema | /api/productions | /api/jobs | /api/tasks[/<id>]
 GET  /api/productions/cards                          Home grid: id, name, brand, state, format, thumbnail, job progress, preview_approved, has_concepts, posted[]
-POST /api/productions                                {brand, name?, brief{product, price, audience, format, duration_seconds, goal, tone, voice, pace, cta, request}}
+POST /api/productions                                {brand, name?, brief{product, price, audience, format, duration_seconds, goal, tone, voice, pace, language, cta, request}}
 GET  /api/productions/<id>  ·  /api/productions/<id>/outputs
 POST /api/productions/<id>/concepts | /select {conceptId} | /preview | /render          -> {task}
 POST /api/productions/<id>/approve-preview {reviewer, note?}
@@ -199,6 +199,11 @@ GET  /api/publish/status?brand= · /api/assets?brand= · /api/jobs/<job>/monitor
 POST /api/help/ask {question, history?, page?}       help chat: {status: ok|paused|unavailable|error, message, sources[]}
 GET  /files/<output/… | public/… | audio/kit/… | audio/music/…>   (Range supported)   ·   /static/app.{js,css}
 ```
+
+`brief.language` is `english` (default) or `hinglish`. Hinglish means Latin-script Hinglish captions, spoken by the
+Kokoro Hindi voice `hm_omega` unless `voice` names another one ([LOCAL_TTS](LOCAL_TTS.md#hinglish)). The brief
+form has no language picker yet, so set it through the API or the brief file. Write the narration itself in
+Hinglish in the storyboard editor.
 
 ## Known limitations
 

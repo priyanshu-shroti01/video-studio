@@ -287,12 +287,16 @@ def save_storyboard(pid: str, storyboard: dict, project: dict | None = None) -> 
 
 
 PACE_RATE = {"calm": "-8%", "normal": None, "brisk": "+5%"}
+HINGLISH_VOICE = "hm_omega"   # default Kokoro Hindi voice for language "hinglish" (docs/LOCAL_TTS.md)
 
 
 def apply_brief_voice(project: dict, brief: dict) -> dict:
-    """The brief's `voice` (a voice id) and `pace` (calm / normal / brisk) override the preset's voice for this
-    production; the preset still supplies everything the brief leaves out."""
+    """The brief's `voice` (a voice id), `pace` (calm / normal / brisk) and `language` ("hinglish": Kokoro, lang
+    "hinglish", voice hm_omega unless the brief names one) override the preset's voice for this production; the
+    preset still supplies everything the brief leaves out."""
     over = {}
+    if brief.get("language") == "hinglish":
+        over.update({"provider": "kokoro", "lang": "hinglish", "voice": HINGLISH_VOICE})
     if isinstance(brief.get("voice"), str) and brief["voice"].strip():
         over["voice"] = brief["voice"].strip()
     if PACE_RATE.get(brief.get("pace")):

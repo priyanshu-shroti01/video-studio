@@ -15,7 +15,9 @@ VOICE_SCHEMA = {
         "voice": {"type": "string", "pattern": f"{KOKORO_VOICE}|{PIPER_VOICE}|{EDGE_VOICE}|^mock$"},
         "rate": {"type": "string", "pattern": r"^[+-]\d{1,2}%$"},
         "pitch": {"type": "string", "pattern": r"^[+-]\d{1,3}Hz$"},
-        "lang": {"type": "string", "enum": ["en-us", "en-gb"]},
+        # phonemizer accent (Kokoro); "hinglish": Latin-script Hinglish captions, Devanagari spoken forms read by
+        # espeak's Hindi rules (pipeline/voice/hinglish.py, docs/LOCAL_TTS.md)
+        "lang": {"type": "string", "enum": ["en-us", "en-gb", "hinglish"]},
         # Edge TTS sends narration text to Microsoft. It is refused unless this is literally true.
         "allowOnline": {"type": "boolean"},
         # per-project pronunciation overrides: {"display text": "spoken respelling"}
@@ -65,8 +67,15 @@ def check_voice_config(v: dict, *, check_models: bool = True) -> tuple[list[str]
             warnings.append("$.voice.allowOnline has no effect: the selected provider runs locally")
         if v.get("pitch", "+0Hz") not in ("+0Hz", "-0Hz"):
             warnings.append(f"$.voice.pitch {v['pitch']} is ignored by the local '{prov}' provider")
-        if v.get("lang") and prov == "piper":
+        if v.get("lang") and v.get("lang") != "hinglish" and prov == "piper":
             warnings.append("$.voice.lang is ignored by piper (each Piper voice has a fixed phonemizer language)")
     elif prov == "mock" and voice != "mock":
         errors.append("$.voice.voice: the mock provider only has voice 'mock'")
+    if v.get("lang") == "hinglish":
+        if prov not in ("kokoro", "mock"):
+            errors.append(f"$.voice.lang: 'hinglish' needs the kokoro provider ({prov!r} has no Hindi voice this "
+                          "studio may use)")
+        elif prov == "kokoro" and not voice.startswith("h"):
+            warnings.append(f"$.voice: lang 'hinglish' with {voice!r}, which is not a Hindi voice; the Hindi voices "
+                            "are hm_omega, hm_psi, hf_alpha and hf_beta")
     return errors, warnings

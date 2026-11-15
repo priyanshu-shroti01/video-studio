@@ -32,9 +32,11 @@ def number_words(n: int) -> str:
 
 
 def norm(s: str) -> str:
-    """Compare form: lowercase letters/digits only; apostrophes dropped (contractions: don't -> dont)."""
+    """Compare form: lowercase letters/digits only; apostrophes dropped (contractions: don't -> dont).
+    Devanagari letters and vowel signs are kept too (Hinglish spoken forms, voice.lang "hinglish"); text without
+    Devanagari normalises exactly as before."""
     s = unicodedata.normalize("NFKC", s).lower().replace("’", "'")
-    return re.sub(r"[^a-z0-9]", "", s)
+    return re.sub(r"[^a-z0-9\u0900-\u0963\u0966-\u097f]", "", s)
 
 
 def forms(s: str) -> set[str]:

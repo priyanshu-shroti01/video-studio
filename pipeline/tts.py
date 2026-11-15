@@ -10,7 +10,8 @@ Local engines live in pipeline/voice/engines.py; see docs/LOCAL_TTS.md.
 
 Local providers (and mock) speak a *spoken form* of the narration (pipeline/voice/pronunciation.py:
 "shrotihost.in" -> "Shro-tee Host dot in", "₹49" -> "forty nine rupees") and the returned boundaries
-are mapped back onto the *display* tokens, so captions show the script exactly.
+are mapped back onto the *display* tokens, so captions show the script exactly. With options lang "hinglish"
+the spoken form is Devanagari (pipeline/voice/hinglish.py) and Kokoro phonemizes it with espeak's Hindi rules.
 
 Every result is cached by sha256(provider, voice, rate, pitch, text, provider version [, spoken form,
 options]) and the cache entry is re-validated (file hash + full decode) before reuse. Edge cache keys
@@ -123,7 +124,7 @@ class MockProvider:
     def __init__(self, fail_times: int = 0, fail_kind: str = "timeout"):
         self.fail_times, self.fail_kind, self.calls = fail_times, fail_kind, 0
 
-    def synthesize(self, text, voice, rate, pitch, out, timeout):
+    def synthesize(self, text, voice, rate, pitch, out, timeout, options=None):
         self.calls += 1
         if self.calls <= self.fail_times:
             if self.fail_kind == "timeout":
@@ -197,7 +198,7 @@ def voice_fingerprint(v: dict) -> str:
     """Everything outside the voice config that changes local audio: pronunciation dictionary and
     model hashes. Add to stage cache keys so a dictionary edit re-synthesises."""
     from .voice import pronunciation, registry
-    fp = {"pron": pronunciation.load(v.get("pronunciation")).fingerprint}
+    fp = {"pron": pronunciation.load(v.get("pronunciation"), v.get("lang")).fingerprint}
     if v.get("provider") in LOCAL_PROVIDERS:
         try:
             fp["files"] = {i: registry.entry(i)["sha256"] for i in registry.voice_files(v["provider"], v["voice"])}
@@ -231,7 +232,7 @@ def synthesize(text: str, *, provider: str, voice: str, rate: str = "+0%", pitch
     if getattr(prov, "uses_pronunciation", False):
         from .voice import pronunciation as P
         try:
-            prep = P.prepare(text, pronunciation)
+            prep = P.prepare(text, pronunciation, lang=(options or {}).get("lang"))
         except ValueError as e:
             raise TTSError(str(e)) from e
     spoken = prep.spoken if prep else text

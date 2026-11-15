@@ -347,6 +347,11 @@ def create_production(body: dict) -> dict:
             raise BadRequest("'quality' must be standard, smooth or ultra")
         if raw["quality"] != "standard":
             brief["quality"] = raw["quality"]
+    if raw.get("language") is not None:                   # narration language (docs/LOCAL_TTS.md#hinglish)
+        if raw["language"] not in ("english", "hinglish"):
+            raise BadRequest("'language' must be english or hinglish")
+        if raw["language"] == "hinglish":
+            brief["language"] = "hinglish"
     brief["brand"] = load_theme(brand).get("name", brand)
     brief["brand_id"] = brand
     name = _str(body, "name", required=False, limit=100) or None

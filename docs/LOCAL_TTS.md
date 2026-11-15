@@ -29,6 +29,7 @@ Voice config (`presets/*.json` → `voice`, overridable per project):
 
 * `rate` maps to Kokoro `speed` / Piper `length_scale`. `pitch` is ignored by local engines (warning).
 * `lang` (Kokoro only): phonemizer accent, default from the voice prefix (`a*` en-us, `b*` en-gb, `h*` en-us).
+  `"hinglish"` turns on Hinglish narration (see [Hinglish](#hinglish)).
 * `pronunciation`: per-project `{display: spoken}` overrides; they win over the shared dictionary.
 * A brief's `voice` (a voice id such as `"am_fenrir"`) and `pace` (`calm` = -8 %, `normal` = the preset, `brisk` =
   +5 %) override the preset for that production. Voices differ: at the same rate `am_fenrir` speaks about 8 %
@@ -87,6 +88,87 @@ Brand respelling is **"Shro-tee"** (hyphen keeps a real /t/; American espeak fla
 "Shro-dee" — ASR heard American voices say "Trody/Shrody host" with the flapped form). This is a
 best guess at the Indian pronunciation and must be confirmed by ear.
 
+## Hinglish
+
+Hinglish narration keeps the script and captions in Latin-script Hinglish, the way Indian short-form creators
+write it ("Aaj dekhte hain ki product video kaise banta hai"), and has a Kokoro Hindi voice speak it.
+
+```json
+"voice": {"provider": "kokoro", "voice": "hm_omega", "lang": "hinglish",
+          "pronunciation": {"Shroti Host": "श्रोती होस्ट"}}
+```
+
+A brief can say `"language": "hinglish"` instead. That sets `provider: kokoro`, `lang: hinglish` and the voice
+`hm_omega`, unless the brief also names a `voice` (`hm_psi`, `hf_alpha` or `hf_beta`). The Studio API accepts the
+field. The brief form has no language picker yet. `validate` refuses `hinglish` with Piper or Edge (neither has a
+Hindi voice this studio may use), and it warns when the voice isn't one of the four Hindi ones.
+
+**What happens.** Every display word gets a Devanagari spoken form ("Aaj dekhte hain ki" → "आज देखते हैं कि",
+"₹49/mo" → "उनचास रुपये पर मंथ"). Kokoro phonemizes that with espeak-ng's Hindi rules (`hi`). The spoken-word
+timings map back onto the Latin display words through the same `Prepared.groups` mapping as English respellings,
+so captions and `@word:` anchors work unchanged. One display token can become several spoken words.
+
+```
+"Sirf ₹49/mo mein website launch karo!"           captions, anchors (display)
+ └─ सिर्फ़ | उनचास रुपये पर मंथ | में | वेबसाइट | लॉन्च | करो!   spoken (Kokoro, espeak hi)
+```
+
+**Where the Devanagari comes from** (`pipeline/voice/hinglish.py`, highest priority first):
+
+1. **Overrides:** the project's `voice.pronunciation` and the brand's `pronunciation.json`. A Devanagari value is used
+   as is. A Latin value (the brand's English respelling, such as "Shro-tee Host") is read as English.
+2. **The word list** `pipeline/voice/hinglish.json` (written for this studio, about 900 entries):
+   * common Hindi words in their usual Latin spellings (pronouns, postpositions, particles, verb forms, everyday
+     nouns and adjectives, Hindi number words);
+   * English words that Hinglish scripts use, spelled the way Indians say them (plan → प्लान, website → वेबसाइट,
+     product → प्रोडक्ट, free → फ़्री);
+   * letter names, Hindi numbers 0–99 and the units.
+3. **The shared dictionary and rules.** `pronunciation.json` respellings (NVMe → एन वी एम ई, cPanel → सी पैनल),
+   domains (… डॉट इन), and numbers.
+4. **A guess for everything else.** A word that looks like romanised Hindi (aa/ii/uu, kh/bh/dh/jh, -enge/-iye/-wala
+   endings and so on) goes through Latin → Devanagari spelling rules. A final -a is long ("sasta" → सस्ता), and
+   -ain/-en/-on is nasal ("hain" → हैं). Anything else is taken as English: espeak's own English pronunciation (en-us
+   IPA, with en-gb vowels for "shop"/"product") is rewritten in Devanagari with Indian-English conventions. That
+   means retroflex ट/ड for t/d, a rhotic r ("server" → सर्वर), -ing → िंग, and plural -s after a consonant.
+
+**Numbers are spoken as Hindi numbers**, in Indian grouping, the way Hindi ads and creators say prices:
+"₹49" → "उनचास रुपये", "₹1" → "एक रुपया", "₹100" → "सौ रुपये", "₹2,50,000" → "दो लाख पचास हज़ार रुपये",
+"99.9%" → "निन्यानवे पॉइंट नौ परसेंट", "10GB" → "दस जीबी", "2026" → "दो हज़ार छब्बीस". Zero is "ज़ीरो" ("₹0" →
+"ज़ीरो रुपये"), because that's what people say; "शून्य" is formal. "/mo" is "पर मंथ" and "%" is "परसेंट": those
+are the Hinglish words. A number the script writes as a word ("teen", "pachaas") is read from the word list.
+
+**Why English loanwords are written in Devanagari.** We compared espeak `hi` phoneme strings. Latin words inside a
+Hindi sentence make espeak switch to its English voice, with `(en)`/`(hi)` markers. "product video" came out as
+`pɹˈɒdʌkt vˈɪdɪəʊ`: British phonemes the Hindi voices weren't trained on. "प्रोडक्ट वीडियो" gives `pɾoːɖˈʌkʈ ʋˈiːɖɪjˌoː`:
+retroflex, Indian-English. So every word is Devanagari. Any `(xx)` language-switch marker that still appears is
+removed before synthesis (`engines.clean_phonemes`), because Kokoro would otherwise speak the brackets. espeak
+writes the flap ड़/ढ़ ("bada", "badhiya") as `r.`, which would read as a full stop inside the word, so it becomes `ɽ`.
+
+**Override a word.** Put it in the project's voice section with its Devanagari form, for example
+`"pronunciation": {"Shroti": "श्रोती", "saath": "संग"}`. To cover a multi-word brand entry, override the exact
+phrase ("Shroti Host"). Overrides change the voice fingerprint, so the next render re-synthesises.
+
+**Review.** `reports/pronunciation-checklist.md` lists **every** word with its timestamp, its Devanagari form and its
+source. Guesses (spelling rules or English pronunciation) come first and are marked *guess*. Check those by ear.
+
+**Limits (honest version).**
+* We can't listen here. The choices above come from comparing phoneme strings, and a person has to judge the sound
+  (the checklist, `human:pronunciation`).
+* The Hindi/English guess is a spelling heuristic. A Hindi word without Hindi-looking spelling ("sundar",
+  "zindagi") can be read as English, and an English word can be read as Hindi. Ties go to English. Add frequent
+  words to the word list or the project override.
+* Romanised Hindi is ambiguous. The rules use dental त/द for t/d, cannot tell ड़ from द, short from long vowels
+  ("kahani" → कहनी) or a nasal from a real n ("dukaan"). The word list holds the common cases. Some spellings mean
+  two words, and the list picks the reading most common in marketing scripts: "ki" → की (कि after a verb),
+  "main" → मैं, "me"/"mein" → में, "to" → तो, "do" → दो, "is" → इस, "in" → इन, "use" → यूज़, "or" → ऑर,
+  "the" → द.
+* Brand respellings written for English voices ("Shro-tee") are read as English, which gives retroflex ट (श्रोटी).
+  Give Hinglish productions a Devanagari override for the brand name.
+* Only Kokoro's four Hindi voices are suitable. Piper has no commercially usable Hindi voice.
+* The copy engines (copy bank, planner, local LLM prompts) still write English narration. The language setting only
+  changes how the narration is spoken. Write the Hinglish narration in the storyboard (Studio storyboard editor or
+  `pipeline.api.save_storyboard`).
+
 ## Word timing (no network)
 
 1. Engines report per-phoneme durations; phonemes are grouped back into the spoken words. espeak
@@ -98,6 +180,11 @@ best guess at the Indian pronunciation and must be confirmed by ear.
    split/merged words), `map_to_display` onto display tokens, `validate_words(..., script=)` checks
    missing / repeated / reordered words, overlaps, bounds and near-zero words.
 4. Fallback only if native grouping fails: local Whisper word timestamps (coarse, see below).
+
+Hinglish spoken words are Devanagari, and they go through the same steps. `timing.norm` keeps Devanagari letters
+and vowel signs, and text without them normalises exactly as before. When a word has to be phonemized on its own,
+its vowel signs are kept. Whisper is English-only (base.en), so for Hinglish it is a last resort and not a
+fallback that can be trusted.
 
 ### Measured timing accuracy (honest version)
 

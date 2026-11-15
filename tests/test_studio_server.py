@@ -791,6 +791,16 @@ def test_brief_keeps_the_quality_preset(studio):
     assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "quality": "8k"}})[0] == 400
 
 
+def test_brief_keeps_the_hinglish_narration_language(studio):
+    srv, _ = studio
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "name": "hinglish-brief",
+                                                         "brief": {"product": "NVMe hosting", "language": "hinglish"}})
+    assert st == 200, p
+    from pipeline import api
+    assert api.Productions().get(p["id"])["brief"]["language"] == "hinglish"
+    assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "language": "tamil"}})[0] == 400
+
+
 def test_header_values_with_line_breaks_are_refused_and_static_names_are_bounded(studio):
     srv, _ = studio
     import pytest

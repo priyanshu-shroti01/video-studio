@@ -67,3 +67,25 @@ def test_worker_timeout_is_transient_and_kills_worker(tmp_path):
         tts.synthesize("Meet Shroti Host.", provider="kokoro", voice="am_michael", cache_dir=tmp_path, timeout=0.001,
                        attempts=1)
     assert e.value.transient and tts.get_provider("kokoro").proc is None
+
+
+HINGLISH = "Bada plan, chhota price! Aaj dekhte hain ki ₹49 mein website kaise banti hai."
+
+
+@pytest.mark.parametrize("voice", ["hm_omega", "hf_alpha"])
+def test_real_kokoro_hinglish_speaks_devanagari_with_native_timings_on_latin_words(voice, tmp_path):
+    _need(["kokoro-model", "kokoro-vocab", f"kokoro-voice-{voice}"], "kokoro")
+    v = {"provider": "kokoro", "voice": voice, "lang": "hinglish"}
+    r = tts.synthesize_from_config(HINGLISH, v, cache_dir=tmp_path)
+    eng = r.meta["engine"]
+    assert eng["lang"] == "hi" and eng["timing_method"] in ("native", "native+dp")
+    assert "(" not in eng["phonemes"] and "r." not in eng["phonemes"]          # no language-switch markers, ड़ -> ɽ
+    assert "उनचास रुपये" in r.meta["spoken"] and "बड़ा" in r.meta["spoken"]
+    assert [b.text for b in r.boundaries] == tokenize(HINGLISH)                # Latin display words come back
+    ws = align(HINGLISH, r.boundaries, r.duration)
+    rep = validate_words(ws, r.duration, fix=False, script=HINGLISH)
+    assert rep.ok, rep.errors
+    assert not r.meta["interpolated"]
+    rupees = ws[tokenize(HINGLISH).index("₹49")]
+    assert rupees.end - rupees.start > 0.4                                     # spans both spoken words
+    assert 3.0 < r.duration < 12.0
