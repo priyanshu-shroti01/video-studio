@@ -1,6 +1,8 @@
 import React from 'react';
 import {countValue, easeInOut, easeOut, lin, mix, spc} from './anim';
 import {BlockV2View} from './blocks-v2';
+import {BlockV3View} from './blocks-explainer';
+import {isExplainer} from './geometry-explainer';
 import {CTA_FS, HEADLINE_FS, splitText, TEXT_FS, wrapWords} from './layout';
 import {ACCENT, LEAD} from './motion/durations';
 import {SPRING} from './motion/easings';
@@ -567,6 +569,6 @@ export const BlockView: React.FC<BlockViewProps> = (p) => {
     case 'cta':
       return <Cta {...p} block={b} />;
     default:
-      return <BlockV2View {...p} block={b as BlockV2} />;
+      return isExplainer(b) ? <BlockV3View {...p} block={b} /> : <BlockV2View {...p} block={b as BlockV2} />;
   }
 };

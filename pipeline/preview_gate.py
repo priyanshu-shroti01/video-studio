@@ -28,7 +28,9 @@ SIMILAR = 6.0                       # mean abs grey diff (0-255) of 64x114 thumb
 LABEL_NUMBER = re.compile(r"^[A-Za-z][\w ]{1,24}:\s*(₹|rs\.?|inr)?\s*\d", re.I)
 NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?")
 TEXT_FIELDS = ("text", "label", "note", "sub", "title", "name", "price", "value", "detail", "billing", "doneText",
-               "availableText", "badge", "tagline", "cta", "status")
+               "availableText", "badge", "tagline", "cta", "status",
+               # v3 explainer blocks
+               "body", "question", "term", "kicker", "keyword", "prompt")
 
 
 def _gray(png: Path, w: int = 64) -> np.ndarray:
@@ -129,6 +131,10 @@ def evaluate(prod_dir: Path, cfg: dict) -> dict:
                 unverified.append(f"{s['id']}/price.amount: {b.get('amount')}")
             if b["type"] == "plan-card" and str(b.get("price")) not in facts_nums:
                 unverified.append(f"{s['id']}/plan-card.price: {b.get('price')}")
+            from .explainer import claimed_values      # v3: gauge key values, a countdown's start
+            for v in claimed_values(b):
+                if _num_str(v) not in facts_nums:
+                    unverified.append(f"{s['id']}/{b['type']}.value: {v}")
             if b["type"] == "composition":             # generated graphics: every counted number must be a fact value
                 for e in b.get("elements", []):
                     v = e.get("to") if e.get("kind") == "number" else None

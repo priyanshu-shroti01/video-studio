@@ -19,7 +19,7 @@ CLASSIC_TRANSITIONS = ("fade", "slide-up", "none", "mask-wipe", "gradient-sweep"
 TRANSITIONS = CLASSIC_TRANSITIONS + FX_TRANSITIONS
 DIRS = ("left", "right", "up", "down")
 EFFECT_TYPES = ("punch-zoom", "shake", "flash", "burst", "annotate", "cursor", "tilt")
-ANNOTATE_KINDS = ("underline", "circle", "arrow")
+ANNOTATE_KINDS = ("underline", "circle", "arrow", "cross")
 # emphasis effects (restraint: at most one per scene by default); cursor / tilt are demo moves, not emphasis
 EMPHASIS = {"punch-zoom", "shake", "flash", "burst", "annotate"}
 # numeric limits (src/engine/motion/effects.ts FX)
@@ -157,7 +157,9 @@ def resolve_effects(sc: dict, R, si: int, anchors: dict) -> list[dict]:
 
 def photosensitivity(resolved: list[dict]) -> tuple[list[dict], list[str]]:
     """Drops flash effects that would make more than PHOTO_MAX flashes in any PHOTO_WINDOW s (light-leak transitions
-    count as flashes too); the engine applies the same guard. -> (scenes, warnings)."""
+    and v3 verdict tints count as flashes too; an extra verdict keeps its stamp and loses its tint); the engine applies
+    the same guard. -> (scenes, warnings)."""
+    from .explainer import tint_events
     ev = []
     for k, s in enumerate(resolved):
         if k > 0 and s.get("transition") == "light-leak":
@@ -165,11 +167,16 @@ def photosensitivity(resolved: list[dict]) -> tuple[list[dict], list[str]]:
         for i, e in enumerate(s.get("effects", [])):
             if e.get("type") == "flash":
                 ev.append((e["at"], k, i))
-    ev.sort(key=lambda x: (x[0], x[1], -1 if x[2] is None else x[2]))
+    ev += [(t, k, ("verdict", bi)) for t, k, bi in tint_events(resolved)]
+    # time order; at equal times: the light leak, then flash effects, then verdict tints (stable in every format)
+    ev.sort(key=lambda x: (x[0], x[1], -1 if x[2] is None else (1000 + x[2][1]) if isinstance(x[2], tuple) else x[2]))
     ok, drop, warns = [], set(), []
     for t, k, i in ev:
         if sum(1 for x in ok if t - x < PHOTO_WINDOW) >= PHOTO_MAX:
-            if i is not None:
+            if isinstance(i, tuple):
+                resolved[k]["blocks"][i[1]]["tint"] = False
+                warns.append(f"scene {resolved[k]['id']}: verdict tint at {t:.2f}s dropped (photosensitivity: ≤ {PHOTO_MAX} flashes per second)")
+            elif i is not None:
                 drop.add((k, i))
                 warns.append(f"scene {resolved[k]['id']}: flash at {t:.2f}s dropped (photosensitivity: ≤ {PHOTO_MAX} flashes per second)")
             continue

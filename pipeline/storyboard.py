@@ -21,6 +21,7 @@ from .contract import (BLOCK_TYPES, COMPOSITION_COLORS, COMPOSITION_KINDS, COMPO
                        COMPOSITION_SHAPES, ICONS, TIME_KEYS, TONES)
 from . import effects as FX
 from . import hud as HUD
+from . import explainer as XB
 from .errors import ConfigError, TimingError
 from .schema import validate
 from .timing import Word, forms, norm, tokenize
@@ -88,7 +89,9 @@ REQUIRED = {"kinetic-text": ["words"], "counter": ["to"], "price-compare": ["col
             "scroll-demo": ["url", "sections", "scrollEnd"], "chart": ["kind", "data"],
             "feature-compare": ["columns", "rows"], "outro": ["url"],
             "plan-card": ["name", "price", "features"], "install-flow": ["app", "steps", "doneAt", "doneText"],
-            "server-stack": ["nodes"], "footage": ["asset"], "composition": ["elements"]}
+            "server-stack": ["nodes"], "footage": ["asset"], "composition": ["elements"],
+            # v3 explainer blocks (pipeline/explainer.py)
+            **XB.REQUIRED}
 FOOTAGE_FRAMES = ("browser", "laptop", "phone", "none")
 FOOTAGE_EXTS = (".mp4", ".webm")
 FOOTAGE_ZOOM_MAX = 4.0          # src/engine/geometry-footage.ts FOOTAGE.zoomMax
@@ -98,7 +101,9 @@ BRANDING_BLOCKS = ("logo", "cta", "logo-sting", "outro")
 HERO_BLOCKS = {"browser", "bars", "compare-rows", "plans", "domain-input", "hook-tag", "flat-line", "price", "logo", "cta",
                "counter", "price-compare", "terminal", "dashboard", "device", "image", "progress", "scroll-demo", "chart",
                "feature-compare", "logo-sting", "outro", "plan-card", "install-flow", "server-stack", "kinetic-text",
-               "checklist", "footage", "composition"}
+               "checklist", "footage", "composition",
+               # v3 explainer blocks: each is the scene's main visual device
+               *XB.TYPES}
 
 
 def validate_storyboard(sb: dict, *, structure: list[str] | None = None) -> tuple[list[str], list[str]]:
@@ -155,6 +160,8 @@ def validate_storyboard(sb: dict, *, structure: list[str] | None = None) -> tupl
                 errors += _footage_errors(b, bp)
             if b["type"] == "composition":
                 errors += composition_errors(b, bp)
+            if b["type"] in XB.TYPES:
+                errors += XB.errors(b, bp)
         for k, ev in enumerate(sc.get("sfx", [])):
             if isinstance(ev["at"], str) and not EXPR.match(ev["at"]):
                 errors.append(f"{p}.sfx[{k}].at: bad time expression {ev['at']!r}")
@@ -604,6 +611,9 @@ def auto_sfx(scene_i: int, sc: SceneTiming, blocks: list[dict], snd: dict) -> li
                     end = e.get("countEnd", e["at"] + 0.8)
                     for k in range(5):
                         add(e["at"] + k * (end - e["at"]) / 5, "tick")
+        elif ty in XB.TYPES:                         # v3 explainer blocks (pipeline/explainer.py sfx_events)
+            for te, kind in XB.sfx_events(b):
+                add(te, kind)
         elif ty in ("image", "device", "kinetic-text", "scroll-demo", "footage"):
             add(t + 0.05, "whoosh" if ty in ("image", "device", "scroll-demo", "footage") else "appear")
     return ev

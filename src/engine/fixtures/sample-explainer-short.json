@@ -1,0 +1,1143 @@
+{
+ "contractVersion": 3,
+ "format": "short",
+ "fps": 30,
+ "durationInFrames": 1297,
+ "theme": {
+  "name": "ACME Demo",
+  "colors": {
+   "bg": "#0b1220",
+   "surface": "#131318",
+   "card": "#17171f",
+   "raised": "#191921",
+   "border": "rgba(255,255,255,0.14)",
+   "borderStrong": "rgba(255,255,255,0.22)",
+   "text": "#f5f5f7",
+   "text2": "#a1a1ab",
+   "muted": "#87878f",
+   "brand": "#2dd4bf",
+   "brandHover": "#5eead4",
+   "brandActive": "#14b8a6",
+   "brandText": "#5eead4",
+   "success": "#22c55e",
+   "danger": "#f0576b",
+   "warning": "#f5a524",
+   "info": "#3fa7ff",
+   "light": {
+    "card": "#ffffff",
+    "surface": "#f7f5fa",
+    "border": "#e6e1ec",
+    "text": "#15111c",
+    "text2": "#4b4655",
+    "muted": "#726c7d",
+    "success": "#15803d"
+   }
+  },
+  "fonts": {
+   "sans": {
+    "family": "Plus Jakarta Sans",
+    "files": [
+     {
+      "src": "brands/acme-demo/fonts/jakarta-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+     },
+     {
+      "src": "brands/acme-demo/fonts/jakarta-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+1E00-1EFF,U+20A0-20AB,U+20AD-20C4,U+2113"
+     }
+    ]
+   },
+   "mono": {
+    "family": "Geist Mono",
+    "files": [
+     {
+      "src": "brands/acme-demo/fonts/geistmono-latin.woff2",
+      "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+20AC,U+2122,U+2212"
+     },
+     {
+      "src": "brands/acme-demo/fonts/geistmono-latin-ext.woff2",
+      "unicodeRange": "U+0100-02BA,U+20A0-20AB,U+20AD-20C4"
+     }
+    ]
+   }
+  },
+  "logo": {
+   "onDark": "brands/acme-demo/logos/logo-on-dark.svg",
+   "onLight": "brands/acme-demo/logos/logo-on-light.svg",
+   "mark": "brands/acme-demo/logos/mark.svg",
+   "aspect": 4
+  },
+  "background": {
+   "style": "dots-glow",
+   "glowA": "#2dd4bf",
+   "glowB": "#3fa7ff"
+  },
+  "caption": {
+   "highlight": "#5eead4",
+   "box": "rgba(0,0,0,0.55)",
+   "text": "#f5f5f7",
+   "dim": "rgba(255,255,255,0.45)"
+  },
+  "radius": {
+   "card": 32,
+   "pill": 999
+  }
+ },
+ "captions": {
+  "enabled": true,
+  "style": "word",
+  "maxWords": 4,
+  "fontSize": 66,
+  "bottomFrac": 0.27,
+  "maxWidthFrac": 0.8,
+  "pages": [
+   {
+    "start": 0.0,
+    "end": 1.566,
+    "wordIdx": [
+     0,
+     1,
+     2,
+     3
+    ]
+   },
+   {
+    "start": 1.566,
+    "end": 3.539,
+    "wordIdx": [
+     4,
+     5,
+     6
+    ]
+   },
+   {
+    "start": 3.539,
+    "end": 4.954,
+    "wordIdx": [
+     7,
+     8,
+     9,
+     10
+    ]
+   },
+   {
+    "start": 4.954,
+    "end": 5.452,
+    "wordIdx": [
+     11
+    ]
+   },
+   {
+    "start": 5.452,
+    "end": 6.563,
+    "wordIdx": [
+     12,
+     13,
+     14
+    ]
+   },
+   {
+    "start": 6.563,
+    "end": 8.243,
+    "wordIdx": [
+     15,
+     16,
+     17,
+     18
+    ]
+   },
+   {
+    "start": 8.843,
+    "end": 10.386,
+    "wordIdx": [
+     19,
+     20,
+     21
+    ]
+   },
+   {
+    "start": 10.386,
+    "end": 11.486,
+    "wordIdx": [
+     22,
+     23,
+     24,
+     25
+    ]
+   },
+   {
+    "start": 11.486,
+    "end": 12.231,
+    "wordIdx": [
+     26
+    ]
+   },
+   {
+    "start": 12.231,
+    "end": 12.759,
+    "wordIdx": [
+     27,
+     28
+    ]
+   },
+   {
+    "start": 12.759,
+    "end": 14.487,
+    "wordIdx": [
+     29,
+     30,
+     31,
+     32
+    ]
+   },
+   {
+    "start": 14.487,
+    "end": 15.265,
+    "wordIdx": [
+     33
+    ]
+   },
+   {
+    "start": 15.265,
+    "end": 16.68,
+    "wordIdx": [
+     34,
+     35,
+     36,
+     37
+    ]
+   },
+   {
+    "start": 16.68,
+    "end": 18.426,
+    "wordIdx": [
+     38,
+     39,
+     40,
+     41
+    ]
+   },
+   {
+    "start": 18.426,
+    "end": 18.874,
+    "wordIdx": [
+     42
+    ]
+   },
+   {
+    "start": 18.874,
+    "end": 20.207,
+    "wordIdx": [
+     43,
+     44,
+     45,
+     46
+    ]
+   },
+   {
+    "start": 20.207,
+    "end": 21.215,
+    "wordIdx": [
+     47,
+     48
+    ]
+   },
+   {
+    "start": 21.215,
+    "end": 23.028,
+    "wordIdx": [
+     49,
+     50,
+     51,
+     52
+    ]
+   },
+   {
+    "start": 23.028,
+    "end": 23.908,
+    "wordIdx": [
+     53,
+     54
+    ]
+   },
+   {
+    "start": 23.908,
+    "end": 25.684,
+    "wordIdx": [
+     55,
+     56,
+     57
+    ]
+   },
+   {
+    "start": 25.684,
+    "end": 27.026,
+    "wordIdx": [
+     58
+    ]
+   },
+   {
+    "start": 27.226,
+    "end": 29.037,
+    "wordIdx": [
+     59,
+     60,
+     61,
+     62
+    ]
+   },
+   {
+    "start": 29.037,
+    "end": 30.379,
+    "wordIdx": [
+     63
+    ]
+   },
+   {
+    "start": 30.579,
+    "end": 32.272,
+    "wordIdx": [
+     64,
+     65,
+     66
+    ]
+   },
+   {
+    "start": 32.272,
+    "end": 34.398,
+    "wordIdx": [
+     67,
+     68,
+     69
+    ]
+   },
+   {
+    "start": 34.498,
+    "end": 35.981,
+    "wordIdx": [
+     70,
+     71,
+     72,
+     73
+    ]
+   },
+   {
+    "start": 35.981,
+    "end": 36.644,
+    "wordIdx": [
+     74
+    ]
+   },
+   {
+    "start": 36.644,
+    "end": 38.042,
+    "wordIdx": [
+     75,
+     76
+    ]
+   },
+   {
+    "start": 38.042,
+    "end": 39.502,
+    "wordIdx": [
+     77,
+     78
+    ]
+   },
+   {
+    "start": 39.802,
+    "end": 41.175,
+    "wordIdx": [
+     79,
+     80,
+     81
+    ]
+   },
+   {
+    "start": 41.175,
+    "end": 42.518,
+    "wordIdx": [
+     82,
+     83
+    ]
+   }
+  ]
+ },
+ "words": [
+  {
+   "text": "Three",
+   "start": 0.0,
+   "end": 0.413
+  },
+  {
+   "text": "alerts",
+   "start": 0.433,
+   "end": 0.928
+  },
+  {
+   "text": "hit",
+   "start": 0.948,
+   "end": 1.195
+  },
+  {
+   "text": "your",
+   "start": 1.215,
+   "end": 1.546
+  },
+  {
+   "text": "phone",
+   "start": 1.566,
+   "end": 1.978
+  },
+  {
+   "text": "before",
+   "start": 1.998,
+   "end": 2.494
+  },
+  {
+   "text": "breakfast.",
+   "start": 2.514,
+   "end": 3.339
+  },
+  {
+   "text": "Your",
+   "start": 3.539,
+   "end": 3.869
+  },
+  {
+   "text": "speed",
+   "start": 3.889,
+   "end": 4.302
+  },
+  {
+   "text": "score",
+   "start": 4.322,
+   "end": 4.734
+  },
+  {
+   "text": "is",
+   "start": 4.754,
+   "end": 4.934
+  },
+  {
+   "text": "41.",
+   "start": 4.954,
+   "end": 5.202
+  },
+  {
+   "text": "After",
+   "start": 5.452,
+   "end": 5.865
+  },
+  {
+   "text": "the",
+   "start": 5.885,
+   "end": 6.132
+  },
+  {
+   "text": "fix,",
+   "start": 6.152,
+   "end": 6.483
+  },
+  {
+   "text": "it",
+   "start": 6.563,
+   "end": 6.743
+  },
+  {
+   "text": "jumps",
+   "start": 6.763,
+   "end": 7.175
+  },
+  {
+   "text": "to",
+   "start": 7.195,
+   "end": 7.375
+  },
+  {
+   "text": "92.",
+   "start": 7.395,
+   "end": 7.643
+  },
+  {
+   "text": "A",
+   "start": 8.843,
+   "end": 9.023
+  },
+  {
+   "text": "client",
+   "start": 9.043,
+   "end": 9.538
+  },
+  {
+   "text": "writes.",
+   "start": 9.558,
+   "end": 10.136
+  },
+  {
+   "text": "Is",
+   "start": 10.386,
+   "end": 10.566
+  },
+  {
+   "text": "my",
+   "start": 10.586,
+   "end": 10.766
+  },
+  {
+   "text": "site",
+   "start": 10.786,
+   "end": 11.116
+  },
+  {
+   "text": "down",
+   "start": 11.136,
+   "end": 11.466
+  },
+  {
+   "text": "again?",
+   "start": 11.486,
+   "end": 11.981
+  },
+  {
+   "text": "On",
+   "start": 12.231,
+   "end": 12.411
+  },
+  {
+   "text": "it,",
+   "start": 12.431,
+   "end": 12.679
+  },
+  {
+   "text": "give",
+   "start": 12.759,
+   "end": 13.089
+  },
+  {
+   "text": "me",
+   "start": 13.109,
+   "end": 13.289
+  },
+  {
+   "text": "ten",
+   "start": 13.309,
+   "end": 13.557
+  },
+  {
+   "text": "minutes.",
+   "start": 13.577,
+   "end": 14.237
+  },
+  {
+   "text": "Thanks!",
+   "start": 14.487,
+   "end": 15.065
+  },
+  {
+   "text": "You",
+   "start": 15.265,
+   "end": 15.513
+  },
+  {
+   "text": "have",
+   "start": 15.533,
+   "end": 15.863
+  },
+  {
+   "text": "7",
+   "start": 15.883,
+   "end": 16.063
+  },
+  {
+   "text": "seconds",
+   "start": 16.083,
+   "end": 16.66
+  },
+  {
+   "text": "before",
+   "start": 16.68,
+   "end": 17.176
+  },
+  {
+   "text": "a",
+   "start": 17.196,
+   "end": 17.376
+  },
+  {
+   "text": "visitor",
+   "start": 17.396,
+   "end": 17.973
+  },
+  {
+   "text": "gives",
+   "start": 17.993,
+   "end": 18.406
+  },
+  {
+   "text": "up.",
+   "start": 18.426,
+   "end": 18.674
+  },
+  {
+   "text": "This",
+   "start": 18.874,
+   "end": 19.204
+  },
+  {
+   "text": "is",
+   "start": 19.224,
+   "end": 19.404
+  },
+  {
+   "text": "called",
+   "start": 19.424,
+   "end": 19.919
+  },
+  {
+   "text": "the",
+   "start": 19.939,
+   "end": 20.187
+  },
+  {
+   "text": "bounce",
+   "start": 20.207,
+   "end": 20.702
+  },
+  {
+   "text": "rate:",
+   "start": 20.722,
+   "end": 21.135
+  },
+  {
+   "text": "visitors",
+   "start": 21.215,
+   "end": 21.875
+  },
+  {
+   "text": "who",
+   "start": 21.895,
+   "end": 22.143
+  },
+  {
+   "text": "leave",
+   "start": 22.163,
+   "end": 22.575
+  },
+  {
+   "text": "after",
+   "start": 22.595,
+   "end": 23.008
+  },
+  {
+   "text": "one",
+   "start": 23.028,
+   "end": 23.276
+  },
+  {
+   "text": "page.",
+   "start": 23.296,
+   "end": 23.708
+  },
+  {
+   "text": "Slow",
+   "start": 23.908,
+   "end": 24.238
+  },
+  {
+   "text": "shared",
+   "start": 24.258,
+   "end": 24.753
+  },
+  {
+   "text": "hosting?",
+   "start": 24.773,
+   "end": 25.434
+  },
+  {
+   "text": "Rejected.",
+   "start": 25.684,
+   "end": 26.426
+  },
+  {
+   "text": "A",
+   "start": 27.226,
+   "end": 27.406
+  },
+  {
+   "text": "fast",
+   "start": 27.426,
+   "end": 27.756
+  },
+  {
+   "text": "cached",
+   "start": 27.776,
+   "end": 28.271
+  },
+  {
+   "text": "setup?",
+   "start": 28.291,
+   "end": 28.787
+  },
+  {
+   "text": "Approved.",
+   "start": 29.037,
+   "end": 29.779
+  },
+  {
+   "text": "Want",
+   "start": 30.579,
+   "end": 30.909
+  },
+  {
+   "text": "the",
+   "start": 30.929,
+   "end": 31.177
+  },
+  {
+   "text": "checklist?",
+   "start": 31.197,
+   "end": 32.022
+  },
+  {
+   "text": "Comment",
+   "start": 32.272,
+   "end": 32.85
+  },
+  {
+   "text": "SPEED",
+   "start": 32.87,
+   "end": 33.283
+  },
+  {
+   "text": "below.",
+   "start": 33.303,
+   "end": 33.798
+  },
+  {
+   "text": "What",
+   "start": 34.498,
+   "end": 34.828
+  },
+  {
+   "text": "slows",
+   "start": 34.848,
+   "end": 35.261
+  },
+  {
+   "text": "your",
+   "start": 35.281,
+   "end": 35.611
+  },
+  {
+   "text": "site",
+   "start": 35.631,
+   "end": 35.961
+  },
+  {
+   "text": "most?",
+   "start": 35.981,
+   "end": 36.394
+  },
+  {
+   "text": "Images,",
+   "start": 36.644,
+   "end": 37.222
+  },
+  {
+   "text": "plugins,",
+   "start": 37.302,
+   "end": 37.962
+  },
+  {
+   "text": "or",
+   "start": 38.042,
+   "end": 38.222
+  },
+  {
+   "text": "hosting?",
+   "start": 38.242,
+   "end": 38.902
+  },
+  {
+   "text": "Part",
+   "start": 39.802,
+   "end": 40.132
+  },
+  {
+   "text": "2",
+   "start": 40.152,
+   "end": 40.332
+  },
+  {
+   "text": "tomorrow:",
+   "start": 40.352,
+   "end": 41.095
+  },
+  {
+   "text": "faster",
+   "start": 41.175,
+   "end": 41.67
+  },
+  {
+   "text": "images.",
+   "start": 41.69,
+   "end": 42.268
+  }
+ ],
+ "scenes": [
+  {
+   "id": "alerts",
+   "purpose": "hook",
+   "start": 0.0,
+   "end": 3.389,
+   "transition": "none",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "notification",
+     "at": 0.233,
+     "items": [
+      {
+       "app": "Uptime",
+       "title": "Checkout page is down",
+       "body": "Second outage this week.",
+       "time": "now",
+       "icon": "zap",
+       "at": 0.433
+      },
+      {
+       "app": "Reviews",
+       "title": "New one-star review",
+       "body": "Took forever to load.",
+       "time": "now",
+       "icon": "star",
+       "at": 1.566
+      },
+      {
+       "app": "Analytics",
+       "title": "Visitors dropped overnight",
+       "time": "now",
+       "icon": "chart",
+       "at": 2.514
+      }
+     ]
+    }
+   ],
+   "backdrop": "deep"
+  },
+  {
+   "id": "score",
+   "purpose": "problem",
+   "start": 3.389,
+   "end": 8.693,
+   "transition": "fade",
+   "layout": "split",
+   "splitAt": 1,
+   "splitRatio": 0.55,
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "gauge",
+     "at": 3.889,
+     "label": "Page speed score",
+     "caption": "Mobile, home page",
+     "keys": [
+      {
+       "at": 4.954,
+       "value": 41
+      },
+      {
+       "at": 7.395,
+       "value": 92,
+       "dur": 1.0
+      }
+     ],
+     "zones": [
+      {
+       "to": 49,
+       "tone": "danger"
+      },
+      {
+       "to": 89,
+       "tone": "warning"
+      },
+      {
+       "to": 100,
+       "tone": "success"
+      }
+     ]
+    },
+    {
+     "type": "kinetic-text",
+     "words": [
+      {
+       "text": "Slow",
+       "at": 6.272
+      },
+      {
+       "text": "to",
+       "at": 7.135
+      },
+      {
+       "text": "fast",
+       "at": 7.255,
+       "emphasis": true
+      }
+     ],
+     "size": "l",
+     "at": 6.152
+    }
+   ]
+  },
+  {
+   "id": "chat",
+   "purpose": "turn",
+   "start": 8.693,
+   "end": 15.115,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "chat-thread",
+     "title": "Maya",
+     "at": 9.043,
+     "messages": [
+      {
+       "side": "left",
+       "name": "Maya",
+       "text": "Is my site down again?",
+       "time": "9:41",
+       "at": 10.386
+      },
+      {
+       "side": "right",
+       "text": "On it. Give me ten minutes.",
+       "time": "9:42",
+       "at": 12.231,
+       "typing": 0.5
+      },
+      {
+       "side": "left",
+       "name": "Maya",
+       "text": "Thanks!",
+       "at": 14.487
+      }
+     ]
+    }
+   ],
+   "backdrop": "spotlight"
+  },
+  {
+   "id": "ttl",
+   "purpose": "journey",
+   "start": 15.115,
+   "end": 18.724,
+   "transition": "fade",
+   "layout": "split",
+   "splitAt": 1,
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "countdown",
+     "at": 15.883,
+     "from": 7,
+     "decimals": 1,
+     "suffix": "s",
+     "label": "Until they leave",
+     "countEnd": 18.574
+    },
+    {
+     "type": "text",
+     "text": "Seven seconds of patience.",
+     "size": "l",
+     "at": 17.396
+    }
+   ]
+  },
+  {
+   "id": "term",
+   "purpose": "point",
+   "start": 18.724,
+   "end": 23.758,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "term-reveal",
+     "at": 18.874,
+     "kicker": "This is called",
+     "term": "Bounce rate",
+     "termAt": 20.207,
+     "sub": "Visitors who leave after one page",
+     "subAt": 21.215
+    }
+   ],
+   "backdrop": "light"
+  },
+  {
+   "id": "reject",
+   "purpose": "problem",
+   "start": 23.758,
+   "end": 27.076,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "danger",
+   "blocks": [
+    {
+     "type": "headline",
+     "size": "m",
+     "words": [
+      {
+       "text": "Slow",
+       "at": 23.908
+      },
+      {
+       "text": "shared",
+       "at": 24.198
+      },
+      {
+       "text": "hosting",
+       "at": 24.713
+      }
+     ],
+     "at": 23.908
+    },
+    {
+     "type": "verdict",
+     "text": "Rejected",
+     "at": 25.684,
+     "sub": "Too slow for real traffic"
+    }
+   ],
+   "effects": [
+    {
+     "type": "annotate",
+     "kind": "cross",
+     "target": 0,
+     "at": 24.773
+    }
+   ]
+  },
+  {
+   "id": "approve",
+   "purpose": "resolution",
+   "start": 27.076,
+   "end": 30.429,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "brand",
+   "blocks": [
+    {
+     "type": "headline",
+     "size": "m",
+     "words": [
+      {
+       "text": "Fast",
+       "at": 27.426
+      },
+      {
+       "text": "cached",
+       "at": 27.716
+      },
+      {
+       "text": "setup",
+       "at": 28.231
+      }
+     ],
+     "at": 27.426
+    },
+    {
+     "type": "verdict",
+     "text": "Approved",
+     "tone": "success",
+     "at": 29.037,
+     "sfx": "success"
+    }
+   ]
+  },
+  {
+   "id": "comment",
+   "purpose": "cta",
+   "start": 30.429,
+   "end": 34.348,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "comment-cta",
+     "at": 30.579,
+     "prompt": "Want the checklist?",
+     "keyword": "SPEED",
+     "typeStart": 32.87,
+     "sendAt": 33.503,
+     "sub": "One word is enough"
+    }
+   ]
+  },
+  {
+   "id": "poll",
+   "purpose": "cta",
+   "start": 34.348,
+   "end": 39.652,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "poll",
+     "at": 34.498,
+     "question": "What slows your site most?",
+     "pick": 2,
+     "pickAt": 38.642,
+     "options": [
+      {
+       "text": "Images",
+       "at": 36.644
+      },
+      {
+       "text": "Plugins",
+       "at": 37.302
+      },
+      {
+       "text": "Hosting",
+       "at": 38.242
+      }
+     ]
+    }
+   ],
+   "backdrop": "grid"
+  },
+  {
+   "id": "next",
+   "purpose": "cta",
+   "start": 39.652,
+   "end": 43.233,
+   "transition": "fade",
+   "layout": "stack",
+   "mood": "neutral",
+   "blocks": [
+    {
+     "type": "next-episode",
+     "at": 40.052,
+     "label": "Part 2",
+     "title": "Faster images in five minutes",
+     "sub": "Tomorrow"
+    }
+   ]
+  }
+ ],
+ "brandBar": null,
+ "watermark": {
+  "policy": "brand",
+  "opacity": 0.8,
+  "position": "top-right",
+  "widthFrac": 0.06,
+  "marginFrac": 0.04,
+  "variant": "mark"
+ }
+}

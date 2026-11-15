@@ -13,7 +13,7 @@
  * and a `hud` in props below v3 is ignored.
  */
 export const CONTRACT_VERSION = 3;
-/** Versions this engine can draw. */
+/** Versions this engine can draw. v3 = v2 + the HUD, caption tones and the explainer blocks (BlockV3 below; additive). */
 export const SUPPORTED_CONTRACT_VERSIONS: readonly number[] = [1, 2, 3];
 
 export type Format = 'short' | 'landscape';
@@ -413,7 +413,56 @@ export type CompositionElement = {
   asset?: string;
 };
 
-export type Block = BlockBase & (BlockV1 | BlockV2);
+// ------------------------------------------------------------------------------------------------ v3: explainer blocks
+/** v3 explainer blocks (contract v3, additive; geometry-explainer.ts, blocks-explainer.tsx, docs/MOTION.md#explainer-blocks).
+ *  Every visible word comes from the storyboard; all times are absolute seconds resolved by Python. */
+export type BlockV3 =
+  /** One instrument moved through the scene: a dial (needle) or a score ring. Each key moves the value from the
+   *  previous key's value (the first from `min`) to `value` over `dur` (default 0.8 s) starting at its `at`; the readout is
+   *  hidden until the first key, so no value shows before its word. Colour follows `zones` (upper bounds, ascending). */
+  | {
+      type: 'gauge';
+      style?: 'dial' | 'ring';
+      min?: number;
+      max?: number;
+      keys: {at: number; value: number; dur?: number}[];
+      zones?: {to: number; tone: Tone}[];
+      label?: string;
+      caption?: string;
+      prefix?: string;
+      suffix?: string;
+      decimals?: number;
+    }
+  /** Countdown / TTL ring: counts `from` → `to` (default 0) between `at` and `countEnd` (default real time). The ring
+   *  empties as it counts; without `tone` it turns warning at 30 % and danger at 10 % of the time left. */
+  | {type: 'countdown'; from: number; to?: number; countEnd?: number; label?: string; suffix?: string; decimals?: number; tone?: Tone}
+  /** Message thread: bubbles on two sides; each message types (indicator for `typing` s, default 0.6, 0 = none) and lands at
+   *  its `at`. `name` adds initials avatars and a name line; `time` a small timestamp under the bubble. */
+  | {
+      type: 'chat-thread';
+      title?: string;
+      messages: {side: 'left' | 'right'; text: string; name?: string; time?: string; at: number; typing?: number}[];
+    }
+  /** Notification banners (1–3) that slide down from the top of the frame at their `at`; the newest sits on top. */
+  | {type: 'notification'; items: {app: string; title: string; body?: string; time?: string; icon?: IconName; at: number}[]}
+  /** Mechanism first, then the name: a small `kicker` line, then the `term` slams in at `termAt` (default at+0.6), then
+   *  `sub` at `subAt` (default termAt+0.45). `uppercase` default true. */
+  | {type: 'term-reveal'; kicker?: string; term: string; sub?: string; termAt?: number; subAt?: number; tone?: Tone; uppercase?: boolean}
+  /** Verdict stamp: `text` slams in at ~1.3× and settles; `mark` cross / check / none (default by tone); `tint` (default
+   *  true) washes the frame edges in the tone colour for ~0.5 s (counted as a flash: ≤ 3 per second). `sfx` is the
+   *  pipeline's sound kind for the slam (default 'impact'; false = silent); the engine ignores it. */
+  | {type: 'verdict'; text: string; tone?: Tone; mark?: 'cross' | 'check' | 'none'; sub?: string; tint?: boolean; sfx?: string | false}
+  /** Engagement ending: a comment box types `keyword` between `typeStart` (default at+0.35) and `typeEnd`, the send button
+   *  lands at `sendAt`. `prompt` (above) and `sub` (below) are storyboard text; nothing else is drawn as words. */
+  | {type: 'comment-cta'; keyword: string; prompt?: string; sub?: string; typeStart?: number; typeEnd?: number; sendAt?: number}
+  /** Engagement ending: a question and 2–4 option pills (each enters at its `at`); option `pick` fills at `pickAt`. */
+  | {type: 'poll'; question: string; options: {text: string; at: number}[]; pick?: number; pickAt?: number}
+  /** Engagement ending: teaser card for the next part (`label` e.g. "Part 2", `title`, `sub`); an up-next bar fills. */
+  | {type: 'next-episode'; label: string; title: string; sub?: string};
+export const V3_BLOCK_TYPES = ['gauge', 'countdown', 'chat-thread', 'notification', 'term-reveal', 'verdict', 'comment-cta', 'poll', 'next-episode'] as const;
+// ------------------------------------------------------------------------------------------------ end v3
+
+export type Block = BlockBase & (BlockV1 | BlockV2 | BlockV3);
 export type BlockType = Block['type'];
 
 export type IconName =

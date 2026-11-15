@@ -166,11 +166,26 @@ export const drawProgress = (e: {at: number; dur?: number}, t: number) => {
 const f2 = (x: number) => x.toFixed(2);
 /** Hand-drawn annotation path around/under rect `r` (design px). Deterministic: the wobble comes from `seed`.
  *  Returns the stroke path and, for arrows, the head path (drawn once the shaft has landed). */
-export const annotationPath = (kind: 'underline' | 'circle' | 'arrow', r: R, seed: number, areaW?: number): {d: string; head?: string; stroke: number} => {
+export const annotationPath = (kind: 'underline' | 'circle' | 'arrow' | 'cross', r: R, seed: number, areaW?: number): {d: string; head?: string; stroke: number} => {
   const rnd = prng(seed);
   const j = (k: number) => (rnd() - 0.5) * k;
   const fs = Math.max(18, Math.min(r.h, 160));
   const stroke = clamp(fs * 0.085, 5, 12);
+  if (kind === 'cross') {
+    // an X over the target: two slightly bowed strokes corner to corner, a little past the text (the second starts
+    // once the first is mostly drawn: crossDraw). `head` carries the second stroke.
+    const sx = fs * 0.16;
+    const sy = fs * 0.1;
+    const x0 = r.x - sx;
+    const x1 = r.x + r.w + sx;
+    const y0 = r.y - sy;
+    const y1 = r.y + r.h + sy;
+    const bow = Math.min(r.w, r.h) * 0.06;
+    const w2 = Math.max(stroke * 1.15, Math.min(14, fs * 0.1));
+    const s1 = `M ${f2(x0 + j(4))} ${f2(y0 + j(4))} Q ${f2((x0 + x1) / 2 + bow)} ${f2((y0 + y1) / 2 - bow)} ${f2(x1 + j(4))} ${f2(y1 + j(4))}`;
+    const s2 = `M ${f2(x1 + j(4))} ${f2(y0 + j(4))} Q ${f2((x0 + x1) / 2 - bow)} ${f2((y0 + y1) / 2 - bow)} ${f2(x0 + j(4))} ${f2(y1 + j(4))}`;
+    return {d: s1, head: s2, stroke: w2};
+  }
   if (kind === 'underline') {
     const y = r.y + r.h + stroke * 0.9;
     const x0 = r.x - fs * 0.06;
@@ -211,6 +226,9 @@ export const annotationPath = (kind: 'underline' | 'circle' | 'arrow', r: R, see
   const h2 = {x: tx - Math.cos(ang + 0.5) * hl, y: ty - Math.sin(ang + 0.5) * hl};
   return {d, head: `M ${f2(h1.x)} ${f2(h1.y)} L ${f2(tx)} ${f2(ty)} L ${f2(h2.x)} ${f2(h2.y)}`, stroke};
 };
+
+/** Progress of the two strokes of a `cross` annotation from its draw progress p (the second starts at 45 %). */
+export const crossDraw = (p: number) => ({first: clamp01(p / 0.55), second: clamp01((p - 0.45) / 0.55)});
 
 // ------------------------------------------------------------------------------------------------ cursor
 export type CursorState = {opacity: number; x: number; y: number; press: number; ripple: {r: number; opacity: number} | null};
@@ -256,20 +274,25 @@ export const grainOpacity = (g: {opacity?: number} | undefined) => (g ? clamp(nu
 
 // ------------------------------------------------------------------------------------------------ photosensitivity
 export type FlashEvent = {key: string; t: number};
-/** Every luminance flash of the video: flash effects and light-leak transitions (in time order). */
-export const flashEvents = (scenes: Pick<Scene, 'id' | 'start' | 'transition' | 'effects'>[]): FlashEvent[] => {
+type FlashScene = Pick<Scene, 'id' | 'start' | 'transition' | 'effects'> & {blocks?: {type: string; at?: number; tint?: boolean}[]};
+/** Every luminance flash of the video: flash effects, light-leak transitions and verdict tints (v3; key
+ *  `<scene>#verdict<block>`), in time order. */
+export const flashEvents = (scenes: FlashScene[]): FlashEvent[] => {
   const ev: FlashEvent[] = [];
   scenes.forEach((s, k) => {
     if (k > 0 && s.transition === 'light-leak') ev.push({key: `${s.id}#leak`, t: s.start});
     (s.effects ?? []).forEach((e, i) => {
       if (e.type === 'flash' && Number.isFinite(e.at)) ev.push({key: `${s.id}#${i}`, t: e.at});
     });
+    (s.blocks ?? []).forEach((b, i) => {
+      if (b.type === 'verdict' && b.tint !== false && Number.isFinite(b.at)) ev.push({key: `${s.id}#verdict${i}`, t: b.at as number});
+    });
   });
   return ev.sort((a, b) => a.t - b.t || (a.key < b.key ? -1 : 1));
 };
 /** The flashes the engine may draw: chronological greedy, at most FX.photo.maxPerWindow in any FX.photo.window seconds
  *  (WCAG 2.3.1 "three flashes"). Python validation rejects storyboards that break the rule; this is the engine's guard. */
-export const allowedFlashes = (scenes: Pick<Scene, 'id' | 'start' | 'transition' | 'effects'>[]): Set<string> => {
+export const allowedFlashes = (scenes: FlashScene[]): Set<string> => {
   const ok: FlashEvent[] = [];
   for (const e of flashEvents(scenes)) {
     const recent = ok.filter((x) => e.t - x.t < FX.photo.window);

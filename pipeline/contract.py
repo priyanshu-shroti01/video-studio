@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .paths import ROOT
 
-CONTRACT_VERSION = 3  # v3 (HUD, caption tones / speakers, headline captions) is a superset of v2, v2 of v1
+CONTRACT_VERSION = 3  # v3 = v2 + HUD, caption tones / speakers, headline captions and the explainer blocks (additive); v2 is a superset of v1
 FORMATS = {"short": (1080, 1920), "landscape": (1920, 1080)}
 COMPOSITION_ID = "Storyboard"
 
@@ -23,6 +23,8 @@ BLOCK_TYPES = {
     # composition (additive, same contract version): generated scene graphics (pipeline/creative/composer.py);
     # elements[].at / countEnd / pulseAt are ordinary time keys, resolved like every other nested time
     "composition",
+    # v3 explainer blocks (pipeline/explainer.py; src/engine/types.ts BlockV3)
+    "gauge", "countdown", "chat-thread", "notification", "term-reveal", "verdict", "comment-cta", "poll", "next-episode",
 }
 # Keys (anywhere inside a block) whose values are times on the timeline -> resolved by storyboard.py
 TIME_KEYS = {
@@ -32,6 +34,8 @@ TIME_KEYS = {
     "typeEnd", "scrollEnd", "winnerAt", "highlightAt",
     # v2b
     "pulseAt",
+    # v3 explainer blocks
+    "termAt", "subAt", "typeStart", "sendAt", "pickAt",
 }
 ICONS = {"zap", "lock", "server", "cloud", "globe", "arrowUp", "arrowRight", "check",
          "shield", "rocket", "clock", "database", "mail", "users", "chart", "star",

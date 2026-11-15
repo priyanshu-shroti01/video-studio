@@ -27,13 +27,17 @@ V2B = {"plan-card", "install-flow", "server-stack"}
 TEXT_ONLY = {"headline", "text", "pill"}
 HERO = {"browser", "bars", "compare-rows", "plans", "domain-input", "hook-tag", "flat-line", "price", "logo", "cta", "counter",
         "price-compare", "terminal", "dashboard", "device", "image", "progress", "scroll-demo", "chart", "feature-compare",
-        "logo-sting", "outro", "plan-card", "install-flow", "server-stack", "kinetic-text", "checklist", "footage", "composition"}
+        "logo-sting", "outro", "plan-card", "install-flow", "server-stack", "kinetic-text", "checklist", "footage", "composition",
+        # v3 explainer blocks (pipeline/explainer.py)
+        "gauge", "countdown", "chat-thread", "notification", "term-reveal", "verdict", "comment-cta", "poll", "next-episode"}
 DEMO = {"install-flow", "domain-input", "dashboard", "scroll-demo", "device", "footage"}
 PRICING = {"plan-card", "price-compare", "plans", "price", "counter", "flat-line"}
 NON_LABEL_KEYS = {"type", "icon", "tone", "variant", "kind", "size", "align", "frame", "fit", "reveal", "grouping", "prompt", "id",
                   "currency", "period", "suffix", "prefix", "emphasis", "typeAt", "appIcon", "asset",
                   # composition element styling / wiring / provenance (never drawn as text)
-                  "role", "shape", "motion", "fill", "stroke", "color", "fromId", "toId", "design"} | TIME_KEYS
+                  "role", "shape", "motion", "fill", "stroke", "color", "fromId", "toId", "design",
+                  # v3 explainer block options (never drawn as text)
+                  "style", "side", "mark", "sfx"} | TIME_KEYS
 # v1 required fields (pipeline.intelligence.storyboard_gen.REQUIRED) + contract v2/v2b
 REQUIRED = {"headline": ["size", "words"], "text": ["text", "size"], "pill": ["text", "tone"], "price": ["amount"],
             "checklist": ["items"], "bars": ["title", "bars"], "compare-rows": ["rows"], "plans": ["plans"],

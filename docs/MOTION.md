@@ -5,11 +5,12 @@ pure function of `t = frame / fps`: no `Math.random`, no `Date`, no CSS transiti
 Render contract **v2** is a strict superset of v1. Props with `contractVersion: 1` render bit-identically to
 the v1 engine, verified by decoding the v1 fixture before and after and comparing per-frame MD5s (0 of 638 frames differ).
 All v2-only behaviour is gated on `contractVersion >= 2` (`isV2()` in `contract.ts`).
-Render contract **v3** adds the persistent [HUD](#hud-contract-v3), caption [tones and speakers](#tones-and-speakers-v3)
-and the `headline` caption style. All optional: v2 props render as before, and a `hud` below v3 is ignored.
+Render contract **v3** adds the persistent [HUD](#hud-contract-v3), caption [tones and speakers](#tones-and-speakers-v3),
+the `headline` caption style and the nine [explainer blocks](#explainer-blocks-contract-v3). All optional: v1 and v2
+props render as before, and a `hud` below v3 is ignored.
 
-The engine has **32 block types** (14 from v1, 13 added in v2, 3 in the v2b look, plus `footage` and `composition`) and **6 scene backdrops**; the
-authoritative list is `src/engine/types.ts`.
+The engine has **41 block types** (14 from v1, 13 added in v2, 3 in the v2b look, `footage`, `composition` and 9
+explainer blocks in v3) and **6 scene backdrops**; the authoritative list is `src/engine/types.ts`.
 
 ## Module map
 
@@ -34,7 +35,8 @@ authoritative list is `src/engine/types.ts`.
 | `geometry-v2b.ts` | geometry of `plan-card`, `install-flow`, `server-stack` (wide + tall layouts) | yes |
 | `geometry-footage.ts` | `footage` geometry, clip time, last-frame hold, zoom keyframes | yes |
 | `geometry-composition.ts` | `composition` canvas, element boxes per layout, deterministic text fitting, arc / connector paths | yes |
-| `blocks.tsx`, `blocks-v2.tsx`, `blocks-v2b.tsx`, `backdrops.tsx`, `prim.tsx`, `Storyboard.tsx`, `ui.tsx` | drawing | no |
+| `geometry-explainer.ts` | the v3 explainer blocks: geometry, gauge keyframes, countdown, chat / notification stacking, verdict tint | yes |
+| `blocks.tsx`, `blocks-v2.tsx`, `blocks-v2b.tsx`, `blocks-explainer.tsx`, `backdrops.tsx`, `prim.tsx`, `Storyboard.tsx`, `ui.tsx` | drawing | no |
 
 ## Motion presets (`scene.motion` › `props.motion` › `standard`)
 
@@ -231,6 +233,7 @@ Coordinates are output px at the settled position, before the camera. Times are 
 `src/engine/fixtures/sample-{short,landscape}.json` (v1, unchanged) and `sample-v2-{short,landscape}.json`
 (every new block, `platform` + `custom` watermark, all cameras, transitions and presets, hook-tag under the brand bar).
 `sample-hud-{short,landscape}.json` (v3) cover the [HUD](#hud-contract-v3), caption tones, speakers and `headline`.
+The v3 explainer blocks have `sample-explainer-{short,landscape}.json` ([below](#explainer-blocks-contract-v3)).
 
 ```bash
 npx remotion render Storyboard out/engine-v2/v2-short.mp4 --props=src/engine/fixtures/sample-v2-short.json --concurrency=2 --muted --log=error
@@ -550,7 +553,7 @@ a block index in the scene. Each effect is a pure function of t and ends at iden
 | `shake` | `amp` 6 px (≤ 8), `dur` 0.36 | eased, damped two-axis wobble, seeded per scene and effect |
 | `flash` | `intensity` 0.3 (≤ 0.45) | radial brightness pulse (screen blend, white to brand); never a full-white frame |
 | `burst` | `target?`, `count` 22 (4–40), `spread` radial/up | confetti and dots from a ring around the target's main text (e.g. when a counter lands), 1 s |
-| `annotate` | `kind` underline/circle/arrow, `target`, `text?`, `tone?`, `dur` 0.5 | hand-drawn stroke draws on from the word, then holds; it targets `text` inside the block, else its largest text |
+| `annotate` | `kind` underline/circle/arrow/cross, `target`, `text?`, `tone?`, `dur` 0.5 | hand-drawn stroke draws on from the word, then holds; it targets `text` inside the block, else its largest text. `cross` (v3) strikes the target with two strokes (the second starts at 45 % of `dur`), danger red unless `tone` is set, over all of the block's text when no `text` is named |
 | `cursor` | `target` (footage/device/browser…), `x`/`y` (default: the footage zoom active at `at`) | pointer glides in, clicks on the word (press and ripple), lingers 0.55 s; it follows the footage zoom |
 | `tilt` | `target`, `rx` 9°, `ry` −14° (≤ 25°), `dur` 0.95 | 3D perspective tilt and parallax entrance of a recording or device; settles flat |
 
@@ -559,9 +562,9 @@ a block index in the scene. Each effect is a pure function of t and ends at iden
 
 ### Rules
 
-- **Photosensitivity (WCAG 2.3.1):** at most 3 flashes in any 1 s. Flash effects and light-leak cuts count as flashes.
-  Python drops the extras with a warning (`effects.photosensitivity`), and the engine enforces the same budget
-  (`allowedFlashes`).
+- **Photosensitivity (WCAG 2.3.1):** at most 3 flashes in any 1 s. Flash effects, light-leak cuts and `verdict` tints
+  count as flashes. Python drops the extras with a warning (`effects.photosensitivity`; an extra verdict keeps its
+  stamp and loses its tint), and the engine enforces the same budget (`allowedFlashes`).
 - **Restraint (director, `pipeline/creative/fx.py`):**
   - at most one emphasis effect per scene;
   - never the same effect transition twice in a row;
@@ -600,3 +603,142 @@ a block index in the scene. Each effect is a pure function of t and ends at iden
   between the two scenes, with the backdrop always drawn behind them.
 - **Freeze detection:** film grain changes every frame, so ffmpeg `freezedetect` cannot see a frozen picture under
   grain. The timeline-based `sync_check` still catches static narration. Grain is opt-in per brand.
+
+## Explainer blocks (contract v3)
+
+Nine recurring short-form devices, drawn in the engine's own design language (theme tokens, `DUR` / `LEAD` / `SPRING`
+motion tokens). Geometry and state live in `geometry-explainer.ts` (pure; shared by the renderer `blocks-explainer.tsx`
+and the QA manifest), validation, numbers, sound cues and timing warnings in `pipeline/explainer.py`. Every visible word
+comes from the storyboard; the engine never adds UI text. Every time key accepts `@word:` expressions and is resolved
+like any block time. All nine are hero visuals (`storyboard.hero_visual`), work in 9:16 and 16:9 (a landscape `split`
+puts them beside a message) and report their texts to the layout manifest at the settled end state.
+
+| type | fields (defaults) | time keys |
+|---|---|---|
+| `gauge` | `keys[{value, dur=0.8}]` (1–8), `style` dial/ring, `min`=0, `max`=max(100, values), `zones[{to, tone}]` (ascending upper bounds), `label`, `caption`, `prefix`, `suffix`, `decimals` | `at`, `keys[].at` |
+| `countdown` | `from`, `to`=0, `decimals`, `suffix`, `label`, `tone` (default: brand, warning at 30 % left, danger at 10 %) | `at` (start) → `countEnd` (default real time: at + \|from − to\|) |
+| `chat-thread` | `title`, `messages[{side left/right, text, name?, time?, typing=0.6}]` (1–8) | `messages[].at` (typing indicator from at − typing) |
+| `notification` | `items[{app, title, body?, time?, icon?}]` (1–3; newest on top) | `items[].at` |
+| `term-reveal` | `kicker`, `term`, `sub`, `tone`, `uppercase`=true | `at` (kicker), `termAt` (default at+0.6), `subAt` (default termAt+0.45) |
+| `verdict` | `text` (≤ 24 chars), `tone`=danger, `mark` cross/check/none (default by tone), `sub`, `tint`=true, `sfx`='impact' | `at` |
+| `comment-cta` | `keyword` (≤ 24 chars), `prompt`, `sub` | `at`, `typeStart` (default at+0.35), `typeEnd` (default typeStart + 0.09 s/char, ≤ 1 s), `sendAt` |
+| `poll` | `question`, `options[{text}]` (2–4), `pick` (with `pickAt`) | `options[].at`, `pickAt` |
+| `next-episode` | `label` (e.g. "Part 2", ≤ 24 chars), `title`, `sub` | `at` |
+
+New time keys: `termAt`, `subAt`, `typeStart`, `sendAt`, `pickAt` (`countEnd`, `typeEnd` already existed).
+
+### `gauge`: one instrument through the scene
+
+```json
+{"type": "gauge", "style": "dial", "at": "@word:speed", "label": "Page speed score", "caption": "Mobile, home page",
+ "keys": [{"at": "@word:41", "value": 41}, {"at": "@word:92", "value": 92, "dur": 1.0}],
+ "zones": [{"to": 49, "tone": "danger"}, {"to": 89, "tone": "warning"}, {"to": 100, "tone": "success"}]}
+```
+
+- A dial is a 240° arc with ticks and a needle; a ring is a 360° score ring with a knob at the value. Thin zone arcs
+  outside the track show the scale; the value arc, needle hub and readout take the colour of the zone the value is in,
+  blending over ±3 % of the range at each boundary.
+- **Keyframes** (`gaugeState`): key k moves from wherever the previous move left the value (the first from `min`) to
+  `value` over `dur`, starting exactly at its `at`. A key that comes early cuts the previous move short, so the value is
+  continuous. The readout eases out and never passes its target; the needle overshoots ~4 % and settles.
+- **Numbers rule:** the readout is hidden until the first key starts, so no value is on screen before its word. Python's
+  `sync_check` checks each key value against the spoken words at its `at`, and the preview gate checks the values
+  against the verified facts.
+
+### `countdown`: a ring that empties
+
+```json
+{"type": "countdown", "at": "@word:7", "from": 7, "decimals": 1, "suffix": "s", "label": "Until they leave",
+ "countEnd": "@speech_end-0.1"}
+```
+
+The readout rounds towards `from` (7.0 shows for the first tenth, 0.0 only at the end). The ring empties from the top,
+12 ticks dim as the count passes them, and the ring gives a short pulse when it reaches `to`. `from` is a number on
+screen at `at`, so it must be spoken by then (`sync_check`). A real-time countdown longer than the scene is cut at the
+scene end: use `countEnd` or `holdAfter` (`timeline` warns).
+
+### `chat-thread`: a message thread
+
+```json
+{"type": "chat-thread", "title": "Maya", "at": "@word:client", "messages": [
+  {"side": "left", "name": "Maya", "text": "Is my site down again?", "time": "9:41", "at": "@word:Is"},
+  {"side": "right", "text": "On it. Give me ten minutes.", "time": "9:42", "at": "@word:On", "typing": 0.5}]}
+```
+
+A three-dot typing bubble springs in `typing` s before each message (0 = none); the bubble pops from its tail corner on
+the word. Left bubbles use the raised surface, right ones the brand fill with ink chosen for contrast (`inkOn`: white or
+the theme background, whichever contrasts more). `name` adds a name line (once per run) and an initials avatar; `time` is
+small UI text under the bubble (not checked as a claim). Bubbles wrap at 80 % of the thread width; the layout reserves
+the final thread, so nothing moves when a message arrives.
+
+### `notification`: banners from the top
+
+```json
+{"type": "notification", "at": "@word:alerts-0.2", "items": [
+  {"app": "Uptime", "title": "Checkout page is down", "body": "Second outage this week.", "time": "now", "icon": "zap", "at": "@word:alerts"},
+  {"app": "Reviews", "title": "New one-star review", "icon": "star", "at": "@word:phone"}]}
+```
+
+Each banner slides down from just above the frame's top edge (`SPRING.drop`) on its word; the newest sits on top and
+the older ones ease down by its height (`noteShift`, 0.35 s). The app tile shows `icon` or the app's initial.
+
+### `term-reveal`: mechanism first, then the name
+
+```json
+{"type": "term-reveal", "at": "@word:This", "kicker": "This is called", "term": "Bounce rate", "termAt": "@word:bounce",
+ "sub": "Visitors who leave after one page", "subAt": "@word:visitors"}
+```
+
+The kicker fades up between two brand rules that grow outward. On `termAt` the term slams in from 1.38× (`SPRING.stamp`)
+with a fading outline echo, then a brand bar wipes in under it. The term is set uppercase, heavy and tightly tracked:
+one line when it fits at ≥ 130 design px, else two balanced lines, never below 84.
+
+### `verdict`: a stamp
+
+```json
+{"type": "verdict", "text": "Rejected", "at": "@word:Rejected", "sub": "Too slow for real traffic"}
+{"type": "verdict", "text": "Approved", "tone": "success", "at": "@word:Approved", "sfx": "success"}
+```
+
+A double-ruled stamp tilted −6° slams in from 1.32× and settles (`SPRING.stamp`), with a worn-ink texture (a fixed,
+seeded noise field) and an expanding outline. The size is fitted so the rotated stamp fits the column. With `tint`
+(default) the frame edges wash in the tone colour on the slam and fade within ~0.56 s (`verdictTintAt`): a vignette,
+never a full-frame flash. Each tint counts as one flash in the photosensitivity budget. **Sound:** `auto_sfx` plays
+the theme's `sfx` kind (default `impact`) on `at`; `"sfx": false` is silent. Pair it with an `annotate` `cross` on the
+claim it rejects.
+
+### Engagement endings: `comment-cta`, `poll`, `next-episode`
+
+```json
+{"type": "comment-cta", "at": "@word:Want", "prompt": "Want the checklist?", "keyword": "SPEED",
+ "typeStart": "@word:SPEED", "sendAt": "@word:below+0.2", "sub": "One word is enough"}
+{"type": "poll", "at": "@word:What", "question": "What slows your site most?", "pick": 2, "pickAt": "@word:hosting+0.4",
+ "options": [{"text": "Images", "at": "@word:Images"}, {"text": "Plugins", "at": "@word:plugins"}, {"text": "Hosting", "at": "@word:hosting"}]}
+{"type": "next-episode", "at": "@word:2-0.1", "label": "Part 2", "title": "Faster images in five minutes", "sub": "Tomorrow"}
+```
+
+- `comment-cta`: a comment box (a generic avatar, the typed keyword with a caret, a send button). The box lights up
+  when typing starts; the button fills and shows a check on `sendAt`. No placeholder text is drawn.
+- `poll`: option pills slide in on their words; on `pickAt` the picked pill fills left to right in the brand colour
+  (0.5 s), its radio fills, and the others dim. No percentages are drawn (they would be unverified numbers).
+- `next-episode`: a teaser card with the label pill, a play mark, the title and an "up next" bar that fills over 2.4 s.
+- None of them promises anything by itself: every word is storyboard copy, checked like any other text.
+
+### Sound, numbers and timing (Python)
+
+- **auto SFX** (`explainer.sfx_events`): gauge ticks during each move, countdown ticks (≤ 10), a pop per message, a chime
+  per notification, an impact on the term slam and on the verdict, keys while the keyword types and a click on
+  `sendAt` / `pickAt`, a whoosh and shimmer for `next-episode`.
+- **numbers rule** (`explainer.numbers_shown`, used by `sync_check`): each part is checked at its own time: gauge values
+  at their key, `from` at the countdown's `at`, the term at `termAt`, the keyword at `typeStart`, message / option /
+  notification text at its own `at`. Gauge values and a countdown's `from` must also be verified facts (preview gate).
+- **timing warnings** (`explainer.timing_warnings`): a gauge move, countdown, term slam, poll fill or send still running
+  at the scene's cut. Anchor earlier, shorten `dur` or add `holdAfter`.
+
+Fixtures `sample-explainer-{short,landscape}.json` are built from `tests/fixtures/explainer-storyboard.json` with
+estimated timings (`tests/test_explainer_blocks.py` checks that they match): every explainer block, an `annotate`
+`cross`, two verdict tints, light / spotlight / grid / deep backdrops and three 16:9 splits.
+
+```bash
+npx remotion still Storyboard out/explainer-short.png --props=src/engine/fixtures/sample-explainer-short.json --frame=255
+```

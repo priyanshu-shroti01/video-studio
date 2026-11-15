@@ -24,7 +24,7 @@ human approval and an explicit confirmation) uploads to YouTube or Instagram.
    │ sync_check.py                 │ qa.py + visual_qa/            │ migrations.py   schema + backups      │
    └──────────────────────────────┴───────────────────────────────┴──────────────────────────────────────┘
                                             ▼  RenderProps v3 (contract.py ⇄ src/engine/types.ts)
-               src/engine/ — Remotion `Storyboard` composition: motion tokens, 32 block types, 6 backdrops,
+               src/engine/ — Remotion `Storyboard` composition: motion tokens, 41 block types, 6 backdrops,
                watermark, layout manifest (scripts/engine-layout.mjs)  ·  src/shrotihost/ — legacy hand-built `Short`
 ```
 
@@ -143,7 +143,7 @@ the account named in `brand.json → publishing.accounts`. See [SOCIAL_PUBLISHIN
 | `pipeline/music.py`, `assets.py` | licensed music library, asset licences |
 | `pipeline/jobs.py`, `migrations.py` | SQLite registry (jobs, stages, events, productions, approvals, flags, publications, scheduler, audit) and migrations |
 | `studio/` | local web UI (stdlib server + React/esbuild frontend) on `pipeline/api.py` |
-| `src/engine/` | data-driven Remotion engine (contract v3: v2 blocks, v2b look, persistent HUD, caption tones), motion library (`motion/`), layout manifest |
+| `src/engine/` | data-driven Remotion engine (contract v3: v2 blocks, v2b look, persistent HUD, caption tones, explainer blocks), motion library (`motion/`), layout manifest |
 
 ## Key design decisions
 

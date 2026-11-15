@@ -202,11 +202,16 @@ flowchart LR
 
 ## The engine
 
-32 animated block types and 6 backdrops (glow, spotlight, grid, split, light, deep). Every block works in 9:16 and 16:9.
+41 animated block types and 6 backdrops (glow, spotlight, grid, split, light, deep). Every block works in 9:16 and 16:9.
 
 - **Real product footage.** `footage` plays screen recordings in a browser, laptop or phone frame, or filling the
   frame on 9:16, with zooms and magnified callouts on the word that names each detail. A QA check measures that the
   recorded text is readable on a phone.
+- **Explainer devices.** A dial or score ring whose needle moves on each spoken number and recolours by zone, a
+  countdown ring, a chat thread with typing dots, notification banners that drop in from the top, a "this is called…"
+  term reveal, a REJECTED / APPROVED stamp with a brief tinted wash and its own sound cue, and endings that ask for a
+  comment keyword, run a poll or tease the next part. Every word comes from the storyboard, and no number appears
+  before it is spoken.
 - **Generated components.** `composition` draws scenes that the component generator designs from primitives (cards,
   rings, connectors, icons, counted numbers); a design is kept only when it beats the template.
 - **Captions in today's styles:** Pop (1–3 big words, the spoken word springs in the brand colour), Highlight,
@@ -218,7 +223,7 @@ flowchart LR
   series or chapter bar ("DAY 03 / 30") and a pinned stakes chip that counts up or down can stay on screen across
   scenes. Each change lands on its spoken word, and the scenes lay out below it.
 - **Transitions and effects:** whip pan, push, zoom-through, iris, light leak and glitch; punch-zoom, shake, flash,
-  confetti burst, hand-drawn circles, cursor clicks and 3D tilt. The director picks them by mood and uses them
+  confetti burst, hand-drawn circles and cross-outs, cursor clicks and 3D tilt. The director picks them by mood and uses them
   sparingly, cuts can snap to the music's beat, and flashes stay within the 3-per-second safety limit.
 - **Staged entrances.** A recording or diagram that appears before its text starts alone and centred, then moves to
   its place as the text arrives.
@@ -352,7 +357,7 @@ pipeline/            orchestrator: CLI, productions, jobs, scheduler, timeline, 
   intelligence/      local LLM runtime, claim checking, fact base
   social/            YouTube / Instagram: routing, metadata, adapters, MCP server
   voice/ visual_qa/  local TTS + alignment, Hinglish transliteration; OCR, layout and branding checks
-src/engine/          Remotion engine: Storyboard composition, 32 blocks, HUD, backdrops, motion tokens
+src/engine/          Remotion engine: Storyboard composition, 41 blocks, HUD, backdrops, motion tokens
 studio/              local web Studio (Python server + React frontend)
 install.sh bin/      one-command installer and the `videostudio` launcher
 brands/ knowledge/   per-brand profiles and verified facts

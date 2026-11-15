@@ -11,7 +11,7 @@ export type SceneEffect =
   | {type: 'shake'; at: number; amp?: number; dur?: number}
   | {type: 'flash'; at: number; intensity?: number}
   | {type: 'burst'; at: number; target?: number; count?: number; spread?: 'radial' | 'up'}
-  | {type: 'annotate'; at: number; kind: 'underline' | 'circle' | 'arrow'; target?: number; text?: string; tone?: Tone; dur?: number}
+  | {type: 'annotate'; at: number; kind: 'underline' | 'circle' | 'arrow' | 'cross'; target?: number; text?: string; tone?: Tone; dur?: number}
   | {type: 'cursor'; at: number; target: number; x?: number; y?: number}
   | {type: 'tilt'; at?: number; target: number; rx?: number; ry?: number; dur?: number};
 export type SceneEffectType = SceneEffect['type'];

@@ -25,6 +25,7 @@ import {
   pillMetrics,
 } from './geometry';
 import {geomComposition} from './geometry-composition';
+import {geomExplainer} from './geometry-explainer';
 import {geomFootage} from './geometry-footage';
 import {geomInstallFlow, geomPlanCard, geomServerStack} from './geometry-v2b';
 import {CTA_FS, HEADLINE_FS, splitText, TEXT_FS, wrapWords} from './layout';
@@ -215,6 +216,16 @@ export const blockContent = (b: Block, w: number, h: number, env: AspectEnv): Bl
       const g = geomComposition(b, w, env);
       return {texts: g.texts, logos: g.logos};
     }
+    case 'gauge':
+    case 'countdown':
+    case 'chat-thread':
+    case 'notification':
+    case 'term-reveal':
+    case 'verdict':
+    case 'comment-cta':
+    case 'poll':
+    case 'next-episode':
+      return {texts: geomExplainer(b, w).texts, logos};
   }
   return {texts, logos};
 };

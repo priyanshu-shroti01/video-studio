@@ -1,0 +1,8 @@
+{
+ "name": "explainer-blocks-fixture",
+ "brand": "acme-demo",
+ "preset": "shorts",
+ "formats": ["short", "landscape"],
+ "storyboard": "tests/fixtures/explainer-storyboard.json",
+ "audio": {"music": null}
+}

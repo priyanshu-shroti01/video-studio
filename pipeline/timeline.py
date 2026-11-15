@@ -102,8 +102,11 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
             sfx.append({"t": Rz.time(ev["at"]), "sound": ev["sound"], "gain": ev.get("gain", cfg["audio"].get("sfxDb", -12)),
                         "kind": "explicit"})
     beat_sync = None
-    if any("effects" in s or s["transition"] in FX.FX_TRANSITIONS for s in resolved) or cfg["storyboard"].get("beatSync"):
+    if any("effects" in s or s["transition"] in FX.FX_TRANSITIONS or any(b["type"] == "verdict" for b in s["blocks"])  # v3 tints
+           for s in resolved) or cfg["storyboard"].get("beatSync"):
         beat_sync = FX.timeline_pass(cfg, resolved, [w.as_dict() for w in words], duration, fps, fx_anchors, sfx, warnings)
+    from .explainer import timing_warnings                     # v3 explainer payoffs that would be cut off
+    warnings += timing_warnings(resolved)
     sfx = sorted((e for e in sfx if 0 <= e["t"] < duration - 0.05), key=lambda e: e["t"])
     max_sfx = cfg["audio"].get("maxSfxPerSecond", 2.5)          # prevent excessive SFX
     if sfx and len(sfx) / duration > max_sfx:

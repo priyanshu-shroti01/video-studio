@@ -23,6 +23,7 @@ import {
   pillMinW,
 } from './geometry';
 import {compositionFirstTime, compositionHeight, compositionNaturalW} from './geometry-composition';
+import {explainerFirstTime, explainerNaturalW, geomExplainer} from './geometry-explainer';
 import {footageNaturalW, geomFootage} from './geometry-footage';
 import {geomInstallFlow, geomPlanCard, geomServerStack} from './geometry-v2b';
 import {CHAR_W, CTA_FS, HEADLINE_FS, TEXT_FS} from './motion/typography';
@@ -79,6 +80,7 @@ export const minContentW = (b: Block, colDesignW: number, env: number | AspectEn
     case 'headline':
     case 'text':
     case 'kinetic-text':
+    case 'term-reveal':
       return 0;
     case 'pill':
       return pillMinW(b);
@@ -125,6 +127,17 @@ export const naturalWidth = (b: Block, colDesignW: number, env: number | AspectE
       return footageNaturalW(b, toAspectEnv(env));
     case 'composition':
       return compositionNaturalW();
+    // v3 explainer blocks (geometry-explainer.ts)
+    case 'gauge':
+    case 'countdown':
+    case 'chat-thread':
+    case 'notification':
+    case 'term-reveal':
+    case 'verdict':
+    case 'comment-cta':
+    case 'poll':
+    case 'next-episode':
+      return explainerNaturalW(b);
     default:
       return NATURAL_W[b.type];
   }
@@ -202,6 +215,16 @@ export const measureBlock = (b: Block, w: number, logoAspect: number | AspectEnv
       return geomFootage(b, w, env).h;
     case 'composition':
       return compositionHeight(b, w);
+    case 'gauge':
+    case 'countdown':
+    case 'chat-thread':
+    case 'notification':
+    case 'term-reveal':
+    case 'verdict':
+    case 'comment-cta':
+    case 'poll':
+    case 'next-episode':
+      return geomExplainer(b, w).h;
   }
 };
 
@@ -235,6 +258,13 @@ export const firstInternalTime = (b: Block): number | undefined => {
       return b.nodes.length ? Math.min(...b.nodes.map((s) => s.at)) - 0.3 : undefined;
     case 'composition':
       return compositionFirstTime(b);
+    case 'gauge':
+    case 'chat-thread':
+    case 'notification':
+    case 'poll':
+    case 'term-reveal':
+    case 'comment-cta':
+      return explainerFirstTime(b);
     default:
       return undefined;
   }

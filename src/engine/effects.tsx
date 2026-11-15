@@ -11,6 +11,7 @@ import {
   allowedFlashes,
   annotationPath,
   burstParticles,
+  crossDraw,
   cursorState,
   drawProgress,
   effectSeed,
@@ -25,6 +26,7 @@ import {
 import {EASE} from './motion/easings';
 import {estimateTextWidth} from './motion/typography';
 import {FxTransitionState, isFxTransition, lightLeakAt, TR_FX} from './motion/fx-transitions';
+import {verdictTintAt, verdictTone} from './geometry-explainer';
 import {blockContent} from './texts';
 import {toneColor} from './theme';
 import {Block, RenderProps, Scene, SceneEffect} from './types';
@@ -35,7 +37,9 @@ export const glitchId = (level: number) => `sb-glitch-${level}`;
 
 /** True when the props use any effect (the renderer mounts the effect layers only then). */
 export const usesFx = (props: Pick<RenderProps, 'scenes' | 'theme'>) =>
-  !!props.theme.grain || props.scenes.some((s) => hasEffects(s) || isFxTransition(s.transition));
+  !!props.theme.grain || props.scenes.some((s) => hasEffects(s) || isFxTransition(s.transition) || hasVerdictTint(s));
+/** v3: a verdict block whose slam tints the frame (drawn by FxOverlay, inside the photosensitivity budget). */
+export const hasVerdictTint = (s: Pick<Scene, 'blocks'>) => s.blocks.some((b) => b.type === 'verdict' && b.tint !== false);
 
 const flashCache = new WeakMap<Scene[], Set<string>>();
 /** Photosensitivity guard: the flashes the engine may draw (≤ 3 in any second), computed once per props. */
@@ -138,6 +142,20 @@ export const annotationRect = (b: Block, w: number, h: number, aspects: Paramete
   return {x: w * 0.04, y: h * 0.04, w: w * 0.92, h: h * 0.92};
 };
 
+/** Rect (design px, block-relative) around every text run of a block (a cross strikes the whole statement). */
+export const textUnionRect = (b: Block, w: number, h: number, aspects: Parameters<typeof blockContent>[3]): R => {
+  const texts = blockContent(b, w, h, aspects).texts;
+  if (!texts.length) return {x: w * 0.04, y: h * 0.04, w: w * 0.92, h: h * 0.92};
+  const rs = texts.map((s) => {
+    const est = Math.min(specWidth(s), s.w);
+    const bx = s.align === 'left' ? s.x : s.align === 'right' ? s.x + s.w - est : s.x + (s.w - est) / 2;
+    return {x0: bx, y0: s.y + s.h * 0.08, x1: bx + est, y1: s.y + s.h * 0.92};
+  });
+  const x0 = Math.min(...rs.map((r) => r.x0));
+  const y0 = Math.min(...rs.map((r) => r.y0));
+  return {x: x0, y: y0, w: Math.max(...rs.map((r) => r.x1)) - x0, h: Math.max(...rs.map((r) => r.y1)) - y0};
+};
+
 const particleColors = (c: RenderProps['theme']['colors']) => [c.brand, c.brandHover, c.success, c.warning];
 
 const Particles: React.FC<{e: Extract<SceneEffect, {type: 'burst'}>; seed: number; ox: number; oy: number; k: number; r0?: number}> = ({e, seed, ox, oy, k, r0 = 0}) => {
@@ -181,13 +199,15 @@ export const BlockFx: React.FC<{scene: Scene; index: number; block: Block; w: nu
     if (e.type === 'annotate') {
       const p = drawProgress(e, t);
       if (p <= 0) return;
-      const r = annotationRect(block, w, h, aspects, e.text);
+      const r = e.kind === 'cross' && !e.text ? textUnionRect(block, w, h, aspects) : annotationRect(block, w, h, aspects, e.text);
       const a = annotationPath(e.kind, r, seed, w);
-      const col = e.tone ? toneColor(theme, e.tone) : c.brandHover;
-      const shaft = e.kind === 'arrow' ? Math.min(1, p / 0.75) : p;
-      const head = e.kind === 'arrow' ? Math.max(0, (p - 0.75) / 0.25) : 0;
+      // a cross means "wrong": danger red unless the storyboard names a tone
+      const col = e.tone ? toneColor(theme, e.tone) : e.kind === 'cross' ? c.danger : c.brandHover;
+      const cross = e.kind === 'cross' ? crossDraw(p) : undefined;
+      const shaft = cross ? cross.first : e.kind === 'arrow' ? Math.min(1, p / 0.75) : p;
+      const head = cross ? cross.second : e.kind === 'arrow' ? Math.max(0, (p - 0.75) / 0.25) : 0;
       items.push(
-        <g key={i} style={{filter: `drop-shadow(0 4px 14px ${alpha(c.brand, 0.45)})`}}>
+        <g key={i} style={{filter: `drop-shadow(0 4px 14px ${alpha(cross ? c.danger : c.brand, 0.45)})`}}>
           <path d={a.d} pathLength={1} fill="none" stroke={col} strokeWidth={a.stroke} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 1" strokeDashoffset={1 - shaft} />
           {a.head && head > 0 ? <path d={a.head} pathLength={1} fill="none" stroke={col} strokeWidth={a.stroke} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 1" strokeDashoffset={1 - head} /> : null}
         </g>,
@@ -272,6 +292,20 @@ export const FxOverlay: React.FC<{props: RenderProps; frame: number}> = ({props,
       if (e.type === 'flash' && allowed.has(`${s.id}#${i}`)) flash = Math.max(flash, flashIntensity(e, t));
     });
   }
+  // v3 verdict tint: the frame edges wash in the stamp's tone, then fade (~0.5 s); one of the flashes of the budget
+  let tint = 0;
+  let tintColor = '';
+  for (const s of props.scenes) {
+    if (t < s.start - 0.2 || t > s.end + 0.8) continue;
+    s.blocks.forEach((b, i) => {
+      if (b.type !== 'verdict' || b.tint === false || b.at === undefined || !allowed.has(`${s.id}#verdict${i}`)) return;
+      const v = verdictTintAt(b.at, t);
+      if (v > tint) {
+        tint = v;
+        tintColor = toneColor(theme, verdictTone(b));
+      }
+    });
+  }
   const leak = lightLeakAt(props.scenes, t, allowed);
   const grain = grainOpacity(theme.grain);
   const c = theme.colors;
@@ -286,6 +320,16 @@ export const FxOverlay: React.FC<{props: RenderProps; frame: number}> = ({props,
             pointerEvents: 'none',
             mixBlendMode: 'screen',
             background: `radial-gradient(ellipse 85% 70% at 50% 42%, rgba(255,255,255,${(flash * 0.95).toFixed(4)}) 0%, ${alpha(c.brandHover, flash * 0.55)} 55%, ${alpha(c.brand, flash * 0.25)} 100%)`,
+          }}
+        />
+      ) : null}
+      {tint > 0.002 ? (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            background: `radial-gradient(ellipse 75% 68% at 50% 46%, ${alpha(tintColor, 0.07 * tint)} 0%, ${alpha(tintColor, 0.2 * tint)} 62%, ${alpha(tintColor, 0.42 * tint)} 100%)`,
           }}
         />
       ) : null}

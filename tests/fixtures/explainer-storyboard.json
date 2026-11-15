@@ -1,0 +1,52 @@
+{
+ "$comment": "Fixture for the v3 explainer blocks (src/engine/fixtures/sample-explainer-*.json are built from it with estimated timings). Fictional copy, no real brand claims.",
+ "title": "Explainer blocks",
+ "scenes": [
+  {"id": "alerts", "purpose": "hook", "narration": "Three alerts hit your phone before breakfast.", "backdrop": "deep", "transition": "none",
+   "blocks": [
+    {"type": "notification", "at": "@word:alerts-0.2", "items": [
+     {"app": "Uptime", "title": "Checkout page is down", "body": "Second outage this week.", "time": "now", "icon": "zap", "at": "@word:alerts"},
+     {"app": "Reviews", "title": "New one-star review", "body": "Took forever to load.", "time": "now", "icon": "star", "at": "@word:phone"},
+     {"app": "Analytics", "title": "Visitors dropped overnight", "time": "now", "icon": "chart", "at": "@word:breakfast"}]}]},
+  {"id": "score", "purpose": "problem", "narration": "Your speed score is 41. After the fix, it jumps to 92.", "layout": "split", "splitAt": 1, "splitRatio": 0.55, "holdAfter": 1.0,
+   "blocks": [
+    {"type": "gauge", "at": "@word:speed", "label": "Page speed score", "caption": "Mobile, home page",
+     "keys": [{"at": "@word:41", "value": 41}, {"at": "@word:92", "value": 92, "dur": 1.0}],
+     "zones": [{"to": 49, "tone": "danger"}, {"to": 89, "tone": "warning"}, {"to": 100, "tone": "success"}]},
+    {"type": "kinetic-text", "words": "Slow to fast", "emphasis": ["fast"], "size": "l", "at": "@word:fix"}]},
+  {"id": "chat", "purpose": "turn", "narration": "A client writes. Is my site down again? On it, give me ten minutes. Thanks!", "backdrop": "spotlight",
+   "blocks": [
+    {"type": "chat-thread", "title": "Maya", "at": "@word:client", "messages": [
+     {"side": "left", "name": "Maya", "text": "Is my site down again?", "time": "9:41", "at": "@word:Is"},
+     {"side": "right", "text": "On it. Give me ten minutes.", "time": "9:42", "at": "@word:On", "typing": 0.5},
+     {"side": "left", "name": "Maya", "text": "Thanks!", "at": "@word:Thanks"}]}]},
+  {"id": "ttl", "purpose": "journey", "narration": "You have 7 seconds before a visitor gives up.", "layout": "split", "splitAt": 1,
+   "blocks": [
+    {"type": "countdown", "at": "@word:7", "from": 7, "decimals": 1, "suffix": "s", "label": "Until they leave", "countEnd": "@speech_end-0.1"},
+    {"type": "text", "text": "Seven seconds of patience.", "size": "l", "at": "@word:visitor"}]},
+  {"id": "term", "purpose": "point", "narration": "This is called the bounce rate: visitors who leave after one page.", "backdrop": "light",
+   "blocks": [
+    {"type": "term-reveal", "at": "@word:This", "kicker": "This is called", "term": "Bounce rate", "termAt": "@word:bounce",
+     "sub": "Visitors who leave after one page", "subAt": "@word:visitors"}]},
+  {"id": "reject", "purpose": "problem", "narration": "Slow shared hosting? Rejected.", "mood": "danger", "holdAfter": 0.6,
+   "effects": [{"type": "annotate", "kind": "cross", "target": 0, "at": "@word:hosting"}],
+   "blocks": [
+    {"type": "headline", "size": "m", "words": "Slow shared hosting", "at": "@word:Slow"},
+    {"type": "verdict", "text": "Rejected", "at": "@word:Rejected", "sub": "Too slow for real traffic"}]},
+  {"id": "approve", "purpose": "resolution", "narration": "A fast cached setup? Approved.", "mood": "brand", "holdAfter": 0.6,
+   "blocks": [
+    {"type": "headline", "size": "m", "words": "Fast cached setup", "at": "@word:fast"},
+    {"type": "verdict", "text": "Approved", "tone": "success", "at": "@word:Approved", "sfx": "success"}]},
+  {"id": "comment", "purpose": "cta", "narration": "Want the checklist? Comment SPEED below.", "holdAfter": 0.5,
+   "blocks": [
+    {"type": "comment-cta", "at": "@word:Want", "prompt": "Want the checklist?", "keyword": "SPEED", "typeStart": "@word:SPEED",
+     "sendAt": "@word:below+0.2", "sub": "One word is enough"}]},
+  {"id": "poll", "purpose": "cta", "narration": "What slows your site most? Images, plugins, or hosting?", "holdAfter": 0.7, "backdrop": "grid",
+   "blocks": [
+    {"type": "poll", "at": "@word:What", "question": "What slows your site most?", "pick": 2, "pickAt": "@word:hosting+0.4",
+     "options": [{"text": "Images", "at": "@word:Images"}, {"text": "Plugins", "at": "@word:plugins"}, {"text": "Hosting", "at": "@word:hosting"}]}]},
+  {"id": "next", "purpose": "cta", "narration": "Part 2 tomorrow: faster images.", "holdAfter": 0.8,
+   "blocks": [
+    {"type": "next-episode", "at": "@word:2-0.1", "label": "Part 2", "title": "Faster images in five minutes", "sub": "Tomorrow"}]}
+ ]
+}

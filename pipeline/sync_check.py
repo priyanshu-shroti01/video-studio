@@ -45,6 +45,11 @@ def _numbers_shown(o, at: float | None, out: list):
     if isinstance(o, dict):
         if o.get("type") in CATALOG:
             return out
+        from .explainer import numbers_shown          # v3 explainer blocks: exact time per part
+        xb = numbers_shown(o, NUM)
+        if xb is not None:
+            out += xb
+            return out
         at = float(o["at"]) if isinstance(o.get("at"), (int, float)) else at
         if o.get("kind") == "number" and isinstance(o.get("to"), (int, float)) and at is not None:
             # a composition number counts up like a counter: it is shown when the count lands (countEnd)

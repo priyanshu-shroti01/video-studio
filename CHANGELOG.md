@@ -34,10 +34,29 @@
   the content area below the HUD, toned and emphasised words in colour; the bottom stays free for the platform UI.
 - **HUD fixtures** `src/engine/fixtures/sample-hud-{short,landscape}.json`, built by the pipeline from
   `tests/fixtures/hud-storyboard.json` (`uv run python tests/test_hud.py --write`).
+- **Explainer blocks** (engine, render contract **v3**, additive: v1 / v2 props draw as before). Nine devices that
+  short-form explainers use again and again, in the engine's own design language, for 9:16 and 16:9, measured by the
+  layout and reported to the QA manifest (docs/MOTION.md#explainer-blocks-contract-v3):
+  - `gauge`: a dial (needle) or score ring moved through word-anchored keys (e.g. 0 → 41 on "41", then → 92), recoloured
+    by `zones`, with a live readout that stays hidden until the first key; `countdown`: a ring counting down from a
+    spoken number (real time or to `countEnd`).
+  - `chat-thread` (two sides, typing dots before each message, names with initials avatars, timestamps) and
+    `notification` (1–3 banners sliding down from the top of the frame, newest on top).
+  - `term-reveal`: a small "this is called" line, then the term slams in on its word.
+  - `verdict`: a REJECTED / APPROVED-style stamp (text from the storyboard) that slams in at 1.32× and settles, with an
+    optional edge tint in the tone colour (~0.5 s) that counts towards the 3-flashes-per-second limit, and a sound cue
+    (`sfx`, default `impact`; `false` = silent).
+  - Endings: `comment-cta` (types a keyword such as "SPEED" into a comment box and sends it), `poll` (2–4 option pills,
+    one fills) and `next-episode` (a "Part 2" teaser card). They draw only storyboard text.
+  - `annotate` effects gain `cross`: an X drawn over the target in two strokes.
+  - Validation, word anchors, the numbers rule (each part checked at its own time), auto sound cues, timing warnings when
+    a payoff would be cut off, hero-visual status and fact checks of gauge / countdown values (`pipeline/explainer.py`).
+  - Fixtures `sample-explainer-{short,landscape}.json`, built from `tests/fixtures/explainer-storyboard.json`.
 
 ### Changed
 - **Render contract v3** (`CONTRACT_VERSION` 3 in `src/engine/types.ts` and `pipeline/contract.py`). v3 is a
-  superset of v2: the engine still draws v1 and v2 props unchanged, and a `hud` in props below v3 is ignored.
+  superset of v2 (HUD, caption tones and speakers, headline captions, explainer blocks): the engine still draws v1
+  and v2 props unchanged, and a `hud` in props below v3 is ignored.
 - **README rewritten for first-time visitors:** the pitch, the teaser and the two-command install come first,
   then what you get, a comparison with AI video generators and video SaaS (including the Remotion licence note),
   and the real results. Developer setup moved to "For developers". Every sentence the Video Studio brand's facts
