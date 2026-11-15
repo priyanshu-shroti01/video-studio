@@ -138,8 +138,13 @@ def _rect_inside(b: dict, area: dict, tol: float = 2) -> bool:
             b["x"] + b["w"] <= area["x"] + area["w"] + tol and b["y"] + b["h"] <= area["y"] + area["h"] + tol)
 
 
-def _intersects(a: dict, b: dict) -> bool:
-    return not (a["x"] + a["w"] <= b["x"] or b["x"] + b["w"] <= a["x"] or a["y"] + a["h"] <= b["y"] or b["y"] + b["h"] <= a["y"])
+EDGE_EPS = 0.5   # px: boxes that only touch (the layout packs a scene exactly down to the caption band) don't overlap,
+                 # whatever the float rounding of their edges
+
+
+def _intersects(a: dict, b: dict, eps: float = EDGE_EPS) -> bool:
+    return not (a["x"] + a["w"] <= b["x"] + eps or b["x"] + b["w"] <= a["x"] + eps
+                or a["y"] + a["h"] <= b["y"] + eps or b["y"] + b["h"] <= a["y"] + eps)
 
 
 def _overlap_ranges(r1: list, r2: list) -> list:

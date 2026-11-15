@@ -38,6 +38,9 @@
   production wasn't), so it could neither render again nor be approved. Productions now follow their job: a dead
   render fails the production so it can render again, and a job finished through `video-pipeline retry` gets
   the usual QA and approval package.
+- **Blocks touching the caption band counted as inside it:** the layout packs a scene exactly down to the band,
+  and float rounding of the edges then failed `layout.caption_band`. Edges within half a pixel now count as
+  touching.
 - **An opening fade-in counted as black:** QA allowed 0.2 s of black at the start; a first word fading in over a
   dark backdrop takes about 0.22 s in 16:9. The allowance is now 0.25 s.
 - **The brief's `voice` was ignored:** every production used the preset voice. It now applies to the production,

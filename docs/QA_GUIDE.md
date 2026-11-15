@@ -94,7 +94,7 @@ uv run video-pipeline qa --job-id <JOB_ID>      # exit 0 = PASS/WARN, 3 = FAIL
 
 | Id | Critical | Fails when |
 |---|---|---|
-| `layout.text_overflow` / `layout.safe_area` / `layout.caption_band` | yes | text overflows its box, a block leaves the safe area, or a block enters the caption band (layout manifest) |
+| `layout.text_overflow` / `layout.safe_area` / `layout.caption_band` | yes | text overflows its box, a block leaves the safe area, or a block enters the caption band (layout manifest; edges within 0.5 px count as touching, not overlapping) |
 | `ocr.prices_urls_exact` | yes | on-device OCR (Apple Vision) doesn't read every price and URL back digit-exactly |
 | `ocr.titles_legible` | no | a title reads back weakly |
 | `ocr.no_template_labels` | yes | "template", "preview", "watermark", "lorem", "made with" … text appears in a frame |
