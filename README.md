@@ -7,6 +7,12 @@ Local AI, multiple brands, and a person approving every step that matters.
 
 **₹0 per video. No subscription, no API keys, no LLM account. The AI runs on your Mac.**
 
+<img src="docs/images/teaser.gif" width="250" alt="Video Studio's 30-second teaser, made with Video Studio: the price promise, the real Create-a-video wizard, the local stack and the frame-by-frame preview">
+
+<sub>Video Studio's own 30 s teaser, made with Video Studio from a short brief.
+**[▶ Watch the 88-second walkthrough](https://github.com/priyanshu-shroti01/video-studio/releases/download/v0.5.0/video-studio-walkthrough-landscape.mp4)**
+(the whole Studio, from brief to approved film) · [vertical version](https://github.com/priyanshu-shroti01/video-studio/releases/download/v0.5.0/video-studio-walkthrough-vertical.mp4)</sub>
+
 <img src="docs/images/demo-opening.gif" width="250" alt="Opening of the WordPress Hosting Short: hook, terminal errors, logo reveal">&nbsp;&nbsp;
 <img src="docs/images/demo-wordpress-short.gif" width="250" alt="One-click WordPress install, plan comparison and the ₹69 plan card">
 
@@ -16,7 +22,7 @@ The voice, captions, music, animation and QA all ran locally; a person approved 
 
 [![Watch on YouTube](https://img.shields.io/badge/Watch-on%20YouTube-FF0000?logo=youtube&logoColor=white)](https://youtube.com/shorts/mGSbWJHqiXo)
 ![macOS](https://img.shields.io/badge/macOS-Apple%20silicon-000?logo=apple)
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
 ![Remotion](https://img.shields.io/badge/Remotion-4-0B84F3)
 ![Local AI](https://img.shields.io/badge/AI-100%25%20local-6d5efc)
 [![License: PolyForm Shield 1.0.0](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0%20(source--available)-lightgrey)](LICENSE)

@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- **Demo films made with Video Studio:** a 30 s teaser (README GIF, `docs/images/teaser.gif`) and an 88 s
+  walkthrough of the whole Studio, both in 9:16 and 16:9, attached to the v0.5.0 release.
 - **Help chat in the Studio:** a round **?** button at the bottom right of every page opens a small chat that
   answers how-to questions with the local AI model, grounded in the guide sections that match the question
   (STUDIO_GUIDE, TROUBLESHOOTING, INSTALL, README) and told which page and wizard step you are on. It only explains
