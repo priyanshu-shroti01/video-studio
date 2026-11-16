@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.6.0 — 2026-11-16
+
+Hinglish videos and the short-form explainer style. A brief can ask for Hinglish: the studio writes the script in
+Hinglish and a Hindi voice speaks it, local or (with your consent) Microsoft's natural Hindi voices. The engine
+gains a persistent step header, caption colours and nine explainer blocks, and the hybrid engine uses them on its
+own in a new "Myth, Steps, Proof" blueprint. The narrator's tone follows each scene, and renders adapt to a busy Mac.
+
 ### Added
 - **Language and Hindi voice in the Studio:** the "Create a video" wizard's step 2 has a Language choice (English /
   Hinglish) and, for Hinglish, a Hindi voice: on this Mac (local) or natural male/female (Microsoft, online; choosing
