@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from ..anchors import Anchors
 from ..product import plans_for
+from ..explain import HOLD, countdown_proof, gauge_proof, stepify
 from ..templates import T, checklist, fmt_off, ic, kinetic, num, pill, plan_word
 from . import Pack
 
@@ -360,6 +361,51 @@ TEMPLATES = [
       "Featured plan vs the next tier: storage, websites, RAM from the plan facts."),
 ]
 
+# ---- explainer style (pipeline/creative/explain.py) ----------------------------------------------------
+def b_uptime_gauge(ctx, A, copy):
+    """The uptime target (a verified fact) on a score ring: the ring from the first word, the readout on the spoken number."""
+    f = ctx.fb.by_id(FACT_IDS["uptime_target"])
+    pct = f["value"]["uptime_pct"]
+    spec = {"value": pct, "min": 0, "max": 100, "label": "Uptime target", "src": f"fact:{f['id']}", "cues": [num(pct)],
+            "suffix": "%", "decimals": 0 if float(pct).is_integer() else 1}
+    return gauge_proof(ctx, A, copy, spec)
+
+
+def b_refund_countdown(ctx, A, copy):
+    """The money-back window (a duration fact) as a countdown that starts on its spoken number of days."""
+    f = ctx.fb.by_id(FACT_IDS["money_back"])
+    days = f["value"]["days"]
+    words = {7: "seven", 14: "fourteen", 30: "thirty"}
+    spec = {"from": days, "label": "Days, money back", "src": f"fact:{f['id']}", "cues": [words.get(days, num(days)), num(days)],
+            "pill": "Money-back guarantee", "pill_icon": "shield"}
+    return countdown_proof(ctx, A, copy, spec)
+
+
+EXPLAINER_TEMPLATES = [
+    T("step-domain-search", "Step: your domain", "demo", IND, None, "domain-input", "checklist", ("grid",), "pan-right", "standard",
+      "push", None, (8, 16), None, {"type": ["type", "search"], "click": ["launch", "claim"], "chip": ["domain"]}, (), (), _always,
+      stepify(b_domain_search, "Domain", "Domain", ["domain", "name"]),
+      "Explainer step: a domain is typed, found and launched; the header advances, the chip lands on 'domain'.", hold=0.5),
+    T("step-install-flow", "Step: one click", "demo", IND, HOSTING, "install-flow", "pill", ("light",), "push-in", "standard",
+      "slide-up", None, (8, 16), None, {"steps": ["WordPress", "theme", "plugins", "SSL"], "done": ["live"], "chip": ["click"]},
+      (), (), has("setup_steps", "one_click"), stepify(b_install_flow, "Install", "One click", ["click"]),
+      "Explainer step: the installer runs the fact base's setup sequence from the first word; the chip lands on 'click'.", hold=0.8),
+    T("step-device-site", "Step: live on a phone", "demo", IND, None, "device", "checklist", ("light", "glow"), "push-in", "standard",
+      "slide-up", None, (7, 14), None, {"device": ["live"], "chip": ["live"]}, (), (), _always,
+      stepify(b_device_site, "Go live", "Live", ["live"]),
+      "Explainer step: the finished site on a phone from the first word; the chip lands on 'live'."),
+    T("step-uptime-gauge", "Step: stay online", "proof", IND, None, "gauge", "verdict", ("glow", "spotlight"), "none", "standard",
+      "push", None, (6, 14), None, {"gauge": "from the first word; the readout on the spoken target", "verdict": "the spoken word"},
+      ("uptime",), (), has("uptime_target"), stepify(b_uptime_gauge, "Uptime", "Uptime", ["uptime"]),
+      "Explainer step and proof: the verified uptime target fills a ring on its spoken number; a success stamp lands.",
+      hold=HOLD),
+    T("step-refund-countdown", "Step: try it", "proof", IND, None, "countdown", "pill", ("spotlight", "glow"), "none", "standard",
+      "push", None, (6, 14), None, {"countdown": "the spoken number of days", "chip": ["money"]}, (), (7,), has("money_back"),
+      stepify(b_refund_countdown, "Try it", "Money back", ["money"]),
+      "Explainer step and proof: the money-back window counts down from its spoken number of days."),
+]
+TEMPLATES += EXPLAINER_TEMPLATES
+
 # ---- blueprints ---------------------------------------------------------------------------------------
 BLUEPRINTS = [
     {"id": "setup-solved", "name": "Setup, Solved", "pattern": "hook-problem-solution-demo-cta",
@@ -414,6 +460,20 @@ BLUEPRINTS = [
                ("pricing", ["price-plan-card", "price-plans-lineup", "price-compare-cycles"]), ("cta", ["cta-outro", "cta-logo-lockup"])],
      "hook_tags": ["promise"], "music": "energetic", "cta_style": "offer-stamp",
      "pacing": {"label": "feature sprint", "detail": "short reveal, then dense feature proof"}},
+    # explainer style (explain.py): a step header and term chips across the step scenes; a poll before the close when
+    # the brief's scene window has room
+    {"id": "explainer-steps", "name": "Myth, Steps, Proof", "pattern": "explainer-myth-steps",
+     "pattern_name": "Myth, crossed out → Name it → Step 1 → Step 2 → Step 3: proof on a gauge → Price → (Poll) → CTA",
+     "logline": "Cross out a hosting myth, name the brand, walk three numbered steps on a step header (domain, one-click "
+                "install, the uptime target on a gauge), land the verified price, then ask and close.",
+     "slots": [("hook", ["hook-myth-verdict"]), ("turn", ["turn-term-reveal"]),
+               ("demo", ["step-domain-search", "step-install-flow"]), ("demo", ["step-install-flow", "step-device-site", "step-domain-search"]),
+               ("proof", ["step-uptime-gauge", "step-refund-countdown"]),
+               ("pricing", ["price-plan-card", "price-counter-flat", "price-plans-lineup"]),
+               ("cta", ["cta-outro", "cta-logo-lockup"])],
+     "engage": [(6, "cta", ["cta-poll", "cta-comment-keyword", "cta-next-episode"])],
+     "hud": "steps", "hook_tags": ["myth"], "music": "technology", "cta_style": "url-click",
+     "pacing": {"label": "explainer", "detail": "a stamped myth, three numbered steps under a step header, a proof, the price"}},
 ]
 
 STYLE = ("Name the real thing on screen (the control panel, the web server, the security scanner) instead of adjectives; "
@@ -747,8 +807,100 @@ BANK: dict[str, dict[str, list[dict]]] = {
     },
 }
 
+# explainer copy (English; kept apart from the entries above so language variants merge cleanly). Every on-screen
+# phrase (headline, verdict, sub, question, options, prompt, keyword) is spoken verbatim in its line; "{step}" is the
+# step's ordinal, filled in by the director.
+BANK_EXPLAINER: dict[str, dict[str, list[dict]]] = {
+    "hook-myth-verdict": {
+        "wordpress": [
+            {"id": "weekend", "narration": "WordPress setup takes a whole weekend? Wrong.",
+             "headline": "WordPress setup takes a whole weekend?", "verdict": "Wrong", "danger": ["whole weekend"], "tags": ["myth"]},
+            {"id": "click", "narration": "Setting up WordPress takes a whole weekend? Wrong. One click.",
+             "headline": "Setting up WordPress takes a whole weekend?", "verdict": "Wrong", "danger": ["whole weekend"], "tags": ["myth"]},
+            {"id": "cost", "narration": "Fast WordPress hosting has to cost a lot? Wrong.",
+             "headline": "Fast WordPress hosting has to cost a lot?", "verdict": "Wrong", "danger": ["cost a lot"], "tags": ["myth"]},
+        ],
+        "shared": [
+            {"id": "weekend", "narration": "A website takes a developer and a weekend? Wrong.",
+             "headline": "A website takes a developer and a weekend?", "verdict": "Wrong", "danger": ["developer", "weekend"],
+             "tags": ["myth"]},
+            {"id": "cost", "narration": "Good hosting has to cost a lot? Wrong.", "headline": "Good hosting has to cost a lot?",
+             "verdict": "Wrong", "danger": ["cost a lot"], "tags": ["myth"]},
+        ],
+    },
+    "turn-term-reveal": {
+        "wordpress": [
+            {"id": "meet", "narration": "Meet {brand}: WordPress hosting, tuned to run fast.", "kicker": "Meet",
+             "sub": "WordPress hosting", "pill": "tuned to run fast", "pill_icon": "zap"},
+            {"id": "short", "narration": "Meet {brand}. WordPress, tuned to run fast.", "kicker": "Meet",
+             "sub": "WordPress", "pill": "tuned to run fast", "pill_icon": "zap"},
+        ],
+        "shared": [
+            {"id": "meet", "narration": "Meet {brand}: fast shared hosting, priced honestly.", "kicker": "Meet",
+             "sub": "fast shared hosting", "pill": "priced honestly", "pill_icon": "check"},
+        ],
+    },
+    "step-domain-search": {
+        "wordpress": [
+            {"id": "type", "narration": "Step {step}: type your domain and hit launch. You're live."},
+            {"id": "short", "narration": "Step {step}: search your domain and hit launch."},
+        ],
+        "shared": [
+            {"id": "type", "narration": "Step {step}: type your domain and hit launch. You're live."},
+            {"id": "short", "narration": "Step {step}: search your domain and hit launch."},
+        ],
+    },
+    "step-install-flow": {
+        "wordpress": [
+            {"id": "click", "narration": "Step {step}: one click installs WordPress, plugins and SSL. You're live."},
+            {"id": "short", "narration": "Step {step}: one click, and WordPress installs. You're live."},
+        ],
+    },
+    "step-device-site": {
+        "*": [
+            {"id": "phone", "narration": "Step {step}: your site is live on your phone, with free SSL."},
+            {"id": "short", "narration": "Step {step}: your site is live, with free SSL."},
+        ],
+    },
+    "step-uptime-gauge": {
+        "*": [
+            {"id": "online", "narration": "Step {step}: a {uptime} percent uptime target keeps you online.", "verdict": "online"},
+        ],
+    },
+    "step-refund-countdown": {
+        "*": [
+            {"id": "try", "narration": "Step {step}: seven days to try it, or your money back.", "needs": ["money_back"]},
+        ],
+    },
+    "cta-poll": {
+        "wordpress": [
+            {"id": "build", "narration": "What will you build first? A blog, an online shop, or a portfolio?",
+             "question": "What will you build first?", "options": ["blog", "online shop", "portfolio"]},
+        ],
+        "shared": [
+            {"id": "live", "narration": "What goes live first? A business site, a blog, or a portfolio?",
+             "question": "What goes live first?", "options": ["business site", "blog", "portfolio"]},
+        ],
+    },
+    "cta-comment-keyword": {
+        "*": [
+            {"id": "stuck", "narration": "Stuck on a step? Comment SETUP and tell us where.", "prompt": "Stuck on a step?",
+             "keyword": "SETUP"},
+        ],
+    },
+}
+for _tid, _fams in BANK_EXPLAINER.items():
+    BANK.setdefault(_tid, {}).update(_fams)
+
+
+def copy_values(fb) -> dict:
+    """Copy placeholders bound to verified facts for the explainer templates ({uptime})."""
+    f = fb.by_id(FACT_IDS["uptime_target"])
+    return {"uptime": num(f["value"]["uptime_pct"])} if f and "uptime_pct" in (f.get("value") or {}) else {}
+
+
 PACK = Pack(id="web-hosting", name="Web hosting (shared, WordPress, domains)", families=FAMILIES, fact_ids=FACT_IDS,
             gated_roles=GATED, features=FEATURES, feature_cues=FEATURE_CUES, templates=TEMPLATES, bank=BANK,
             blueprints=BLUEPRINTS, plan_features=plan_features, plan_detail=plan_detail, compare_rows=compare_rows,
             checklist_keys=checklist_keys, cta_sub_keys=["renewal", "ssl", "backups"], banned=BANNED, style=STYLE,
-            term_roles=TERM_ROLES)
+            term_roles=TERM_ROLES, copy_values=copy_values)

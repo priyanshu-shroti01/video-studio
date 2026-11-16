@@ -19,6 +19,7 @@ it; small regions (or `callout: true`) get a magnified callout panel instead. In
 (`fit: {short: "fill"}`) so the crop, not a small browser window, carries the UI."""
 from __future__ import annotations
 
+from ..explain import HOLD, display, first_at, gauge_proof, said, said_at, stepify
 from ..templates import T, fmt_off, ic, kinetic, pill
 from . import Pack
 
@@ -288,6 +289,64 @@ TEMPLATES = [
       "The real production record of this very film plays while the reveal line lands."),
 ]
 
+# ---- explainer style (pipeline/creative/explain.py) ---------------------------------------------------------------
+def b_qa_gauge(ctx, A, copy):
+    """The measured QA count on a score ring: on screen from the first word, the readout lands on the spoken count."""
+    fact = _fact(ctx, "qa")
+    v = fact["value"]
+    n = v["checks"]
+    spec = {"value": n, "min": 0, "max": n, "label": v["counter_label"], "src": f"fact:{fact['id']}",
+            "cues": list(v.get("counter_cues") or []) + [str(n)], "caption": v.get("title"),
+            "zones": [{"to": n - 1, "tone": "warning"}, {"to": n, "tone": "success"}] if n > 1 else None}
+    return gauge_proof(ctx, A, copy, spec)
+
+
+def b_point_cost(ctx, A, copy):
+    """The value line: the spoken question as a pill from the first word, the fact's spoken price landing word by word
+    as it is said (in words: an unpriced product shows no currency amount), what it costs nothing checking in as named."""
+    fact = _fact(ctx, "cost")
+    v = fact.get("value") or {}
+    src = f"fact:{fact.get('id', FACT_IDS['cost'])}"
+    out = []
+    if said(A, copy.get("pill")) is not None:
+        out.append(pill(ctx, display(copy["pill"]), "narration", first_at(A, -0.05), "zap", "brand"))
+    spoken = (ctx.pf.spoken or {}).get("cost_spoken", "")
+    land = said_at(A, spoken, -0.05, "price") if spoken else None
+    if land:
+        words = display(spoken)
+        out.append({"type": "kinetic-text", "words": ctx.L(words, "narration"), "size": "xl", "align": "center", "at": land,
+                    "emphasis": [words.split()[-1]]})
+    named = [i for i in v.get("items") or [] if any(A.has(c) for c in i.get("cues") or [])]   # only what the line names
+    items = [{"text": ctx.L(i["text"], src), "icon": ic("check"), "at": A.at(i.get("cues") or [], -0.1, name=f"free:{k}")}
+             for k, i in enumerate(named)]
+    if items:
+        out.append({"type": "checklist", "items": items, "at": items[0]["at"]})
+    return out
+
+
+IND_EXPLAINER = [
+    T("step-brief-footage", "Step: the brief", "demo", IND, None, "footage", "pill", ("light", "glow"), "none", "standard", "whip-pan",
+      None, (8, 18), None, {"zooms": "one per beat in the brand's clip", "chip": ["brief"]}, (), (3,), clip("app-tour"),
+      stepify(_footage_pill("app-tour", "Recorded in the real app", "app"), "Brief", "Brief", ["brief", "product"]),
+      "Explainer step: the real app turns a short brief into three ideas; the header advances, the chip lands on 'brief'.",
+      hero_key="footage:app-tour"),
+    T("step-preview-footage", "Step: the preview", "demo", IND, None, "footage", "pill", ("glow", "light"), "none", "standard", "push",
+      None, (8, 18), None, {"zooms": "one per beat in the brand's clip", "chip": ["preview", "frame"]}, (), (), clip("preview"),
+      stepify(_footage_pill("preview", "Checked before the render", "check", cues=("before", "Before")), "Preview", "Preview",
+              ["preview", "frame"]),
+      "Explainer step: every frame watched with the real voice before the render.", hero_key="footage:preview"),
+    T("step-qa-gauge", "Step: it checks itself", "proof", IND, None, "gauge", "verdict", ("glow", "spotlight"), "none", "standard",
+      "push", None, (6, 16), None, {"gauge": "from the first word; the readout on the spoken count", "verdict": "the spoken verdict"},
+      (), (), lambda pf: has("qa")(pf) and "qa_spoken" in (pf.spoken or {}),
+      stepify(b_qa_gauge, "QA", "QA", ["checks", "check"]),
+      "Explainer step and proof: the measured QA count fills a ring on its spoken number; a success stamp lands.", hold=HOLD),
+    T("point-zero-cost", "The cost line", "point", IND, None, "kinetic-text", "checklist", ("spotlight", "glow"), "push-in", "energetic",
+      "zoom-through", "brand", (6, 14), None, {"kinetic-text": "the spoken price", "checklist": "what it costs nothing, as named"},
+      (), (), lambda pf: has("cost")(pf) and "cost_spoken" in (pf.spoken or {}), b_point_cost,
+      "The value line after the steps: the question, the fact's price line on its spoken words, then what it needs: nothing."),
+]
+TEMPLATES += IND_EXPLAINER
+
 # ---- blueprints ---------------------------------------------------------------------------------------------
 BLUEPRINTS = [
     {"id": "teaser-zero-cost", "name": "Zero Cost", "pattern": "promise-demo-proof-close",
@@ -337,6 +396,18 @@ BLUEPRINTS = [
      "optional": [(2, "proof", ["explain-architecture"]), (3, "demo", ["demo-render-footage"])],
      "hook_tags": ["promise"], "music": "educational", "cta_style": "url-click",
      "pacing": {"label": "walkthrough", "detail": "even beats, the product on screen most of the time"}},
+    # explainer style (explain.py): a step header and term chips across the step scenes; a poll before the close when
+    # the brief's scene window has room
+    {"id": "explainer-steps", "name": "Myth, Steps, Proof", "pattern": "explainer-myth-steps",
+     "pattern_name": "Myth, crossed out → Name it → Step 1: brief → Step 2: preview → Step 3: QA on a gauge → The cost → (Poll) → Close",
+     "logline": "Cross out the belief that product videos need an agency or a subscription, name the studio, walk three steps "
+                "on a step header in the real app, prove the QA score on a gauge, land the zero cost, then ask and close.",
+     "slots": [("hook", ["hook-myth-verdict"]), ("turn", ["turn-term-reveal"]), ("demo", ["step-brief-footage"]),
+               ("demo", ["step-preview-footage"]), ("proof", ["step-qa-gauge"]), ("point", ["point-zero-cost"]),
+               ("cta", ["cta-outro"])],
+     "engage": [(6, "cta", ["cta-poll", "cta-comment-keyword", "cta-next-episode"])],
+     "hud": "steps", "hook_tags": ["myth"], "music": "technology", "cta_style": "url-click",
+     "pacing": {"label": "explainer", "detail": "a stamped myth, three numbered steps under a step header, a proof, an ask"}},
 ]
 
 # ---- copy bank (family "app") ---------------------------------------------------------------------------------
@@ -419,6 +490,53 @@ BANK: dict[str, dict[str, list[dict]]] = {
         {"id": "code", "narration": "{cta_spoken} on GitHub, and see how it was made."},
     ]},
 }
+
+# explainer copy (English; kept apart from the entries above so language variants merge cleanly). Every on-screen
+# phrase (headline, verdict, sub, pill, question, options, prompt, keyword) is spoken verbatim in its line.
+BANK_EXPLAINER: dict[str, dict[str, list[dict]]] = {
+    "hook-myth-verdict": {"app": [
+        {"id": "agency", "narration": "Product videos need an agency, or a pricey subscription? Wrong.",
+         "headline": "Product videos need an agency, or a pricey subscription?", "verdict": "Wrong", "danger": ["agency", "pricey subscription"],
+         "tags": ["myth"]},
+        {"id": "budget", "narration": "A product video needs a big budget? Wrong.", "headline": "A product video needs a big budget?",
+         "verdict": "Wrong", "danger": ["big budget"], "tags": ["myth"]},
+        {"id": "team", "narration": "Making a launch film takes a whole team? Wrong. It takes a brief.",
+         "headline": "Making a launch film takes a whole team?", "verdict": "Wrong", "danger": ["whole team"], "tags": ["myth"]},
+    ]},
+    "turn-term-reveal": {"app": [
+        {"id": "meet", "narration": "Meet {brand}: brief in, film out, all on your Mac.", "kicker": "Meet",
+         "sub": "brief in, film out", "pill": "all on your Mac"},
+        {"id": "short", "narration": "Meet {brand}. Brief in, film out.", "kicker": "Meet", "sub": "Brief in, film out"},
+    ]},
+    "step-brief-footage": {"app": [
+        {"id": "brief", "narration": "Step {step}: pick your website, write a short brief, and get three ideas."},
+        {"id": "short", "narration": "Step {step}: write a short brief, and get three ideas."},
+    ]},
+    "step-preview-footage": {"app": [
+        {"id": "watch", "narration": "Step {step}: preview every frame with the real voice, before anything renders."},
+        {"id": "short", "narration": "Step {step}: preview every frame before it renders."},
+    ]},
+    "step-qa-gauge": {"app": [
+        {"id": "checks", "narration": "Step {step}: it checks its own work, {qa_spoken} blocking checks. All pass.", "verdict": "All pass"},
+        {"id": "short", "narration": "Step {step}: {qa_spoken} blocking checks. All pass.", "verdict": "All pass"},
+    ]},
+    "point-zero-cost": {"app": [
+        {"id": "cost", "narration": "The cost? Just {cost_spoken}. No subscription, no API keys.", "pill": "The cost?"},
+        {"id": "short", "narration": "The cost? It is {cost_spoken}. No subscription.", "pill": "The cost?"},
+    ]},
+    "cta-poll": {"app": [
+        {"id": "first", "narration": "What will you make first? A product demo, a launch film, or a YouTube Short?",
+         "question": "What will you make first?", "options": ["product demo", "launch film", "YouTube Short"]},
+        {"id": "short", "narration": "What will you make first? A demo, a launch film, or a Short?",
+         "question": "What will you make first?", "options": ["demo", "launch film", "Short"]},
+    ]},
+    "cta-comment-keyword": {"app": [
+        {"id": "step", "narration": "Which step would you try first? Comment its name, like PREVIEW.",
+         "prompt": "Which step would you try first?", "keyword": "PREVIEW"},
+    ]},
+}
+for _tid, _fams in BANK_EXPLAINER.items():
+    BANK.setdefault(_tid, {}).update(_fams)
 
 PACK = Pack(id="software", name="Software products (launch films, product demos)", families=FAMILIES, fact_ids=FACT_IDS,
             gated_roles=GATED, features={}, feature_cues={}, templates=TEMPLATES, bank=BANK, blueprints=BLUEPRINTS,

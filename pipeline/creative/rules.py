@@ -11,6 +11,7 @@ from ..contract import BLOCK_TYPES, ICONS, TIME_KEYS, TONES
 from ..storyboard import EXPR, REQUIRED as SB_REQUIRED, Resolver, SceneTiming, resolve_block, validate_storyboard, word_matches
 from ..timeline import estimated_timing
 from ..timing import Word, norm, tokenize
+from ..explainer import numbers_shown as explainer_numbers
 from .copybank import word_count
 
 WPS, SCENE_GAP, PAD = 2.33, 0.2, 0.5   # WPS measured on the local voice (see anchors.WPS)
@@ -53,6 +54,15 @@ def estimate_seconds(sb: dict) -> float:
     from ..timeline import estimated_timing
     from .language import wps_of
     return round(estimated_timing(sb, wps=wps_of(sb), gap=SCENE_GAP)["duration"] + 0.7, 1)
+
+
+def hero_sig(scene: dict) -> str | None:
+    """What the no-repeat check compares: the hero type; two different recordings in a row are different pictures."""
+    h = hero_of(scene)
+    if h == "footage":
+        f = next((b for b in scene["blocks"] if b["type"] == "footage"), {})
+        return f"footage:{f.get('asset')}"
+    return h
 
 
 def hero_of(scene: dict) -> str | None:
@@ -171,7 +181,10 @@ def _resolved(sb: dict, fps: int = 30) -> list[tuple[dict, SceneTiming, list[dic
         sw = [w for w in words if spans[k][0] - 1e-3 <= w.start <= spans[k][1] + 1e-3]
         st = SceneTiming(sc["id"], round(starts[k], 3), round(ends[k], 3), spans[k][0], spans[k][1], sw)
         R = Resolver(st, sc.get("cues", {}))
-        out.append((sc, st, [resolve_block(b, R, i, fps) for i, b in enumerate(sc["blocks"])]))
+        blocks = [resolve_block(b, R, i, fps) for i, b in enumerate(sc["blocks"])]
+        # v3 HUD changes (step header, term chips) are visual events anchored on spoken words too
+        hud = [{"at": R.time(ev["at"])} for ev in sc.get("hud") or [] if isinstance(ev, dict) and "at" in ev]
+        out.append((sc, st, blocks + ([{"type": "_hud", "events": hud}] if hud else [])))
     return out
 
 
@@ -186,6 +199,10 @@ def _events(o, out_pts: list, out_iv: list):
                     out_iv.append((o["at"], o[e]))
         if o.get("type") == "counter" and isinstance(o.get("at"), (int, float)) and "countEnd" not in o:
             out_iv.append((o["at"], o["at"] + 0.8))
+        if o.get("type") == "gauge":           # the value moves for `dur` after each key (explainer.GAUGE_DUR)
+            from ..explainer import GAUGE_DUR
+            out_iv += [(k["at"], k["at"] + float(k.get("dur", GAUGE_DUR))) for k in o.get("keys", [])
+                       if isinstance(k, dict) and isinstance(k.get("at"), (int, float))]
         for k, v in o.items():
             if k in TIME_KEYS and isinstance(v, (int, float)) and not isinstance(v, bool):
                 out_pts.append(float(v))
@@ -273,7 +290,11 @@ def sync_report(sb: dict, fps: int = 30) -> dict:
             worst, worst_at = s1 - cur, cur
         nums = []
         for b in blocks:
-            _shown_numbers(b, b.get("at", st.start), nums, f"{b['type']}")
+            v3 = explainer_numbers(b, RE_DISPLAY_NUM)     # v3 explainer blocks: each part at its own time (gauge keys...)
+            if v3 is not None:
+                nums += [(float(n), t, b["type"]) for n, t in v3]
+            else:
+                _shown_numbers(b, b.get("at", st.start), nums, f"{b['type']}")
         bad_nums = []
         for n, t, path in nums:
             if n < 2:
@@ -281,7 +302,7 @@ def sync_report(sb: dict, fps: int = 30) -> dict:
             ts = _spoken_time(st.words, n, sb.get("language"))
             if ts is not None and t < ts - MAX_NUMBER_LEAD:
                 bad_nums.append({"number": n, "shown_at": round(t, 2), "spoken_at": round(ts, 2), "lead_s": round(ts - t, 2), "where": path})
-        ats = [t for t in (_first_visible(b) for b in blocks) if t is not None]
+        ats = [t for t in (_first_visible(b) for b in blocks if b["type"] != "_hud") if t is not None]
         opens = round(max(0.0, min(ats) - st.start), 2) if ats else round(st.end - st.start, 2)
         rec = {"scene": sc["id"], "speech": [round(s0, 2), round(s1, 2)], "events": len(pts), "max_gap_s": round(worst, 2),
                "max_gap_from": round(worst_at, 2), "early_numbers": bad_nums, "opens_empty_s": opens}
@@ -354,7 +375,7 @@ def check_rules(sb: dict, *, pf=None, claims: dict | None = None, labels: dict |
     R.append(_rule("variety", f"≥ {MIN_TYPES} distinct block types", len(types) >= MIN_TYPES, f"{len(types)}: {sorted(types)}"))
     new = types & NEW_BLOCKS
     R.append(_rule("new-blocks", f"≥ {MIN_NEW} contract-v2/v2b block types", len(new) >= MIN_NEW, f"{sorted(new)}"))
-    heroes = [hero_of(s) for s in sc]
+    heroes = [hero_sig(s) for s in sc]
     rep = [f"{sc[i]['id']}→{sc[i + 1]['id']} ({heroes[i]})" for i in range(len(sc) - 1) if heroes[i] == heroes[i + 1]]
     R.append(_rule("no-repeat-hero", "no two consecutive scenes with the same hero block", not rep, "; ".join(rep)))
     bds = [s.get("backdrop") for s in sc]
@@ -390,6 +411,8 @@ def check_rules(sb: dict, *, pf=None, claims: dict | None = None, labels: dict |
                     if b["type"] in ("kinetic-text", "headline") and path == ".words" and norm(text) in narr[s["id"]]:
                         continue
                     bad.append(f"{s['id']}.{b['type']}{path}={text!r}")
+        from .explain import hud_texts
+        bad += [f"{where}={text!r}" for where, text in hud_texts(sb) if text not in labels]
         R.append(_rule("labels-bound", "every on-screen label comes from a template constant, a verified fact, the brief CTA "
                                        "or is spoken in the scene", not bad, "; ".join(bad[:6])))
     if pf is not None and pf.mismatch:
@@ -404,6 +427,11 @@ def check_rules(sb: dict, *, pf=None, claims: dict | None = None, labels: dict |
     if pf is not None:
         ren = [s["id"] for s in sc if re.search(r"renew|hike|increase", (s["narration"] + str(s["blocks"])).lower())]
         R.append(_rule("renewal-backed", "renewal statements only with an explicit renewal fact", not ren or pf.allow.get("renewal", False), f"{ren}"))
+    if sb.get("hud"):
+        from .explain import hud_step_report
+        probs = hud_step_report(sb)
+        R.append(_rule("hud-steps", "the step header names exactly the step scenes, in order, and is hidden before the CTA",
+                       not probs, "; ".join(probs[:4])))
     last = sc[-1]
     cta_ok = last["purpose"] == "cta" and any(b["type"] in ("outro", "cta") and (pf is None or b.get("url") in (pf.domain, getattr(pf, "display_url", "") or pf.domain))
                                               for b in last["blocks"])

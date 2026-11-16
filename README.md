@@ -172,6 +172,9 @@ flowchart LR
 
 1. **Brief → concepts.** A ten-line JSON brief (product, price, audience, goal, CTA) becomes three distinct concepts.
    Each is a sequence of professionally designed scene templates: hook, problem, reveal, demo, pricing, CTA.
+   Ask for an explainer and one concept is the short-form explainer: a myth crossed out and stamped, the product
+   named, three numbered steps under a step header with term chips, a proof on a gauge from a verified fact, the
+   value line, a poll and the outro.
 2. **Concept → storyboard.**
    - Templates own composition, animation and every on-screen label.
    - Numbers come only from the brand's verified facts.
@@ -226,7 +229,8 @@ flowchart LR
   backgrounds.
 - **A persistent HUD.** A header ("STEP 2 · CACHING"), a row of term chips that grows as each term is named, a
   series or chapter bar ("DAY 03 / 30") and a pinned stakes chip that counts up or down can stay on screen across
-  scenes. Each change lands on its spoken word, and the scenes lay out below it.
+  scenes. Each change lands on its spoken word, and the scenes lay out below it. The hybrid engine builds the step
+  header, the chips and the caption colours itself for its explainer concepts.
 - **Transitions and effects:** whip pan, push, zoom-through, iris, light leak and glitch; punch-zoom, shake, flash,
   confetti burst, hand-drawn circles and cross-outs, cursor clicks and 3D tilt. The director picks them by mood and uses them
   sparingly, cuts can snap to the music's beat, and flashes stay within the 3-per-second safety limit.

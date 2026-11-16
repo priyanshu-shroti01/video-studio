@@ -46,6 +46,13 @@ BRIEF_SCHEMA = {
         # caption look for this video (pipeline/captions.py STYLES); default: brand creative.captions.style -> format
         "captions": {"type": "object", "additionalProperties": False, "properties": {
             "style": {"type": "string", "enum": ["classic", "pop", "highlight", "karaoke", "minimal", "headline"]}}},
+        # explainer endings (hybrid engine, docs/CREATIVE_SYSTEM.md): which engagement ending to prefer, and the next
+        # part a "next-episode" ending may name (nothing about a next part is said unless it is written here)
+        "ending": {"type": "string", "enum": ["poll", "comment", "next-episode"]},
+        "next_episode": {"type": "object", "additionalProperties": False, "required": ["label", "title"], "properties": {
+            "label": {"type": "string", "minLength": 1, "maxLength": 24},
+            "title": {"type": "string", "minLength": 1, "maxLength": 60},
+            "sub": {"type": "string", "maxLength": 40}}},
         "request": {"type": "string", "maxLength": 2000},
         "requirements": {"type": "array", "items": {"type": "string", "enum": REQUIREMENTS}},
         "platform": {"type": "string", "maxLength": 40},

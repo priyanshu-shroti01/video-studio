@@ -14,10 +14,14 @@ clichés or superlatives, and every line keeps the cue words its template animat
 English, and where Hindi says the cue ("Milo" for "Meet", "insaan" for "person") language.CUE_ALIASES maps it.
 
 Not translated (no Hinglish line, so not used in Hinglish films): web-hosting `proof-plan-compare` (its English
-lines need a {sites_word} value no product supplies, so it is unused in English too)."""
+lines need a {sites_word} value no product supplies, so it is unused in English too)"""
 from __future__ import annotations
 
 GENERIC: dict[str, dict[str, list[dict]]] = {
+    # explainer ending: only the next part the brief names (brief.next_episode)
+    "cta-next-episode": {"*": [
+        {"id": "next", "narration": "Agle part mein, {next_label}: {next_title}."},
+    ]},
     "hook-kinetic-spotlight": {"*": [
         {"id": "properly", "narration": "Aapko pata hai kya chahiye. Yeh raha {product_label}.", "tags": ["promise"]},
         {"id": "choosing", "narration": "{product_label} le rahe ho? Pehle dekho, kya milta hai.", "tags": ["question"]},
@@ -50,6 +54,46 @@ GENERIC: dict[str, dict[str, list[dict]]] = {
 
 # ---- software pack (family "app") ----------------------------------------------------------------------------------
 SOFTWARE: dict[str, dict[str, list[dict]]] = {
+    # ---- explainer style ("Myth, Steps, Proof"; pipeline/creative/explain.py) ----
+    "hook-myth-verdict": {"app": [
+        {"id": "agency", "narration": "Product video ke liye agency chahiye, ya mehenga subscription? Galat. Dono ki jarurat nahi.",
+         "headline": "Product video ke liye agency chahiye, ya mehenga subscription?", "verdict": "Galat",
+         "danger": ["agency", "mehenga subscription"], "tags": ["myth"]},
+        {"id": "budget", "narration": "Product video ke liye bada budget chahiye? Galat.",
+         "headline": "Product video ke liye bada budget chahiye?", "verdict": "Galat", "danger": ["bada budget"], "tags": ["myth"]},
+    ]},
+    "turn-term-reveal": {"app": [
+        {"id": "meet", "narration": "Milo {brand} se: brief do, film lo, sab aapke Mac par.", "kicker": "Milo",
+         "sub": "brief do, film lo", "pill": "sab aapke Mac par"},
+        {"id": "short", "narration": "Milo {brand} se. Brief do, film lo.", "kicker": "Milo", "sub": "Brief do, film lo"},
+    ]},
+    "step-brief-footage": {"app": [
+        {"id": "brief", "narration": "Step {step}: website chuno, chhota sa brief likho, aur teen ideas lo."},
+        {"id": "short", "narration": "Step {step}: brief likho, aur teen ideas lo."},
+    ]},
+    "step-preview-footage": {"app": [
+        {"id": "watch", "narration": "Step {step}: render se pehle preview mein har frame dekho, asli voice ke saath."},
+        {"id": "short", "narration": "Step {step}: render se pehle har frame preview karo."},
+    ]},
+    "step-qa-gauge": {"app": [
+        {"id": "checks", "narration": "Step {step}: yeh khud apna kaam check karta hai, {qa_spoken} blocking checks. Sab pass.",
+         "verdict": "Sab pass"},
+        {"id": "short", "narration": "Step {step}: {qa_spoken} blocking checks. Sab pass.", "verdict": "Sab pass"},
+    ]},
+    "point-zero-cost": {"app": [
+        {"id": "cost", "narration": "Kharcha? Sirf {cost_spoken}. Na subscription, na API keys.", "pill": "Kharcha?"},
+        {"id": "short", "narration": "Kharcha? Bas {cost_spoken}. Na subscription.", "pill": "Kharcha?"},
+    ]},
+    "cta-poll": {"app": [
+        {"id": "first", "narration": "Aap pehle kya banaoge? Product demo, launch film, ya YouTube Short?",
+         "question": "Aap pehle kya banaoge?", "options": ["Product demo", "launch film", "YouTube Short"]},
+        {"id": "short", "narration": "Pehle kya banaoge? Demo, launch film, ya Short?",
+         "question": "Pehle kya banaoge?", "options": ["Demo", "launch film", "Short"]},
+    ]},
+    "cta-comment-keyword": {"app": [
+        {"id": "step", "narration": "Aap kaunsa step pehle try karoge? Comment karo, jaise PREVIEW.",
+         "prompt": "Aap kaunsa step pehle try karoge?", "keyword": "PREVIEW"},
+    ]},
     "hook-kinetic-spotlight": {"app": [
         {"id": "question", "narration": "Socho, aapka banaya software khud apni launch film bana de?",
          "headline": "khud apni launch film bana de?", "emphasis": ["film"], "tags": ["question"]},
@@ -131,6 +175,86 @@ SOFTWARE: dict[str, dict[str, list[dict]]] = {
 
 # ---- web-hosting pack ----------------------------------------------------------------------------------------------
 WEB_HOSTING: dict[str, dict[str, list[dict]]] = {
+    # ---- explainer style ("Myth, Steps, Proof"; pipeline/creative/explain.py) ----
+    "hook-myth-verdict": {
+        "wordpress": [
+            {"id": "weekend", "narration": "WordPress setup mein poora weekend lagta hai? Galat.",
+             "headline": "WordPress setup mein poora weekend lagta hai?", "verdict": "Galat", "danger": ["poora weekend"],
+             "tags": ["myth"]},
+            {"id": "click", "narration": "WordPress setup mein poora weekend lagta hai? Galat. Bas ek click.",
+             "headline": "WordPress setup mein poora weekend lagta hai?", "verdict": "Galat", "danger": ["poora weekend"],
+             "tags": ["myth"]},
+            {"id": "cost", "narration": "Fast WordPress hosting mehengi hi hoti hai? Galat.",
+             "headline": "Fast WordPress hosting mehengi hi hoti hai?", "verdict": "Galat", "danger": ["mehengi"], "tags": ["myth"]},
+        ],
+        "shared": [
+            {"id": "weekend", "narration": "Website ke liye developer aur poora weekend chahiye? Galat.",
+             "headline": "Website ke liye developer aur poora weekend chahiye?", "verdict": "Galat",
+             "danger": ["developer", "poora weekend"], "tags": ["myth"]},
+            {"id": "cost", "narration": "Achhi hosting mehengi hi hoti hai? Galat.", "headline": "Achhi hosting mehengi hi hoti hai?",
+             "verdict": "Galat", "danger": ["mehengi"], "tags": ["myth"]},
+        ],
+    },
+    "turn-term-reveal": {
+        "wordpress": [
+            {"id": "meet", "narration": "Milo {brand} se: WordPress hosting, fast chalne ke liye tuned.", "kicker": "Milo",
+             "sub": "WordPress hosting", "pill": "fast chalne ke liye tuned", "pill_icon": "zap"},
+            {"id": "short", "narration": "Milo {brand} se. WordPress, fast aur tuned.", "kicker": "Milo",
+             "sub": "WordPress", "pill": "fast aur tuned", "pill_icon": "zap"},
+        ],
+        "shared": [
+            {"id": "meet", "narration": "Milo {brand} se: fast shared hosting, imaandaar price.", "kicker": "Milo",
+             "sub": "fast shared hosting", "pill": "imaandaar price", "pill_icon": "check"},
+        ],
+    },
+    "step-domain-search": {
+        "wordpress": [
+            {"id": "type", "narration": "Step {step}: apna domain type karo aur launch dabao. Aap live ho."},
+            {"id": "short", "narration": "Step {step}: domain search karo aur launch dabao."},
+        ],
+        "shared": [
+            {"id": "type", "narration": "Step {step}: apna domain type karo aur launch dabao. Aap live ho."},
+            {"id": "short", "narration": "Step {step}: domain search karo aur launch dabao."},
+        ],
+    },
+    "step-install-flow": {
+        "wordpress": [
+            {"id": "click", "narration": "Step {step}: ek click mein WordPress, plugins aur SSL install. Aap live ho."},
+            {"id": "short", "narration": "Step {step}: ek click, aur WordPress install. Aap live ho."},
+        ],
+    },
+    "step-device-site": {
+        "*": [
+            {"id": "phone", "narration": "Step {step}: aapki site phone par live, free SSL ke saath."},
+            {"id": "short", "narration": "Step {step}: aapki site live, free SSL ke saath."},
+        ],
+    },
+    "step-uptime-gauge": {
+        "*": [
+            {"id": "online", "narration": "Step {step}: {uptime} percent uptime target, aap online rehte ho.", "verdict": "online"},
+        ],
+    },
+    "step-refund-countdown": {
+        "*": [
+            {"id": "try", "narration": "Step {step}: saat din try karo, warna paise wapas.", "needs": ["money_back"]},
+        ],
+    },
+    "cta-poll": {
+        "wordpress": [
+            {"id": "build", "narration": "Aap pehle kya banaoge? Blog, online shop, ya portfolio?",
+             "question": "Aap pehle kya banaoge?", "options": ["Blog", "online shop", "portfolio"]},
+        ],
+        "shared": [
+            {"id": "live", "narration": "Pehle kya live hoga? Business site, blog, ya portfolio?",
+             "question": "Pehle kya live hoga?", "options": ["Business site", "blog", "portfolio"]},
+        ],
+    },
+    "cta-comment-keyword": {
+        "*": [
+            {"id": "stuck", "narration": "Kisi step par atke ho? Comment karo SETUP, aur batao kahan.",
+             "prompt": "Kisi step par atke ho?", "keyword": "SETUP"},
+        ],
+    },
     "hook-kinetic-spotlight": {
         "wordpress": [
             {"id": "home", "narration": "Idea aapka hai. Ab WordPress site ko ghar chahiye.",

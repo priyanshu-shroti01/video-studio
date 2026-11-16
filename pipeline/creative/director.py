@@ -19,6 +19,7 @@ from .industries import Pack, get_pack
 from .product import ProductFacts, resolve_product, trusted_brief
 from .rules import PAD, SCENE_GAP, WPS, check_rules, failed, layout_overflows, windows
 from .fx import VERSION as FX_VERSION, concept_style
+from .explain import clean, compose_hud, open_scenes, step_copies
 from .templates import ROLE_PURPOSE, Ctx, SceneTemplate, library
 
 
@@ -45,7 +46,11 @@ class Studio:
         return trusted_brief(self.brief, self.pf)
 
     def variants(self, template_id: str) -> list[dict]:
-        return variants(template_id, self.pf, self.pack, self.lang)
+        nx = self.brief.get("next_episode") or {}
+        extra = dict(self.pack.copy_values(self.fb)) if self.pack.copy_values else {}
+        if nx:
+            extra.update({"next_label": nx.get("label"), "next_title": nx.get("title")})
+        return variants(template_id, self.pf, self.pack, extra, lang=self.lang)
 
     @property
     def banned(self) -> list[str]:
@@ -83,6 +88,20 @@ def studio(brief: dict, fb: FactBase) -> Studio:
 
 
 # ---- sequencing --------------------------------------------------------------------------------------
+ENDINGS = {"poll": "cta-poll", "comment": "cta-comment-keyword", "next-episode": "cta-next-episode"}
+
+
+def with_engage(bp: dict, st: Studio) -> dict:
+    """The blueprint with its engagement slots (`engage`: [(before, role, candidates)]). The brief's `ending` (poll /
+    comment / next-episode) moves that ending to the front of the candidates."""
+    want = ENDINGS.get(st.brief.get("ending") or "")
+    slots = list(bp["slots"])
+    for before, role, cands in sorted(bp["engage"], key=lambda o: -o[0]):
+        cands = ([want] if want in cands else []) + [c for c in cands if c != want]
+        slots.insert(before, (role, cands))
+    return {**bp, "slots": slots}
+
+
 def with_optional(bp: dict, k: int) -> dict:
     """The blueprint with its first k optional slots inserted. Each optional slot is (before, role, candidates):
     it goes before the fixed slot at index `before` (len(slots) = at the end)."""
@@ -100,7 +119,8 @@ def instantiate(bp: dict, st: Studio, avoid: dict[str, set] | None = None) -> li
     used: set[str] = set()
     for role, cands in bp["slots"]:
         ok = [st.lib[c] for c in cands if c in st.lib and st.lib[c].available(st.pf) and c not in used
-              and (not seq or st.lib[c].hero != seq[-1][1].hero)
+              and (not st.lib[c].needs_brief or st.brief.get(st.lib[c].needs_brief))
+              and (not seq or st.lib[c].key != seq[-1][1].key)
               # another language: only templates that have copy in it (language.py; English is never checked)
               and (st.lang == "english" or st.fits(st.lib[c]))]
         if not ok:
@@ -117,14 +137,16 @@ def instantiate(bp: dict, st: Studio, avoid: dict[str, set] | None = None) -> li
 
 
 def backdrops(seq: list[tuple[str, SceneTemplate]], fresh=None) -> list[str]:
-    """Each scene's backdrop from its template's allowed set: no two consecutive equal, first choices preferred,
-    as many different backdrops as possible (generate mode: then the least recently used ones)."""
+    """Each scene's backdrop from its template's allowed set: no two consecutive equal, never the near-black `deep`
+    right after `light` when another choice exists (a push through near-black failed QA's black-frame check in 16:9),
+    first choices preferred, as many different backdrops as possible (generate mode: then the least recently used)."""
     best, best_cost = None, None
     for combo in itertools.product(*[range(len(t.backdrops)) for _, t in seq]):
         bd = [t.backdrops[i] for (_, t), i in zip(seq, combo)]
         if any(bd[k] == bd[k + 1] for k in range(len(bd) - 1)):
             continue
-        cost = (-len(set(bd)), round(sum(fresh.backdrop_penalty(x) for x in bd), 3) if fresh is not None else 0, sum(combo))
+        dark_cut = sum(1 for k in range(len(bd) - 1) if bd[k] == "light" and bd[k + 1] == "deep")
+        cost = (dark_cut, -len(set(bd)), round(sum(fresh.backdrop_penalty(x) for x in bd), 3) if fresh is not None else 0, sum(combo))
         if best_cost is None or cost < best_cost:
             best, best_cost = bd, cost
     return best or [t.backdrops[0] for _, t in seq]
@@ -167,7 +189,7 @@ def fit_variants(seq, st: Studio, target: float, hook_variant: str | None, pref:
     aim = max(d_lo + 0.5, min(target, d_hi) - 1.5)
     best, best_cost = None, 1e9
     n = len(seq)
-    holds = sum(HOLD_AFTER.get(t.hero, 0.0) for _, t in seq)    # payoff holds play after the last word
+    holds = sum(hold_of(t) for _, t in seq)    # payoff holds play after the last word
     for combo in itertools.product(*[range(len(o)) for o in opts]):
         if st.lang == "english":
             words = sum(word_count(opts[k][i]["narration"]) for k, i in enumerate(combo))
@@ -188,16 +210,28 @@ def fit_variants(seq, st: Studio, target: float, hook_variant: str | None, pref:
 HOLD_AFTER = {"install-flow": 1.3, "domain-input": 0.9}   # seconds of picture after the last word
 
 
+def hold_of(t: SceneTemplate) -> float:
+    return t.hold or HOLD_AFTER.get(t.hero, 0.0)
+
+
 def build_scene(t: SceneTemplate, role: str, sid: str, copy: dict, ctx: Ctx, backdrop: str) -> tuple[dict, Anchors]:
     A = Anchors(copy["narration"], ctx.lang)
-    blocks = t.build(ctx, A, copy)
+    built = t.build(ctx, A, copy)
+    res = built if isinstance(built, dict) else {"blocks": built}      # explainer builders return blocks + extras
+    blocks = res["blocks"]
     mood = t.mood or ("danger" if role == "problem" else "brand" if role in ("turn", "cta") else None)
     sc = {"id": sid, "purpose": ROLE_PURPOSE[role], "narration": copy["narration"], "backdrop": backdrop, "camera": t.camera,
           "motion": t.motion, "transition": t.transition, "blocks": blocks}
     if mood:
         sc["mood"] = mood
-    if t.hero in HOLD_AFTER:          # the payoff lands on the last words: let it play before the cut
-        sc["holdAfter"] = HOLD_AFTER[t.hero]
+    if hold_of(t):                    # the payoff lands on the last words: let it play before the cut
+        sc["holdAfter"] = hold_of(t)
+    if res.get("effects"):
+        sc["effects"] = list(res["effects"])
+    if res.get("tones"):
+        sc["captionTones"] = dict(res["tones"])
+    if res.get("step"):
+        sc["_step"] = res["step"]     # read (and removed) by compose: the storyboard HUD
     sc.update(footage_split(blocks))
     return sc, A
 
@@ -216,9 +250,11 @@ def footage_split(blocks: list[dict]) -> dict:
 
 def compose(concept: dict, st: Studio, copies: dict[str, dict]) -> tuple[dict, Ctx, dict]:
     """Storyboard from the concept's template sequence + one copy per scene. -> (storyboard, ctx, anchors per scene)"""
-    ctx = Ctx(st.pf, st.fb, st.pack, lang=st.lang)
+    ctx = Ctx(st.pf, st.fb, st.pack, lang=st.lang, brief=st.brief)
     scenes, anchors = [], {}
     revealed = False
+    steps: dict[int, dict] = {}
+    copies = step_copies(concept["scene_plan"], copies)      # "Step {step}:" -> the step's ordinal
     for k, sp in enumerate(concept["scene_plan"]):
         t = st.lib[sp["template"]]
         sc, A = build_scene(t, sp["role"], sp["scene"], copies[sp["scene"]], ctx, sp["backdrop"])
@@ -230,16 +266,39 @@ def compose(concept: dict, st: Studio, copies: dict[str, dict]) -> tuple[dict, C
         revealed = revealed or any(b["type"] in ("logo-sting", "logo") for b in sc["blocks"])
         if k == 0:
             sc["transition"] = "fade"
+        if "_step" in sc:
+            steps[k] = sc.pop("_step")
         scenes.append(sc)
         anchors[sp["scene"]] = A
     structure = list(dict.fromkeys(s["purpose"] for s in scenes))
     sb = {"version": 1, "title": f"{st.pf.brand} — {concept['name']}", "structure": structure, "scenes": scenes}
     if st.lang != "english":                # estimators, sync and number checks read the narration language from here
         sb["language"] = st.lang
+    if steps:                               # explainer: header steps + term chips from the step scenes (explain.py)
+        compose_hud(sb, steps, [anchors[sp["scene"]] for sp in concept["scene_plan"]], ctx)
+        if sb.get("hud"):
+            value_tones(sb, st)
+            open_scenes(sb, [anchors[sp["scene"]] for sp in concept["scene_plan"]], ctx)
     if concept.get("effects"):              # new concepts only (fx.py): existing concepts rebuild byte-identically
         from .fx import plan as plan_effects
         plan_effects(sb, concept["effects"])
     return sb, ctx, anchors
+
+
+def value_tones(sb: dict, st: Studio) -> None:
+    """Explainer caption tones on the value line (the scenes after the steps): the spoken price, or a pack's spoken
+    value (a fact's value.spoken), reads as `success`."""
+    from ..timing import tokenize
+    pf = st.pf
+    words = [str(int(pf.price)) if float(pf.price).is_integer() else str(pf.price)] if pf.price is not None else []
+    words += [w for v in (pf.spoken or {}).values() for w in str(v).split()]
+    for sc in sb["scenes"]:
+        if sc["purpose"] not in ("resolution", "point") or any(e.get("op") in ("show", "advance") for e in sc.get("hud", [])):
+            continue
+        toks = {clean(t).lower(): clean(t) for t in tokenize(sc["narration"]) if clean(t)}
+        hits = {toks[w.lower()]: "success" for w in words if w.lower() in toks}
+        if hits:
+            sc["captionTones"] = {**hits, **(sc.get("captionTones") or {})}
 
 
 def hook_options(seq, st: Studio, tags: list[str]) -> list[dict]:
@@ -255,8 +314,12 @@ def plan_concept(bp: dict, st: Studio, idx: int, avoid: dict, hook_variant: str 
     # A blueprint may declare optional slots: when its fixed scenes cannot reach the brief's length, they are added
     # one at a time (in order) until a copy combination fits. Short briefs never see them.
     chosen, seq, reason = None, None, None
-    for k in range(len(bp.get("optional", [])) + 1):
-        bpk = with_optional(bp, k)
+    tries = [with_optional(bp, k) for k in range(len(bp.get("optional", [])) + 1)]
+    if bp.get("engage"):                   # an engagement ending (poll / comment / next part) when the scene window has room
+        _, (_, s_hi) = windows(st.brief)
+        if len(bp["slots"]) + len(bp["engage"]) <= s_hi:
+            tries.insert(0, with_engage(bp, st))
+    for bpk in tries:
         s = instantiate(bpk, st, avoid)
         if s is None:
             reason = reason or "no available template for a slot (product family / missing facts)"
@@ -288,12 +351,14 @@ def plan_concept(bp: dict, st: Studio, idx: int, avoid: dict, hook_variant: str 
         "visual_approach": {"hero_blocks": [t.hero for _, t in seq], "backdrop_rhythm": bds,
                             "cameras": [t.camera for _, t in seq], "motion": [t.motion for _, t in seq]},
         "pacing": {**bp["pacing"], "scene_count": len(seq), "words": words, "est_seconds": round((estimate(words, len(seq), st.wps) if st.lang == "english" else
-                                                    speech_estimate([v["narration"] for v in chosen], st.wps)) + sum(HOLD_AFTER.get(t.hero, 0.0) for _, t in seq), 1),
+                                                    speech_estimate([v["narration"] for v in chosen], st.wps)) + sum(hold_of(t) for _, t in seq), 1),
                    "words_per_second": st.wps},
         "music_mood": bp["music"], "animation_style": "template-composed",
         "effects": {"version": FX_VERSION, "style": concept_style(bp["music"])},
         "cta_treatment": {"style": bp["cta_style"], "template": seq[-1][1].id, "text": st.pf.cta, "url": st.pf.domain},
     }
+    if bp.get("hud"):
+        concept["hud"] = bp["hud"]
     sb, ctx, _ = compose(concept, st, {p["scene"]: v for p, v in zip(plan, chosen)})
     from .claims_v2 import verify
     claims = verify(sb, st.fb, st.tb)
@@ -329,10 +394,14 @@ def rank(brief: dict, pack: Pack) -> list[dict]:
     reqs = set(brief.get("requirements") or [])
     goal = (brief.get("goal") or "").lower()
 
+    asks = " ".join(str(brief.get(k) or "") for k in ("request", "tone", "goal", "notes")).lower()
+    explainer = bool(re.search(r"\bexplain|\bmyth|\bsteps?\b", asks)) or "myth" in reqs
+
     def score(bp):
         roles = [r for r, _ in bp["slots"]]
         s = (2 if "problem" in reqs and "problem" in roles else 0) + (1 if "demonstration" in reqs and "demo" in roles else 0)
         s += 2 if goal.startswith("educ") and bp["pattern"].startswith("tutorial") else 0
+        s += 4 if explainer and bp.get("hud") == "steps" else 0      # the brief asks for an explainer: myth, steps
         return s
     return sorted(pack.blueprints, key=lambda b: (-score(b), pack.blueprints.index(b)))
 

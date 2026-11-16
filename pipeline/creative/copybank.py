@@ -12,7 +12,10 @@ video has room for about 62–70 words; keep a tight variant for every template.
 
 Entry: {"id", "narration", "headline"? (on-screen phrase, must be spoken verbatim), "emphasis"?, "needs"?
 (product flags that must be true: renewal, typical_backups, money_back, lowest, plan2_popular, annual, semi,
-free_domain), "tags"?}. Keys: template id -> family ("wordpress" | "shared" | "domains" | "*") -> variants."""
+free_domain), "tags"?}. Explainer templates (explain.py) also read on-screen phrases (PHRASE_KEYS: verdict, sub,
+danger, kicker, pill, question, options, prompt, keyword), each spoken verbatim in the line, and step lines say
+"Step {step}:" (the director fills in the ordinal). Keys: template id -> family ("wordpress" | "shared" | "domains" |
+"*") -> variants."""
 from __future__ import annotations
 
 import re
@@ -58,7 +61,15 @@ GENERIC_BANK: dict[str, dict[str, list[dict]]] = {
         {"id": "brand", "narration": "{brand}. {cta_spoken} today at {domain}."},
         {"id": "ready", "narration": "Ready when you are. {cta_spoken} at {domain}."},
     ]},
+    # explainer ending: only the next part the brief names (brief.next_episode)
+    "cta-next-episode": {"*": [
+        {"id": "next", "narration": "Next up, {next_label}: {next_title}."},
+    ]},
 }
+
+
+# explainer templates (explain.py): on-screen phrases a variant may carry; each must be spoken in its narration
+PHRASE_KEYS = ("verdict", "sub", "cross", "danger", "kicker", "pill", "question", "options", "prompt", "keyword")
 
 
 def flags(pf: ProductFacts) -> dict[str, bool]:
@@ -95,11 +106,14 @@ def _pick(banks, template_id: str, family: str) -> list[dict]:
     return []
 
 
-def variants(template_id: str, pf: ProductFacts, pack, lang: str = "english") -> list[dict]:
+def variants(template_id: str, pf: ProductFacts, pack, extra: dict | None = None, lang: str = "english") -> list[dict]:
     """Copy variants usable for this product (pack copy first, then generic; needs satisfied, placeholders filled).
+    `extra`: brief values (e.g. next_title); "{step}" stays for the director (an explainer step's ordinal).
     `lang` (pipeline/creative/language.py): "english" (default) or "hinglish" (the Hinglish bank only)."""
     from .language import localize_values
-    fl, vals = flags(pf), localize_values(pf.bound(), lang)
+    fl = flags(pf)
+    vals = {**localize_values(pf.bound(), lang), "step": "{step}",
+            **{k: v for k, v in (extra or {}).items() if v is not None}}
     out = []
     for v in raw_variants(template_id, pf.family, pack, lang):
         if not all(fl.get(n, False) for n in v.get("needs", [])) or pack.unbacked_terms(v["narration"], pf.allow):
@@ -108,6 +122,11 @@ def variants(template_id: str, pf: ProductFacts, pack, lang: str = "english") ->
             d = {**v, "narration": fill(v["narration"], vals)}
             if v.get("headline"):
                 d["headline"] = fill(v["headline"], vals)
+            for k in PHRASE_KEYS:              # explainer on-screen phrases (each spoken in the narration)
+                if isinstance(v.get(k), str):
+                    d[k] = fill(v[k], vals)
+                elif isinstance(v.get(k), list):
+                    d[k] = [fill(x, vals) for x in v[k]]
         except KeyError:
             continue
         out.append(d)

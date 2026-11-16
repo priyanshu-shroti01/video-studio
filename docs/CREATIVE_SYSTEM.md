@@ -48,22 +48,26 @@ output was produced but is BLOCKED.
   names a technology (Imunify360, LiteSpeed, cPanel, WooCommerce…) is only used when the brand's facts back it
   (`TERM_ROLES`).
 
-## Template catalogue (22)
+## Template catalogue (51)
+
+The lists below are the classic templates (9 generic, 15 software, 13 web-hosting); the explainer style adds 14 more
+(5 generic, 4 software, 5 web-hosting), listed under [Explainer style](#explainer-style-myth-steps-proof).
+
 **Generic, any industry (9):** `hook-kinetic-spotlight` (kinetic-text + pill · spotlight) · `turn-logo-sting`
 (logo-sting + kinetic-text · glow) · `proof-feature-checklist` (checklist + pill · deep/glow) · `price-plan-card`
 (plan-card + pill · spotlight/glow) · `price-compare-cycles` (price-compare + pill · split) · `price-plans-lineup`
 (plans + pill · spotlight/glow) · `price-counter-flat` (counter + flat-line · deep/spotlight, needs the renewal fact)
 · `cta-outro` (outro + pill · glow) · `cta-logo-lockup` (cta + logo · spotlight/glow).
 
-**software (14, unpriced):** for launch films and product demos of software without a price (`Pack.priced = False`:
+**software (15, unpriced):** for launch films and product demos of software without a price (`Pack.priced = False`:
 no plan placeholders, and the pricing rule fails any concept that shows a price). Templates: production chain
 (progress), cold open and reveal on the brand's own recordings (`footage`), real-app footage of the brief, storyboard
 and preview gate, render monitor and publishing pages, the product's pipeline stages (install-flow), architecture
 (checklist of the product's principle), local stack (server-stack with a `play` target), measured QA (counter whose
 spoken number comes from the fact's `value.spoken`), and an outro with the repository URL (`displayUrl`). Footage
-templates exist only when the brand's clip (`creative.footage.<id>`) is on disk. Five blueprints: Zero Cost (a
+templates exist only when the brand's clip (`creative.footage.<id>`) is on disk. Six blueprints: Zero Cost (a
 30–35 s teaser: the price promise, the real app, the local stack, the frame-by-frame preview), The Whole Pipeline,
-It Created Itself, Proof First, From Brief to Film.
+It Created Itself, Proof First, From Brief to Film, and Myth, Steps, Proof (the explainer style, below).
 
 **Optional slots.** A blueprint may list `optional: [(before, role, candidates)]`. When no copy combination of its
 fixed scenes reaches the brief's minimum length, the director inserts them one at a time, in order, until one fits.
@@ -123,17 +127,92 @@ preview mein."). The voice side was already Hinglish ([LOCAL_TTS.md](LOCAL_TTS.m
   path (`pipeline.intelligence`) passes the language and the style into its prompt; its template fallback scenes stay
   English.
 
+## Explainer style (Myth, Steps, Proof)
+
+The short-form explainer: a myth crossed out and stamped, the product named, three numbered steps under a step
+header with a term chip per step, a proof on a gauge (or a countdown when the fact is a duration) with a success
+stamp, the value line, an engagement ending, the outro. Both packs have the blueprint `explainer-steps`
+("Myth, Steps, Proof"). It is ranked first when the brief's request, tone, goal or notes mention an explainer, a myth
+or steps (or `requirements` has `myth`); otherwise it is the pack's last blueprint and is offered when an earlier one is
+rejected (the software teaser brief gets it as its second concept).
+
+| scene | software (Video Studio) | web-hosting (Shroti Host) |
+|---|---|---|
+| hook | `hook-myth-verdict` · deep | same |
+| turn | `turn-term-reveal` · light | same |
+| step 1 | `step-brief-footage` (the real app) | `step-domain-search` |
+| step 2 | `step-preview-footage` (the preview player) | `step-install-flow` (WordPress), else `step-device-site` |
+| step 3 + proof | `step-qa-gauge` (31 / 31 checks) | `step-uptime-gauge` (the 99.9 % target), else `step-refund-countdown` (7 days) |
+| value | `point-zero-cost` | `price-plan-card` / `price-counter-flat` / `price-plans-lineup` |
+| ending | `cta-poll` / `cta-comment-keyword` / `cta-next-episode` (only when the scene window has room) | same |
+| close | `cta-outro` | `cta-outro` / `cta-logo-lockup` |
+
+**Generic templates (`pipeline/creative/explain.py`, any industry; copy from the pack's bank):**
+- `hook-myth-verdict` (verdict + headline · deep/spotlight): the myth question is a headline from the first word
+  (each word lands as spoken), an annotate `cross` strikes it on its last word, the verdict stamp (danger) slams on the
+  spoken verdict word. Caption tones: `danger` on the verdict and the bank's `danger` words. Holds 0.6 s.
+- `turn-term-reveal` (term-reveal + pill · light/glow): the spoken kicker ("Meet"), the brand name slamming in on its
+  spoken name, the spoken line beneath, a pill on its own words.
+- `cta-poll` (poll · grid/spotlight): the spoken question; each option slides in on its words. No pick and no
+  percentages (they would be invented votes).
+- `cta-comment-keyword` (comment-cta · grid/spotlight): a comment box types the spoken keyword and sends it. The copy
+  asks; it never promises a reply, a DM, a link or a download (a test checks every ending line).
+- `cta-next-episode` (next-episode + pill): only when the brief names the next part (`next_episode`).
+
+**Pack templates.** Each step template wraps a scene builder with `stepify`: the hero is on screen from the first
+word (only its beats wait for their words), checklist items the line never names are dropped, and the scene reports
+its header step name and term chip (template constants) and the chip's cue word. Step copy says `"Step {step}: …"`;
+the director fills in the ordinal from the scene's place among the step scenes.
+- software: `step-brief-footage` and `step-preview-footage` (recordings; two different recordings in a row are
+  different heroes, `hero_key`), `step-qa-gauge` (a score ring 0–31 from `evidence.qa`, warning below 31; the readout
+  on the spoken "thirty-one", `value.spoken`), `point-zero-cost` (the spoken question as a pill, the spoken price from
+  `product.cost` `value.spoken` landing word by word, what it needs checking in as named; in words, so an unpriced
+  product shows no currency amount).
+- web-hosting: `step-domain-search`, `step-install-flow`, `step-device-site`, `step-uptime-gauge` (a ring 0–100 % with
+  the value of `policy.uptime_target`; copy says it through the `{uptime}` placeholder, `Pack.copy_values`, never as
+  a typed number), `step-refund-countdown` (`policy.money_back` days, counted down from the spoken number).
+
+**What the director composes** (`director.compose`, only when step scenes exist):
+- `hud`: a `header` (prefix "Step", steps = the step scenes' names) shown on the first step's "Step" and advanced on
+  each next step's ordinal word, and `chips` gaining each step's term on its cue word (so that word also becomes a
+  `term` caption tone). Both are hidden on the first word of the scene after the last step, so the value line, the
+  ending and the outro run without them.
+- `captionTones`: `danger` on the myth, `success` on the proof's spoken number and stamp word, `success` on the
+  spoken price (or a pack's spoken value) in the value scene, `term` on chip words (from the HUD).
+- Openings: a scene on a dark backdrop whose first block would land > 0.6 s in (a price card waiting for its spoken
+  price, an outro waiting for the CTA) gets an eyebrow pill from its first word: its opening clause when it is short
+  and spoken ("Ready to go live?"), else the product family label. The preview gate fails such a scene otherwise.
+- Backdrops: `deep` is never chosen right after `light` when another choice exists (a push through near-black failed
+  QA's black-frame check in 16:9); the proofs use glow / spotlight.
+- Template effects stay: the myth's `cross` is kept by the effects director, which then adds no second emphasis.
+
+**Brief options** (`pipeline/intelligence/brief.py`): `"ending": "poll" | "comment" | "next-episode"` moves that ending
+to the front; `"next_episode": {"label", "title", "sub"?}` is the only source of a next-part card. The engagement
+slot (`engage` in the blueprint) is tried first when the brief's scene window has room for it (flexible or longer
+briefs); a 30–35 s brief keeps seven scenes and no ending scene.
+
+Bank entries for these templates carry their on-screen phrases (`headline`, `verdict`, `sub`, `danger`, `kicker`,
+`pill`, `question`, `options`, `prompt`, `keyword`); each is used only while it is spoken verbatim in the line. An LLM
+line keeps the bank entry's phrases, so a line that drops one loses its beat and is rejected like any other.
+
+**Hinglish.** Every explainer template has Hinglish copy in both packs (`hinglish_copy.py`; the verdict is "Galat",
+the term reveal opens on "Milo"). Hinglish speaks slower, so the 7-scene explainer needs a brief of about 45 s
+(or `duration_flexible`); at 30–35 s a Hinglish brief gets the shorter blueprints.
+
 ## Rules (checked per concept and on the final storyboard; any FAIL rejects the concept or blocks the review)
 valid (validate_storyboard plus a mirror of the plan-card/install-flow/server-stack/backdrop field checks) ·
 5–7 scenes · estimated 30–35 s at 2.33 words/s (Hinglish: 2.0) · a hero visual in every scene (never only headline/text/pill) · at
 most one kinetic-text-led scene · ≥ 1.8 blocks per scene · ≥ 6 block types · ≥ 3 contract-v2/v2b types · no
-consecutive repeated hero or backdrop · a real product demo (install-flow, domain-input, dashboard, scroll-demo or
+consecutive repeated hero (two different recordings in a row are different pictures) or backdrop · a real product demo (install-flow, domain-input, dashboard, scroll-demo or
 device; a browser doesn't count) · a pricing scene with verified prices only · every claim verified · labels bound
-(every on-screen string comes from a template constant, a fact, the brief CTA, or is spoken in that scene) · the
+(every on-screen string, HUD steps and chips included, comes from a template constant, a fact, the brief CTA, or is
+spoken in that scene) · **hud-steps** (when a storyboard has a step header: its steps are exactly the step scenes,
+one show / advance each, the first a show, in consecutive scenes, and it is hidden before the CTA) · the
 brief price is not rendered when it is unverified · renewal statements only with a fact · the CTA comes last with
 the brand URL · every beat anchored on a spoken word (no `@start`) · **sync:** no more than 2.4 s of estimated narration
-without a visual event (the QA limit is 2.5 s) and no number drawn more than
-0.3 s before it is spoken · layout-fit (no text overflow in the engine's own layout manifest; reported as SKIP when
+without a visual event (the QA limit is 2.5 s; HUD changes and a gauge's moves count as events) and no number drawn
+more than 0.3 s before it is spoken (v3 explainer blocks per part: a gauge value at its key) · **scene-opens:** a scene
+shows content within 0.6 s (WARN; FAIL beyond 2 s; the preview gate fails a dark backdrop already beyond 0.6 s) · layout-fit (no text overflow in the engine's own layout manifest; reported as SKIP when
 node/esbuild is unavailable).
 
 ## Price discipline
@@ -187,9 +266,12 @@ In tests, scripted "LLM" output containing "Browser: 39 rupees", the headline "B
   rule, and a sequence with two demo holds (install-flow 1.3 s + domain-input 0.9 s, e.g. `three-moves` for
   WordPress) comes out ~2.4 s longer. Copy is balanced so the concepts the director builds pass both, but
   `three-moves` (WordPress) still fails the duration rule (~35.8 s) when it is planned.
-- The templates do not set the v3 HUD, caption tones or speakers yet ([MOTION.md](MOTION.md#hud-contract-v3)). A
-  storyboard can carry them through manual polish (`pipeline.api.save_storyboard` validates them); a HUD stakes value
-  is a claim like any on-screen number: the preview gate checks it against the verified facts.
+- Only the explainer blueprint sets the v3 HUD (a step header and term chips) and caption tones; no template sets
+  speakers, a progress bar or stakes yet ([MOTION.md](MOTION.md#hud-contract-v3)). A storyboard can carry them through
+  manual polish (`pipeline.api.save_storyboard` validates them); a HUD stakes value is a claim like any on-screen
+  number: the preview gate checks it against the verified facts.
+- The explainer's step copy is English. A 30–35 s explainer is tight (7 scenes, about 60 words, three payoff holds),
+  so its lines are short; longer or flexible briefs get the fuller lines and the engagement ending.
 - The claim checker is lexical (see CREATIVE_ENGINE.md). Number-free positioning lines in the copy bank were
   written to be true to the facts, but a human still reads `storyboard-preview.md`.
 

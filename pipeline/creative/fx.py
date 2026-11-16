@@ -125,7 +125,7 @@ def plan(sb: dict, fx: dict) -> dict:
     prev_tr, flashes, glitches, k_cycle = sb["scenes"][0].get("transition"), 0, 0, 0
     for k, sc in enumerate(sb["scenes"]):
         style = scene_style(sc, video_style)
-        effects: list[dict] = []
+        effects: list[dict] = list(sc.get("effects") or [])     # a template's own effect (e.g. the myth's cross) stays
         if k > 0:
             cyc = CYCLE[style]
             cand = [cyc[(k_cycle + j) % len(cyc)] for j in range(len(cyc))]
@@ -148,7 +148,7 @@ def plan(sb: dict, fx: dict) -> dict:
                 glitches += tr == "glitch"
                 break
             k_cycle += 1
-        km = _key_moment(sc, style)
+        km = None if any(e.get("type") in EMPHASIS for e in effects) else _key_moment(sc, style)
         if km:
             effects.append(km)
         if any(b.get("type") == "logo-sting" for b in sc["blocks"]) and style == "energetic" and flashes < MAX_FLASH_PER_VIDEO \

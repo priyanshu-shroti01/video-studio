@@ -34,6 +34,7 @@ class Pack:
     style: str = ""
     term_roles: dict[str, str] = field(default_factory=dict)   # copy term -> fact role that must be allowed
     priced: bool = True                        # False: the product has no plans/prices (no pricing scene, no plan facts)
+    copy_values: Callable = None               # (fact base) -> extra copy placeholders bound to verified facts ({uptime})
 
     def unbacked_terms(self, text: str, allow: dict) -> list[str]:
         low = text.lower()

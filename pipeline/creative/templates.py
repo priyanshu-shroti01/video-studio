@@ -24,9 +24,9 @@ from ..intelligence.facts import FactBase
 from .anchors import Anchors, _fmt
 from .product import ProductFacts
 
-ROLES = ("hook", "problem", "turn", "demo", "proof", "pricing", "cta")
+ROLES = ("hook", "problem", "turn", "demo", "proof", "pricing", "point", "cta")
 ROLE_PURPOSE = {"hook": "hook", "problem": "problem", "turn": "turn", "demo": "journey", "proof": "point",
-                "pricing": "resolution", "reveal": "resolution", "cta": "cta"}
+                "pricing": "resolution", "reveal": "resolution", "point": "point", "cta": "cta"}
 
 
 def ic(name: str, fallback: str = "check") -> str:
@@ -40,6 +40,7 @@ class Ctx:
     pack: object
     labels: dict[str, str] = field(default_factory=dict)     # every on-screen string -> its source
     lang: str = "english"                                     # narration language (pipeline/creative/language.py)
+    brief: dict | None = None                                # the parsed brief (explainer endings read brief options)
 
     def L(self, text: str, src: str = "template") -> str:
         self.labels.setdefault(text, src)
@@ -100,21 +101,32 @@ class SceneTemplate:
     binds: tuple[str, ...]                     # bound fact values copy may say (prices, GB...)
     numbers: tuple[int, ...]                   # narrative counts copy may say ("six months", "seven-day")
     requires: Callable[[ProductFacts], bool]
-    build: Callable[["Ctx", Anchors, dict], list[dict]]
+    build: Callable[["Ctx", Anchors, dict], list[dict] | dict]
     describe: str
+    # explainer style (explain.py): seconds of picture after the last word (else director.HOLD_AFTER by hero); a key that
+    # tells two heroes of the same type apart (two different recordings in a row are different pictures); a brief
+    # option the template needs (e.g. "next_episode": nothing about a next part is promised unless the brief says so)
+    hold: float = 0.0
+    hero_key: str | None = None
+    needs_brief: str | None = None
 
     @property
     def generic(self) -> bool:
         return self.industries is None
+
+    @property
+    def key(self) -> str:
+        """What the no-repeat check compares: the hero type, or the template's own hero key."""
+        return self.hero_key or self.hero
 
     def available(self, pf: ProductFacts) -> bool:
         return (self.families is None or pf.family in self.families) and self.requires(pf)
 
 
 def T(id, name, role, industries, families, hero, support, backdrops, camera, motion, transition, mood, words, headline, cues,
-      binds, numbers, requires, build, describe) -> SceneTemplate:
+      binds, numbers, requires, build, describe, **kw) -> SceneTemplate:
     return SceneTemplate(id, name, role, industries, families, hero, support, backdrops, camera, motion, transition, mood, words,
-                         headline, cues, binds, numbers, requires, build, describe)
+                         headline, cues, binds, numbers, requires, build, describe, **kw)
 
 
 _always = lambda pf: True  # noqa: E731
@@ -386,6 +398,7 @@ GENERIC: list[SceneTemplate] = [
 
 def library(pack) -> dict[str, SceneTemplate]:
     """Generic templates + the pack's industry templates (a pack may override a generic id)."""
-    out = {t.id: t for t in GENERIC}
+    from .explain import GENERIC_EXPLAINER
+    out = {t.id: t for t in GENERIC + GENERIC_EXPLAINER}
     out.update({t.id: t for t in pack.templates})
     return out

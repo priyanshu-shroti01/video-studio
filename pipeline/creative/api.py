@@ -25,7 +25,7 @@ from ..storyboard import validate_storyboard
 from . import copywriter
 from .claims_v2 import verify
 from ..brands import load_profile
-from .copybank import word_count
+from .copybank import PHRASE_KEYS, word_count
 from .director import Studio, compose, direct, distinct, plan_concept, publishing as make_publishing, studio
 from .rules import check_rules, estimate_seconds, failed, layout_overflows, sync_report, windows
 
@@ -158,7 +158,8 @@ def _bank_copies(concept: dict, st: Studio) -> dict[str, dict]:
         if v is None:
             raise ConfigError(f"concept {concept.get('id')}: copy variant {sp['variant']!r} is not available for {sp['template']}")
         out[sp["scene"]] = v
-    return out
+    from .explain import step_copies
+    return step_copies(concept["scene_plan"], out)       # explainer steps: "Step {step}:" -> "Step two:"
 
 
 def _slots(concept: dict, st: Studio, copies: dict, anchors: dict) -> list[dict]:
@@ -237,7 +238,9 @@ def build_storyboard(brief: dict, concept: dict, *, request: str | None = None, 
             probs = copywriter.validate_line(s, narr, head, fb=fb, brief=tb, domain=pf.domain, banned=st.banned, lang=st.lang)
             probs += [f"names {t!r}, which this brand's facts do not back" for t in st.pack.unbacked_terms(narr, pf.allow)]
             if not probs:
-                cand = {"id": "llm", "narration": narr}
+                # the bank line's on-screen phrases (explainer verdict, options...) stay; the builders use them only
+                # while they are still spoken, and a line that drops one loses its beat and is rejected below
+                cand = {**{k: v for k, v in s["bank"].items() if k in PHRASE_KEYS}, "id": "llm", "narration": narr}
                 if head:
                     cand["headline"] = head
                     cand["emphasis"] = [head.split()[-1]]

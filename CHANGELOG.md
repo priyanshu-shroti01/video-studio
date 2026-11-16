@@ -18,6 +18,23 @@
     the language into its prompt.
   - Length estimates read the storyboard's new `language` field: Hinglish uses 2.0 words/s (measured on Microsoft's
     Madhur voice) in the rules, the preview gate and the Studio's storyboard editor, and word budgets scale with it.
+- **Hinglish explainers:** every explainer template (myth, term reveal, steps, gauge proof, endings) has Hinglish copy
+  in both packs, so a Hinglish brief that asks for an explainer gets one (a 7-scene Hinglish explainer needs about
+  45 s; at 30–35 s the shorter blueprints fit).
+- **The hybrid engine makes explainer-style videos on its own:** a new "Myth, Steps, Proof" blueprint in the software
+  and web-hosting packs. A myth is crossed out and stamped WRONG, the product is named in a term reveal, three
+  numbered steps run under a step header with a term chip added on each step's word, a gauge proves a verified fact
+  (Video Studio's 31 / 31 QA checks, Shroti Host's 99.9 % uptime target, or a countdown of the 7-day money-back
+  window) with a success stamp, then the value line, an optional poll / comment / next-part ending and the outro.
+  - 14 new templates (5 generic in `pipeline/creative/explain.py`, 4 software, 5 web-hosting) with English copy.
+  - The director composes the storyboard `hud` (header steps from the step scenes, hidden from the scene after the
+    last step) and `captionTones` (danger on the myth, success on the proof and the price, term on the chips).
+  - It is ranked first when a brief asks for an explainer, a myth or steps. Brief options `ending` (poll, comment,
+    next-episode) and `next_episode` {label, title}; nothing about a next part is said unless the brief names it.
+  - New rule `hud-steps`; labels-bound now covers HUD texts; HUD changes and gauge moves count as visual events;
+    two different recordings in a row no longer count as a repeated hero.
+  - Explainer scenes always open on content (an eyebrow pill when a price card or outro would wait for its word), and
+    `deep` is never chosen right after `light` when another backdrop fits. See docs/CREATIVE_SYSTEM.md#explainer-style-myth-steps-proof.
 - **The narrator's tone follows each scene:** a hook is said urgently, a problem seriously, a reveal with
   excitement, proof upbeat and a call to action calmly, as small rate and pitch changes (pitch on Microsoft voices).
   A scene can choose its own with `"delivery"`. See docs/LOCAL_TTS.md#delivery-per-scene.
