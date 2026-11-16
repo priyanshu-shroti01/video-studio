@@ -58,8 +58,9 @@ Step-by-step help: [docs/INSTALL.md](docs/INSTALL.md).
 - **A person signs off.** Nothing is rendered in full, approved or posted without a named person's decision, bound
   to the exact files.
 - **Many brands, one studio.** Each website keeps its own logo, colours, fonts, facts, voice and social accounts.
-- **English or Hinglish.** Hinglish captions as creators write them ("Aaj dekhte hain..."), spoken by a local Hindi
-  voice, or by Microsoft's natural Hindi voices if you allow an online voice.
+- **English or Hinglish.** A Hinglish brief gets Hinglish copy as creators write it ("Brief do, aur video lo."), from the
+  copy bank or the local AI, with Hindi number words checked like digits. It is spoken by a local Hindi voice, or by
+  Microsoft's natural Hindi voices if you allow an online voice.
 - **Help on every page.** A chat in the corner answers how-to questions with the same local AI.
 
 ## How it compares
@@ -357,7 +358,7 @@ Measured on an M1 Pro (16 GB) with other apps running ([benchmark](docs/reports/
 
 ```
 pipeline/            orchestrator: CLI, productions, jobs, scheduler, timeline, QA, approvals, archive
-  creative/          hybrid creative engine: templates, copy bank, rules, component generator (+ industries/ packs)
+  creative/          hybrid creative engine: templates, copy bank (English + Hinglish), rules, component generator (+ industries/ packs)
   intelligence/      local LLM runtime, claim checking, fact base
   social/            YouTube / Instagram: routing, metadata, adapters, MCP server
   voice/ visual_qa/  local TTS + alignment, Hinglish transliteration; OCR, layout and branding checks

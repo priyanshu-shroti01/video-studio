@@ -38,17 +38,34 @@ class Studio:
     provider: object = None                    # optional local LLM: may only propose component structures
     component_cache: dict | None = None
     fresh_sequencing: bool = True
+    lang: str = "english"                      # brief `language` (pipeline/creative/language.py)
 
     @property
     def tb(self) -> dict:
         return trusted_brief(self.brief, self.pf)
 
     def variants(self, template_id: str) -> list[dict]:
-        return variants(template_id, self.pf, self.pack)
+        return variants(template_id, self.pf, self.pack, self.lang)
 
     @property
     def banned(self) -> list[str]:
-        return list(self.pack.banned) + list(self.brand.banned)
+        from .language import banned
+        return list(self.pack.banned) + list(self.brand.banned) + banned(self.lang)
+
+    def words(self, t) -> tuple[int, int]:
+        """Template t's narration word budget in this film's language (language.word_budget)."""
+        from .language import word_budget
+        return word_budget(t.words, self.lang)
+
+    def fits(self, t) -> list[dict]:
+        """Copy variants of template t inside its word budget (for this product and language)."""
+        lo, hi = self.words(t)
+        return [v for v in self.variants(t.id) if lo <= word_count(v["narration"]) <= hi]
+
+    @property
+    def wps(self) -> float:
+        from .language import wps
+        return wps(self.lang)
 
 
 def studio(brief: dict, fb: FactBase) -> Studio:
@@ -56,6 +73,8 @@ def studio(brief: dict, fb: FactBase) -> Studio:
     pack = get_pack(brand.industry)
     pf = resolve_product(brief, fb, brand, pack)
     st = Studio(brief, fb, brand, pack, pf, library(pack))
+    from .language import lang_of
+    st.lang = lang_of(brief)
     if brief.get("components") == "generate":
         from . import components, freshness
         st.generate, st.fresh, st.component_cache = True, freshness.load(brand.id), {}
@@ -81,7 +100,9 @@ def instantiate(bp: dict, st: Studio, avoid: dict[str, set] | None = None) -> li
     used: set[str] = set()
     for role, cands in bp["slots"]:
         ok = [st.lib[c] for c in cands if c in st.lib and st.lib[c].available(st.pf) and c not in used
-              and (not seq or st.lib[c].hero != seq[-1][1].hero)]
+              and (not seq or st.lib[c].hero != seq[-1][1].hero)
+              # another language: only templates that have copy in it (language.py; English is never checked)
+              and (st.lang == "english" or st.fits(st.lib[c]))]
         if not ok:
             return None
         key = {"hook": "hook", "pricing": "pricing"}.get(role) or ("demo" if role == "demo" and not any(r == "demo" for r, _ in seq) else None)
@@ -113,22 +134,34 @@ def scene_ids(seq) -> list[str]:
     return [f"s{k + 1}-{t.id.split('-', 1)[1][:24]}".rstrip("-") for k, (_, t) in enumerate(seq)]
 
 
-def estimate(words: int, n: int) -> float:
+def estimate(words: int, n: int, wps: float = WPS) -> float:
     """Quick video-length estimate before a storyboard exists: speech at the measured rate, ~0.3 s of
     punctuation pauses and a gap per scene, the trailing pad and the 0.7 s end tail (matches rules.estimate_seconds
     within ~0.5 s on real renders)."""
-    return round(words / WPS + (SCENE_GAP + 0.3) * n + PAD + 0.7, 1)
+    return round(words / wps + (SCENE_GAP + 0.3) * n + PAD + 0.7, 1)
+
+
+def speech_estimate(narrations: list[str], wps: float) -> float:
+    """Video length for these scene narrations with exactly the timing model rules.estimate_seconds uses
+    (timeline.estimated_timing: per-token durations, punctuation pauses, scene gaps, the end tail), without holds.
+    Used for non-English films, whose short sentences carry more pauses than the words/s shortcut assumes."""
+    from ..timeline import estimated_timing
+    if not narrations:
+        return 0.0
+    tm = estimated_timing({"scenes": [{"narration": t} for t in narrations]}, wps=wps, gap=SCENE_GAP)
+    return round(tm["duration"] + 0.7, 2)
 
 
 def fit_variants(seq, st: Studio, target: float, hook_variant: str | None, pref: int) -> list[dict] | str:
     """One bank variant per scene so the estimate lands in the window, closest to the aim (or a reason)."""
     opts = []
     for k, (role, t) in enumerate(seq):
-        vs = [v for v in st.variants(t.id) if t.words[0] <= word_count(v["narration"]) <= t.words[1]]
+        lo, hi = st.words(t)
+        vs = [v for v in st.variants(t.id) if lo <= word_count(v["narration"]) <= hi]
         if k == 0 and hook_variant:
             vs = [v for v in vs if v["id"] == hook_variant] or vs
         if not vs:
-            return f"no copy-bank line for {t.id} fits its {t.words[0]}–{t.words[1]} word budget for this product"
+            return f"no copy-bank line for {t.id} fits its {lo}–{hi} word budget for this product"
         opts.append(vs)
     (d_lo, d_hi), _ = windows(st.brief)
     aim = max(d_lo + 0.5, min(target, d_hi) - 1.5)
@@ -136,8 +169,11 @@ def fit_variants(seq, st: Studio, target: float, hook_variant: str | None, pref:
     n = len(seq)
     holds = sum(HOLD_AFTER.get(t.hero, 0.0) for _, t in seq)    # payoff holds play after the last word
     for combo in itertools.product(*[range(len(o)) for o in opts]):
-        words = sum(word_count(opts[k][i]["narration"]) for k, i in enumerate(combo))
-        est = estimate(words, n) + holds
+        if st.lang == "english":
+            words = sum(word_count(opts[k][i]["narration"]) for k, i in enumerate(combo))
+            est = estimate(words, n, st.wps) + holds
+        else:                       # the rules' own timing model, scene by scene (language.py)
+            est = speech_estimate([opts[k][i]["narration"] for k, i in enumerate(combo)], st.wps) + holds
         if not d_lo <= est <= d_hi:
             continue
         cost = abs(est - aim) + 0.35 * sum(1 for k, i in enumerate(combo) if i != pref % len(opts[k]))
@@ -153,7 +189,7 @@ HOLD_AFTER = {"install-flow": 1.3, "domain-input": 0.9}   # seconds of picture a
 
 
 def build_scene(t: SceneTemplate, role: str, sid: str, copy: dict, ctx: Ctx, backdrop: str) -> tuple[dict, Anchors]:
-    A = Anchors(copy["narration"])
+    A = Anchors(copy["narration"], ctx.lang)
     blocks = t.build(ctx, A, copy)
     mood = t.mood or ("danger" if role == "problem" else "brand" if role in ("turn", "cta") else None)
     sc = {"id": sid, "purpose": ROLE_PURPOSE[role], "narration": copy["narration"], "backdrop": backdrop, "camera": t.camera,
@@ -180,7 +216,7 @@ def footage_split(blocks: list[dict]) -> dict:
 
 def compose(concept: dict, st: Studio, copies: dict[str, dict]) -> tuple[dict, Ctx, dict]:
     """Storyboard from the concept's template sequence + one copy per scene. -> (storyboard, ctx, anchors per scene)"""
-    ctx = Ctx(st.pf, st.fb, st.pack)
+    ctx = Ctx(st.pf, st.fb, st.pack, lang=st.lang)
     scenes, anchors = [], {}
     revealed = False
     for k, sp in enumerate(concept["scene_plan"]):
@@ -198,6 +234,8 @@ def compose(concept: dict, st: Studio, copies: dict[str, dict]) -> tuple[dict, C
         anchors[sp["scene"]] = A
     structure = list(dict.fromkeys(s["purpose"] for s in scenes))
     sb = {"version": 1, "title": f"{st.pf.brand} — {concept['name']}", "structure": structure, "scenes": scenes}
+    if st.lang != "english":                # estimators, sync and number checks read the narration language from here
+        sb["language"] = st.lang
     if concept.get("effects"):              # new concepts only (fx.py): existing concepts rebuild byte-identically
         from .fx import plan as plan_effects
         plan_effects(sb, concept["effects"])
@@ -249,8 +287,9 @@ def plan_concept(bp: dict, st: Studio, idx: int, avoid: dict, hook_variant: str 
         "pricing_template": pricing.id if pricing else None, "pricing_treatment": pricing.name if pricing else None,
         "visual_approach": {"hero_blocks": [t.hero for _, t in seq], "backdrop_rhythm": bds,
                             "cameras": [t.camera for _, t in seq], "motion": [t.motion for _, t in seq]},
-        "pacing": {**bp["pacing"], "scene_count": len(seq), "words": words, "est_seconds": round(estimate(words, len(seq)) + sum(HOLD_AFTER.get(t.hero, 0.0) for _, t in seq), 1),
-                   "words_per_second": WPS},
+        "pacing": {**bp["pacing"], "scene_count": len(seq), "words": words, "est_seconds": round((estimate(words, len(seq), st.wps) if st.lang == "english" else
+                                                    speech_estimate([v["narration"] for v in chosen], st.wps)) + sum(HOLD_AFTER.get(t.hero, 0.0) for _, t in seq), 1),
+                   "words_per_second": st.wps},
         "music_mood": bp["music"], "animation_style": "template-composed",
         "effects": {"version": FX_VERSION, "style": concept_style(bp["music"])},
         "cta_treatment": {"style": bp["cta_style"], "template": seq[-1][1].id, "text": st.pf.cta, "url": st.pf.domain},

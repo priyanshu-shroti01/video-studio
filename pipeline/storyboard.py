@@ -76,6 +76,9 @@ STORYBOARD_SCHEMA = {
         # effects: snap effect transitions / punch-zooms to the music's beats (pipeline/beats.py)
         "beatSync": {"type": "boolean"},
         "title": {"type": "string"},
+        # narration language (pipeline/creative/language.py): "hinglish" switches the speaking-rate estimate and the
+        # spoken-number matching; absent = English
+        "language": {"type": "string", "enum": ["english", "hinglish"]},
         "structure": {"type": "array", "items": {"type": "string", "enum": PURPOSES}},
         "scenes": {"type": "array", "minItems": 1, "items": SCENE_SCHEMA},
         # v3 (pipeline/hud.py): the persistent HUD's elements, the caption speakers

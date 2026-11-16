@@ -10,7 +10,11 @@ Every output is validated per slot:
   still find its word, and the scene must still pass the sync rules
 
 Any failure -> the copy-bank line for that slot. The report records, per slot, the source ("llm" | "bank")
-and the reasons."""
+and the reasons.
+
+Language (brief `language`, pipeline/creative/language.py): for "hinglish" the prompts ask for Latin-script Hinglish
+in the house style, the examples and current lines come from the Hinglish bank, the banned list adds Hinglish clichés,
+and Hindi number words count as numbers ("paanch minute" is the number 5, which must be a bound fact)."""
 from __future__ import annotations
 
 import json
@@ -31,15 +35,18 @@ SYSTEM = (
     "Return JSON only.")
 
 
-def system_prompt(voice: str = "", style: str = "") -> str:
-    return SYSTEM + (f"\nBRAND VOICE: {voice}" if voice else "") + (f"\nINDUSTRY STYLE: {style}" if style else "")
+def system_prompt(voice: str = "", style: str = "", lang: str = "english") -> str:
+    from .language import HINGLISH, STYLE as HINGLISH_STYLE
+    return SYSTEM + (f"\nBRAND VOICE: {voice}" if voice else "") + (f"\nINDUSTRY STYLE: {style}" if style else "") \
+        + (f"\n{HINGLISH_STYLE}" if lang == HINGLISH else "")
 
 RE_NUM = re.compile(r"\d[\d,]*(?:\.\d+)?")
 RE_URL = re.compile(r"\b(?:https?://)?(?:[a-z0-9-]+\.)+[a-z]{2,}\b", re.I)
 
 
 # ---- hooks (concept stage) -----------------------------------------------------------------------------
-def choose_hooks(provider: Provider | None, brief: dict, concepts: list[dict], log: list, voice: str = "") -> dict[str, dict]:
+def choose_hooks(provider: Provider | None, brief: dict, concepts: list[dict], log: list, voice: str = "",
+                 lang: str = "english") -> dict[str, dict]:
     """-> {concept_id: {"choice": variant id, "source": "llm"|"bank", "reason"}}"""
     out = {c["id"]: {"choice": c["hook_variant"], "source": "bank", "reason": "deterministic default"} for c in concepts}
     if provider is None:
@@ -60,7 +67,7 @@ def choose_hooks(provider: Provider | None, brief: dict, concepts: list[dict], l
            + "\n".join(lines) + "\nFor each concept pick the hook option that will stop a scroller in this audience. "
            "Give different concepts different kinds of hooks. JSON: {concept_id: option_id}.")
     try:
-        r = provider.generate_json(system=system_prompt(voice), messages=[{"role": "user", "content": msg}], schema=schema, task="creative_hooks",
+        r = provider.generate_json(system=system_prompt(voice, lang=lang), messages=[{"role": "user", "content": msg}], schema=schema, task="creative_hooks",
                                    context={"brief": brief, "concepts": concepts}, temperature=0.4, seed=5, max_tokens=200)
     except LLMError as e:
         log.append({"event": "llm_error", "task": "hooks", "error": e.message})
@@ -76,12 +83,14 @@ def choose_hooks(provider: Provider | None, brief: dict, concepts: list[dict], l
 
 
 # ---- slot validation -----------------------------------------------------------------------------------
-def numbers_in(text: str) -> set[float]:
-    return {float(x.replace(",", "")) for x in RE_NUM.findall(normalize_numbers(text))}
+def numbers_in(text: str, lang: str | None = None) -> set[float]:
+    return {float(x.replace(",", "")) for x in RE_NUM.findall(normalize_numbers(text, lang))}
 
 
-def validate_line(slot: dict, narration: str, headline: str | None, *, fb, brief, domain: str, banned: list[str] | None = None) -> list[str]:
-    """Problems with an LLM line for one scene slot (empty = accept)."""
+def validate_line(slot: dict, narration: str, headline: str | None, *, fb, brief, domain: str, banned: list[str] | None = None,
+                  lang: str | None = None) -> list[str]:
+    """Problems with an LLM line for one scene slot (empty = accept). `lang` defaults to the brief's language."""
+    lang = lang or (brief or {}).get("language")
     p = []
     if not isinstance(narration, str) or not narration.strip():
         return ["narration missing"]
@@ -96,7 +105,7 @@ def validate_line(slot: dict, narration: str, headline: str | None, *, fb, brief
     for b in banned_hits(narration + " " + (headline or ""), banned):
         p.append(f"banned phrase {b!r}")
     allowed = {float(x) for x in slot["allowed_numbers"]}
-    bad = sorted(x for x in numbers_in(narration) if x not in allowed and x >= 2)
+    bad = sorted(x for x in numbers_in(narration, lang) if x not in allowed and x >= 2)
     if bad:
         p.append(f"numbers {[int(x) if x.is_integer() else x for x in bad]} are not bound facts for this scene (allowed {sorted(int(a) for a in allowed)})")
     for m in RE_URL.finditer(narration):
@@ -140,8 +149,10 @@ def copy_schema(slots: list[dict]) -> dict:
     return {"type": "object", "additionalProperties": False, "required": list(props), "properties": props}
 
 
-def copy_prompt(brief: dict, concept: dict, slots: list[dict], examples: list[str]) -> str:
+def copy_prompt(brief: dict, concept: dict, slots: list[dict], examples: list[str], lang: str = "english") -> str:
     lines = [f"PRODUCT: {brief['product']} by {brief['brand']} · AUDIENCE: {brief.get('audience') or 'general'} · TONE: {brief.get('tone')}",
+             *(["LANGUAGE: Hinglish in Latin script (see the system message); the examples and current lines are Hinglish too"]
+               if lang == "hinglish" else []),
              f"CONCEPT: {concept['name']} — {concept['logline']}", "",
              "HOUSE STYLE EXAMPLES (copy bank):"] + [f"  \"{e}\"" for e in examples[:6]] + ["", "SCENES (write a NEW line for each scene in your own words: same meaning, same cue words; do not copy the current line):"]
     for s in slots:
@@ -157,7 +168,7 @@ def copy_prompt(brief: dict, concept: dict, slots: list[dict], examples: list[st
 
 
 def rewrite(provider: Provider | None, brief: dict, concept: dict, slots: list[dict], examples: list[str], log: list,
-            seed: int = 21, voice: str = "", style: str = "") -> dict[str, dict]:
+            seed: int = 21, voice: str = "", style: str = "", lang: str = "english") -> dict[str, dict]:
     """-> {scene_id: {"narration", "headline"?} } raw model proposals (unvalidated); {} when no model."""
     if provider is None:
         return {}
@@ -166,7 +177,7 @@ def rewrite(provider: Provider | None, brief: dict, concept: dict, slots: list[d
         log.append({"event": "llm_unavailable", "task": "copy", "reason": why})
         return {}
     try:
-        r = provider.generate_json(system=system_prompt(voice, style), messages=[{"role": "user", "content": copy_prompt(brief, concept, slots, examples)}],
+        r = provider.generate_json(system=system_prompt(voice, style, lang), messages=[{"role": "user", "content": copy_prompt(brief, concept, slots, examples, lang)}],
                                    schema=copy_schema(slots), task="creative_copy",
                                    context={"brief": brief, "concept": concept, "slots": slots}, temperature=0.6, seed=seed,
                                    max_tokens=900)

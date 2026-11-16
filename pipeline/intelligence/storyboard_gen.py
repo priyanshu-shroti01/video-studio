@@ -453,14 +453,23 @@ PUBLISHING_SCHEMA = _obj(["title", "description", "hashtags"], {
     "hashtags": {"type": "array", "minItems": 3, "maxItems": 6, "items": {"type": "string", "minLength": 3, "maxLength": 32}}})
 
 
+def _language_note(brief: dict) -> str:
+    """Hinglish briefs (brief `language`): the narration style rule for the model (pipeline/creative/language.py)."""
+    if brief.get("language") != "hinglish":
+        return ""
+    from ..creative.language import STYLE
+    return f"\nNARRATION {STYLE} On-screen labels stay in English.\n"
+
+
 def _prefix(brief: dict, concept: dict, fb: FactBase) -> str:
-    b = {k: brief.get(k) for k in ("brand", "product", "price", "audience", "duration_seconds", "goal", "cta", "tone", "request")}
+    b = {k: brief.get(k) for k in ("brand", "product", "price", "audience", "duration_seconds", "goal", "cta", "tone", "request",
+                                    *(("language",) if brief.get("language") else ()))}
     c = {k: concept.get(k) for k in ("name", "pattern_name", "hook", "logline", "animation_style", "music_mood")}
     return (f"BRIEF:\n{json.dumps(b, ensure_ascii=False)}\n\nCONCEPT:\n{json.dumps(c, ensure_ascii=False)}\n\n"
             f"FACT SHEET (verified on {fb.site}):\n{fb.for_prompt(brief.get('product', ''), 40)}\n\n"
             f"PRICE RULE: the only price you may state for {brief.get('product')} is the brief's ({brief.get('price')}); do not "
             f"mention any other {brief.get('product')} price.\nBRAND SITE: {fb.domain()} · CTA: {brief.get('cta')} · "
-            f"placeholder domains for UI mock-ups: yourbrand.in, your-website.in\n")
+            f"placeholder domains for UI mock-ups: yourbrand.in, your-website.in\n" + _language_note(brief))
 
 
 def _concept_idea(concept: dict, beat: dict, k: int) -> str:
@@ -593,7 +602,8 @@ def build_storyboard(brief: dict, concept: dict, fb: FactBase, provider: Provide
         copy_ = Copy(brief, fb)
         prefix = _prefix(brief, concept, fb)
         tw = [word_count(t["narration"]) for t in tpl]
-        want = (brief.get("duration_seconds", 35) - SCENE_GAP * len(beats) - PAD) * WPS
+        from ..creative.language import lang_of, wps as lang_wps
+        want = (brief.get("duration_seconds", 35) - SCENE_GAP * len(beats) - PAD) * lang_wps(lang_of(brief))   # Hinglish: slower
         budgets = [max(4, round(w * want / max(1, sum(tw)))) for w in tw]       # pattern-shaped, duration-scaled
         assigned = assign_requirements(beats, brief)
         for k, beat in enumerate(beats):

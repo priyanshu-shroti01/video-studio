@@ -30,7 +30,7 @@ GATED = tuple(FACT_IDS)
 # copy naming one of these terms is only used when the brand's fact base backs it
 TERM_ROLES = {"Kokoro": "voice", "Remotion": "render", "FFmpeg": "render", "Python": "stack", "Ollama": "llm",
               "three concepts": "concepts", "quality checks": "qa", "itself": "self_made", "deterministic": "architecture",
-              "YouTube": "published"}
+              "YouTube": "published", "teen concepts": "concepts"}   # (Hinglish: language.py)
 FAMILIES = [{"id": "app", "match": None, "product": "app", "label": "Video production", "icon": "app"}]
 BANNED = ["revolutionary", "game-changing", "fully autonomous", "replaces", "perfect", "unlimited", "magic", "effortless"]
 STYLE = ("Engineering-launch voice: plain, specific, confident. Name the real component or stage on screen. "

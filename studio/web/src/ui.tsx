@@ -16,7 +16,9 @@ export const fmtMb = (mb?: number | null) => (mb == null ? '—' : mb >= 1000 ? 
 export const fmtBytes = (b?: number | null) => (b == null ? '—' : b > 1e6 ? `${(b / 1e6).toFixed(1)} MB` : b > 1e3 ? `${(b / 1e3).toFixed(0)} kB` : `${b} B`);
 export const words = (s: string) => (s.trim() ? s.trim().split(/\s+/).length : 0);
 export const WPS = 2.33;   // measured on the local voice (pipeline/creative/anchors.py)
-export const estSeconds = (narration: string) => words(narration) / WPS;
+/** Speaking rate by narration language (pipeline/creative/language.py WPS): Hinglish is slower. */
+export const wpsFor = (language?: string | null) => (language === 'hinglish' ? 2.0 : WPS);
+export const estSeconds = (narration: string, language?: string | null) => words(narration) / wpsFor(language);
 
 // ---- state tones -----------------------------------------------------------------------------
 export type Tone = 'neutral' | 'brand' | 'success' | 'warning' | 'danger' | 'info';

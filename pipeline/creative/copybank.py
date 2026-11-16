@@ -79,8 +79,15 @@ def fill(text: str, values: dict) -> str:
     return re.sub(r"\{(\w+)\}", rep, text)
 
 
-def raw_variants(template_id: str, family: str, pack) -> list[dict]:
-    for bank in (pack.bank, GENERIC_BANK):
+def raw_variants(template_id: str, family: str, pack, lang: str = "english") -> list[dict]:
+    if lang != "english":                     # a language's own bank only: never an English line in a Hinglish film
+        from .hinglish_copy import banks
+        return _pick(banks(lang, pack.id), template_id, family)
+    return _pick((pack.bank, GENERIC_BANK), template_id, family)
+
+
+def _pick(banks, template_id: str, family: str) -> list[dict]:
+    for bank in banks:
         fams = bank.get(template_id, {})
         raw = fams.get(family) or fams.get("*")
         if raw:
@@ -88,11 +95,13 @@ def raw_variants(template_id: str, family: str, pack) -> list[dict]:
     return []
 
 
-def variants(template_id: str, pf: ProductFacts, pack) -> list[dict]:
-    """Copy variants usable for this product (pack copy first, then generic; needs satisfied, placeholders filled)."""
-    fl, vals = flags(pf), pf.bound()
+def variants(template_id: str, pf: ProductFacts, pack, lang: str = "english") -> list[dict]:
+    """Copy variants usable for this product (pack copy first, then generic; needs satisfied, placeholders filled).
+    `lang` (pipeline/creative/language.py): "english" (default) or "hinglish" (the Hinglish bank only)."""
+    from .language import localize_values
+    fl, vals = flags(pf), localize_values(pf.bound(), lang)
     out = []
-    for v in raw_variants(template_id, pf.family, pack):
+    for v in raw_variants(template_id, pf.family, pack, lang):
         if not all(fl.get(n, False) for n in v.get("needs", [])) or pack.unbacked_terms(v["narration"], pf.allow):
             continue
         try:

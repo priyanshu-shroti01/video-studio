@@ -80,9 +80,52 @@ checklist) · `proof-plan-compare` (feature-compare + pill · split).
 
 No template uses `bars`: relative bar heights would imply competitor numbers that nobody sourced.
 
+## Language: English or Hinglish (`brief.language`)
+English is the default and nothing English changes. With `"language": "hinglish"` the engine writes the narration
+in Latin-script Hinglish, the way Indian short-form creators write it: Hindi grammar, everyday Hindi words, English for
+product and tech nouns ("Brief do, aur video lo." · "Render se pehle dekho: har frame, asli awaaz, aur har scene
+preview mein."). The voice side was already Hinglish ([LOCAL_TTS.md](LOCAL_TTS.md#hinglish)); now the copy is too.
+`pipeline/creative/language.py` holds what changes per language:
+
+- **Copy bank.** `pipeline/creative/hinglish_copy.py` is a parallel bank with the same shape and lookup order (the
+  pack's Hinglish copy, then the generic Hinglish layer). There is no fallback to English: a template without a Hinglish
+  line is not available to a Hinglish concept, and the director picks another candidate for that slot. Every generic
+  template, every `software` template and every `web-hosting` template has Hinglish copy except `proof-plan-compare`
+  (its English lines need a `{sites_word}` value no product supplies, so it is unused in English too).
+- **Word budgets.** A template's word budget is really a time budget. Hinglish speaks slower, so its budget scales
+  with the rate (`language.word_budget`: 14–32 English words become 12–27 Hinglish words).
+- **Cue words.** Templates animate on English cue words. Hinglish keeps most of them (website, storyboard, render,
+  SSL, plan, domain). Where Hindi says the cue, `language.CUE_ALIASES` maps it: "Meet" → "Milo", "person" → "insaan",
+  "approves" → "approve", "watch" → "dekho", "Before" → "pehle", "Bigger" → "Bade", "seven" → "saat"… The alias
+  is the word the `@word:` expression points at. English narration never uses the aliases. Hindi puts the verb last,
+  so lines that name several on-screen things are written with the things in narration order ("Render se pehle
+  dekho: har frame, …"), not "har frame dekho".
+- **Numbers.** Numbers from facts are written as **digits** in Hinglish copy ("31 blocking checks"): the voice speaks
+  digits as Hindi numbers and the captions show the digits. A fact's English `value.spoken` ("thirty-one") becomes
+  digits for Hinglish; "zero rupees" stays words. A template's narrative counts may be said in Hindi ("teen ideas",
+  "saat din"). Hindi number words (ek, do, teen … sau, hazaar, lakh, crore, and "dedh"/"dhai") count exactly like
+  digits in the sync rule ("no number on screen before it is spoken"), in QA's narration-sync check, in the claim
+  checker and in the copy validator (`pipeline/spoken_numbers.py`). "do" (give) and "saath" (with) are numbers only
+  directly before a noun ("do ideas"), never in "Brief do, aur…" or "awaaz ke saath"; a lone "ek" stays a word, as
+  "one" does in English. Prices keep the English currency and period words ("69 rupees per month",
+  `{period_per}`), which Hinglish ads use and the claim checker reads as the price's period.
+- **Speaking rate.** The storyboard carries `"language": "hinglish"`, and every estimate reads it: the duration rule,
+  sync, the preview gate, the Studio's scene timings. Hinglish uses 2.0 words/s, fitted on a real Microsoft
+  `hi-IN-MadhurNeural` render (95 words, 49.1 s of voice; English stays 2.33). The director also fits Hinglish copy
+  with the rules' own per-token timing model, because short Hinglish sentences carry more pauses than the words/s
+  shortcut assumes. Kokoro's Hindi voices are not measured on Hinglish yet (reading English, `hm_omega` ran about
+  2.5 words/s), so a Kokoro Hinglish film may come out a little shorter than its estimate.
+- **LLM.** The copy assistant's system prompt asks for Latin-script Hinglish in this style, digits for numbers and the
+  cue words as written; the examples and current lines it sees come from the Hinglish bank. Hinglish clichés and
+  superlatives ("sabse best", "sabse sasta", "pakka", "jhakaas", "zabardast", "100 percent"…) join the banned list;
+  the English list still applies ("best", "guaranteed", "number one" are caught in Hinglish lines too). Hindi number
+  words count as numbers, so an invented "paanch minute" is rejected like "five minutes". The legacy LLM storyboard
+  path (`pipeline.intelligence`) passes the language and the style into its prompt; its template fallback scenes stay
+  English.
+
 ## Rules (checked per concept and on the final storyboard; any FAIL rejects the concept or blocks the review)
 valid (validate_storyboard plus a mirror of the plan-card/install-flow/server-stack/backdrop field checks) ·
-5–7 scenes · estimated 30–35 s at 2.33 words/s · a hero visual in every scene (never only headline/text/pill) · at
+5–7 scenes · estimated 30–35 s at 2.33 words/s (Hinglish: 2.0) · a hero visual in every scene (never only headline/text/pill) · at
 most one kinetic-text-led scene · ≥ 1.8 blocks per scene · ≥ 6 block types · ≥ 3 contract-v2/v2b types · no
 consecutive repeated hero or backdrop · a real product demo (install-flow, domain-input, dashboard, scroll-demo or
 device; a browser doesn't count) · a pricing scene with verified prices only · every claim verified · labels bound
@@ -104,9 +147,9 @@ the review **BLOCKED** until the owner confirms the price, even though the video
 The model never sees blocks, labels or times. A proposed line is rejected (and the bank line used instead) if it:
 - breaks the schema or sends extra fields (e.g. a `pill`), which are ignored and recorded;
 - is outside the word budget;
-- contains a non-Latin character or a currency/percent symbol;
-- uses a banned phrase (generic, pack or brand list);
-- contains a number that isn't a bound fact value or narrative count for that template;
+- contains a non-Latin character (Hinglish too is Latin script) or a currency/percent symbol;
+- uses a banned phrase (generic, pack or brand list, plus the Hinglish list for Hinglish briefs);
+- contains a number that isn't a bound fact value or narrative count for that template (Hindi number words count);
 - names a URL that isn't the brand's;
 - has an on-screen phrase not spoken verbatim in its narration;
 - makes a claim the checker can't verify;

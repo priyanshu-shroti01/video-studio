@@ -16,7 +16,10 @@ SFX_NOTES = {  # mirrors pipeline.storyboard.auto_sfx conventions (theme `sfx` k
 }
 
 
-def scene_timings(sb: dict, wps: float = WPS) -> list[dict]:
+def scene_timings(sb: dict, wps: float | None = None) -> list[dict]:
+    if wps is None:                       # the storyboard's narration language (English: WPS; pipeline/creative/language.py)
+        from ..creative.language import wps_of
+        wps = wps_of(sb) if sb.get("language") else WPS
     t, out = PAD / 2, []
     for s in sb["scenes"]:
         d = word_count(s["narration"]) / wps

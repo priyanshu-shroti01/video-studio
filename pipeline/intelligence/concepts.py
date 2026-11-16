@@ -120,7 +120,7 @@ def _concept_prompt(brief: dict, fb: FactBase, allowed: list[str], avoid: list[d
     av = "\n".join(f"- hook: {c['hook']!r}; pattern {c['pattern']}; blocks {c['visual_approach']['hero_blocks']}; "
                    f"animation {c['animation_style']}; music {c['music_mood']}; cta {c['cta_treatment']['style']}" for c in avoid) or "- (none yet)"
     b = {k: brief.get(k) for k in ("brand", "product", "price", "audience", "format", "duration_seconds", "goal", "cta", "tone",
-                                    "requirements", "request")}
+                                    "requirements", "request", *(("language",) if brief.get("language") else ()))}
     return (f"BRIEF:\n{json.dumps(b, ensure_ascii=False)}\n\nFACT SHEET (verified on {fb.site}, {fb.fetched_at[:10]}):\n"
             f"{fb.for_prompt(brief.get('product', ''), 40)}\n\n"
             f"NOTE: the brief's price is the owner's claim; you may use it exactly as written, but never any other price.\n\n"

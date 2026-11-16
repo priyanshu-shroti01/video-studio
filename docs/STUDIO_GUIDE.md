@@ -204,8 +204,10 @@ GET  /files/<output/… | public/… | audio/kit/… | audio/music/…>   (Range
 Kokoro Hindi voice `hm_omega` unless `voice` names another one ([LOCAL_TTS](LOCAL_TTS.md#hinglish)). A Microsoft
 Hindi voice (`"voice": "hi-IN-MadhurNeural"` or `"hi-IN-SwaraNeural"`) sounds more natural but is online, so it also
 needs `"allow_online_voice": true` in the brief. The brief
-form has no language picker yet, so set it through the API or the brief file. Write the narration itself in
-Hinglish in the storyboard editor.
+form has no language picker yet, so set it through the API or the brief file. A Hinglish brief also writes the copy:
+the concepts and the storyboard come out in Hinglish (copy bank and local LLM, see
+[CREATIVE_SYSTEM](CREATIVE_SYSTEM.md#language-english-or-hinglish-brieflanguage)), and the storyboard editor's length
+estimate uses the slower Hinglish rate (2.0 words/s instead of 2.33).
 
 ## Known limitations
 

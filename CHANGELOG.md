@@ -3,6 +3,21 @@
 ## Unreleased
 
 ### Added
+- **Hinglish copy from a brief:** `"language": "hinglish"` now also makes the creative engine write the narration in
+  Latin-script Hinglish ("Brief do, aur video lo."), not only speak it. See
+  docs/CREATIVE_SYSTEM.md#language-english-or-hinglish-brieflanguage.
+  - A Hinglish copy bank (`pipeline/creative/hinglish_copy.py`) for every generic, software and web-hosting template
+    (except `proof-plan-compare`, unused in English too). A template without a Hinglish line isn't used by a Hinglish
+    concept; English output is unchanged.
+  - Cue words: where Hinglish says a cue in Hindi ("Milo" for "Meet", "insaan" for "person"), the beat lands on it.
+  - Hindi number words (ek, do, teen … sau, hazaar, lakh, crore) count like digits in the "no number before it is
+    spoken" rule, QA's narration sync, the claim checker and the copy validator (`pipeline/spoken_numbers.py`).
+    Numbers from facts are written as digits, which the Hindi voice speaks as Hindi numbers.
+  - The local LLM copy assistant gets a Hinglish style prompt and Hinglish examples; Hinglish clichés and
+    superlatives ("sabse best", "pakka", "jhakaas"…) are banned on top of the English list. The legacy planner passes
+    the language into its prompt.
+  - Length estimates read the storyboard's new `language` field: Hinglish uses 2.0 words/s (measured on Microsoft's
+    Madhur voice) in the rules, the preview gate and the Studio's storyboard editor, and word budgets scale with it.
 - **The narrator's tone follows each scene:** a hook is said urgently, a problem seriously, a reveal with
   excitement, proof upbeat and a call to action calmly, as small rate and pitch changes (pitch on Microsoft voices).
   A scene can choose its own with `"delivery"`. See docs/LOCAL_TTS.md#delivery-per-scene.

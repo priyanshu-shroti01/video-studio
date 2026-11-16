@@ -47,7 +47,9 @@ flag for the final approval.
 
 Preview, creative rules, concept fitting and the Studio estimate durations at **2.33 words/s**. The local voice
 at the presets' calm pace (normal speed, pauses up to 0.5 s kept, 0.35 s between scenes) speaks about **2.3 words/s**,
-so films run slightly longer than estimated. QA on the real voice timings remains the final check.
+so films run slightly longer than estimated. A Hinglish storyboard (`"language": "hinglish"`) is estimated at
+**2.0 words/s** (measured on Microsoft's Madhur voice), and its spoken numbers may be Hindi words ("teen", "paanch
+sau"), which the sync checks match like digits. QA on the real voice timings remains the final check.
 
 ## Checks on the final file
 

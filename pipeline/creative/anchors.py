@@ -31,10 +31,13 @@ def _fmt(base: str, off: float) -> str:
 
 
 class Anchors:
-    def __init__(self, narration: str):
+    def __init__(self, narration: str, lang: str | None = None):
+        from .language import aliases, wps
         self.narration = narration
         self.tokens = tokenize(narration)
-        self.times = _est_times(self.tokens)
+        self.times = _est_times(self.tokens, wps(lang))
+        # Hinglish: a cue word the line says in Hindi ("Meet" -> "Milo") triggers the same beat (language.CUE_ALIASES)
+        self.aliases = aliases(lang)
         self.speech_end = self.times[-1] + 0.3 if self.times else 0.5
         self.last: tuple[str, float, float] | None = None      # (base expr, offset, est time)
         self.used: list[dict] = []
@@ -47,7 +50,18 @@ class Anchors:
         return None
 
     def has(self, word: str) -> bool:
-        return self.index_of(word) is not None
+        return any(self.index_of(w) is not None for w in self._expand([word]))
+
+    def _expand(self, cands: list[str]) -> list[str]:
+        """Each candidate followed by its language aliases (English: unchanged)."""
+        if not self.aliases:
+            return cands
+        out: list[str] = []
+        for c in cands:
+            for w in [c, *self.aliases.get(norm(c), [])]:
+                if w not in out:
+                    out.append(w)
+        return out
 
     def _base(self, word: str, i: int) -> str:
         w = re.sub(r"[^\w',.]", "", word).rstrip(".,")
@@ -64,7 +78,7 @@ class Anchors:
             advance = False
         last_t = self.last[2] if self.last and not free else -1.0
         best = None
-        for c in cands:
+        for c in self._expand(cands):
             if not norm(c) and not re.search(r"\d", c):
                 continue
             j = 0

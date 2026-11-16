@@ -39,6 +39,7 @@ class Ctx:
     fb: FactBase
     pack: object
     labels: dict[str, str] = field(default_factory=dict)     # every on-screen string -> its source
+    lang: str = "english"                                     # narration language (pipeline/creative/language.py)
 
     def L(self, text: str, src: str = "template") -> str:
         self.labels.setdefault(text, src)

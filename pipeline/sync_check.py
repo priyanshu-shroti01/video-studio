@@ -7,6 +7,8 @@ evaluated on the resolved timeline (estimated timings in the preview gate, real 
   * static narration — no visual event (entrance, item reveal, count, keystroke, click, state change)
     for more than STATIC_FAIL s while words are being spoken                            FAIL (> WARN: WARN)
   * early number     — a (non-catalog) number appears on screen more than EARLY s before it is first spoken in that scene  FAIL
+                       (Hinglish narration, lang "hinglish": Hindi number words such as "teen" or "paanch sau" count as
+                       spoken numbers too; pipeline/spoken_numbers.py)
 """
 from __future__ import annotations
 
@@ -70,8 +72,9 @@ def _numbers_shown(o, at: float | None, out: list):
     return out
 
 
-def evaluate(scenes: list[dict], words: list[dict], duration: float, hud: dict | None = None) -> dict:
-    """scenes: resolved timeline scenes (absolute seconds); words: [{text,start,end}]; hud: the RenderProps HUD (v3)."""
+def evaluate(scenes: list[dict], words: list[dict], duration: float, hud: dict | None = None, lang: str | None = None) -> dict:
+    """scenes: resolved timeline scenes (absolute seconds); words: [{text,start,end}]; hud: the RenderProps HUD (v3);
+    lang: the narration language ("hinglish": Hindi number words are matched too)."""
     # scene effects (punch-zoom, annotation draw-on, burst, cursor click...) are visible changes anchored to a spoken word,
     # so they count as visual events like a block entrance (pipeline/effects.py)
     events = sorted({round(t, 3) for s in scenes for t in _times(s["blocks"]) + _times(s.get("effects", []))}
@@ -105,6 +108,10 @@ def evaluate(scenes: list[dict], words: list[dict], duration: float, hud: dict |
             seen[n] = min(t, seen.get(n, t))
         for n, t in seen.items():
             spoken = [w["start"] for w in sw if n in NUM.findall(w["text"].replace(",", ""))]
+            if lang == "hinglish":
+                from .spoken_numbers import spoken_numbers
+                spoken = sorted(spoken + [sw[i]["start"] for i, v in spoken_numbers([w["text"] for w in sw], lang)
+                                          if NUM.fullmatch(n) and abs(v - float(n)) < 1e-9])
             if spoken and t < spoken[0] - EARLY:
                 early.append({"scene": s["id"], "number": n, "shown": round(t, 2), "spoken": round(spoken[0], 2),
                               "lead_s": round(spoken[0] - t, 2)})

@@ -170,9 +170,14 @@ def build_timeline(cfg: dict, tm: dict) -> Timeline:
                     sb_out, crep.max_cps, warnings, hud)
 
 
-def estimated_timing(storyboard: dict, wps: float = 2.33, gap: float = 0.2) -> dict:   # wps measured on the local voice
+def estimated_timing(storyboard: dict, wps: float | None = None, gap: float = 0.2) -> dict:
     """Timing estimate for previews before any TTS: words at `wps`, pauses after punctuation.
-    Only for storyboard previews — production timing always comes from the real voice."""
+    Only for storyboard previews — production timing always comes from the real voice.
+    `wps` defaults to the storyboard's narration language (English 2.33, measured on the local voice; Hinglish 2.0:
+    pipeline/creative/language.py)."""
+    if wps is None:
+        from .creative.language import wps_of
+        wps = wps_of(storyboard)
     words, spans, t = [], [], 0.0
     for sc in storyboard["scenes"]:
         s0 = t

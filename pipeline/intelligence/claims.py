@@ -43,7 +43,12 @@ _NUMWORDS = {w: n for n in range(2, 1000) for w in _spell(n)}
 _NUMWORD_RE = re.compile(r"\b(" + "|".join(sorted(map(re.escape, _NUMWORDS), key=len, reverse=True)) + r")\b", re.I)
 
 
-def normalize_numbers(text: str) -> str:
+def normalize_numbers(text: str, lang: str | None = None) -> str:
+    """Spelled numbers -> digits. English words always; with lang "hinglish" Hindi number words too ("teen" -> 3,
+    "paanch sau" -> 500; pipeline/spoken_numbers.py), so an invented number is a claim in either language."""
+    if lang == "hinglish":
+        from ..spoken_numbers import normalize_hindi
+        text = normalize_hindi(text)
     return _NUMWORD_RE.sub(lambda m: str(_NUMWORDS[m.group(1).lower()]), text)
 
 
@@ -72,6 +77,9 @@ RE_NUMBER = re.compile(rf"(?<![\w/]){NUM}(?![\w/])")
 RE_DOMAIN = re.compile(r"\b(?:https?://)?((?:[a-z0-9-]+\.)+(?:in|com|org|net|co|io|xyz|online|shop|dev|app|ai))(?:/[\w/.-]*)?\b", re.I)
 RE_LABEL_NUM = re.compile(r"\b(?:year|step|day|week|month|scene|part|tip)\s+\d{1,2}\b", re.I)
 RE_EMAIL = re.compile(r"\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b")
+# Hinglish words that can open a sentence before "plan" ("Apna plan chuno", "Bade plans"): not plan names
+HINGLISH_DETERMINERS = ("apna", "apni", "aapka", "aapki", "jo", "bade", "bada", "badi", "har", "koi", "sahi", "yeh", "ye", "woh",
+                        "naya", "nayi", "agla", "agle", "kaunsa", "konsa")
 RE_PLAN_MENTION = re.compile(r"\b((?:[A-Z][\w+-]*\s){0,2}[A-Z][\w+-]*)\s+(?:plan|tier)\b")
 RE_FROM = re.compile(r"(from|starting at|starts at|start at|as low as|only|just)\s*(?:just\s*)?$", re.I)
 PLACEHOLDER = re.compile(r"your|example|mysite|yoursite|brand\.|domain\.|demo|acme|sample", re.I)
@@ -135,6 +143,7 @@ class Verifier:
         self.brief_amount = bp.get("amount")
         self.brief_text = " ".join(str(self.brief.get(k, "")) for k in ("product", "price", "request", "cta", "audience")).lower()
         self.brief_product = _product_of(self.brief.get("product", ""))
+        self.lang = self.brief.get("language")            # "hinglish": Hindi number words are numbers too
         self.brief_price_ok = True
         if self.brief_amount is not None:
             probe = Claim("brief", "price", "brief")
@@ -227,7 +236,7 @@ class Verifier:
         if not text or not str(text).strip():
             return []
         raw = str(text)
-        t = normalize_numbers(raw)
+        t = normalize_numbers(raw, self.lang)
         low = t.lower()
         taken: list[tuple[int, int]] = []
         out: list[Claim] = []
@@ -316,7 +325,7 @@ class Verifier:
             f = next((f for f in self.fb.facts if f.get("plan") == name and f["category"] == "price"), None)
             c.status, c.fact_ids = (VERIFIED, [f["id"]]) if f else (NEEDS_REVIEW, [])
             c.reason = "" if f else f"plan {name!r} does not exist on the site"
-            if f or name.lower() not in ("the", "this", "your", "a", "our", "every"):
+            if f or name.lower() not in ("the", "this", "your", "a", "our", "every") + HINGLISH_DETERMINERS:
                 out.append(c)
         # feature keywords (annotations) + risky terms that need cover
         cover: list[tuple[int, int, str]] = []

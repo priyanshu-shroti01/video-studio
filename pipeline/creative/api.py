@@ -86,7 +86,7 @@ def generate_concepts(brief: dict, request: str | None = None, *, provider="olla
     if st.generate:                      # the LLM may propose component STRUCTURES (names only), never geometry
         st.provider, st.component_log = prov, log
     concepts, rejected = direct(st, n)
-    choices = copywriter.choose_hooks(prov, b, concepts, log, voice=st.brand.voice)
+    choices = copywriter.choose_hooks(prov, b, concepts, log, voice=st.brand.voice, lang=st.lang)
     bps = {x["id"]: x for x in st.pack.blueprints}
     for i, c in enumerate(concepts):
         ch = choices[c["id"]]
@@ -169,9 +169,10 @@ def _slots(concept: dict, st: Studio, copies: dict, anchors: dict) -> list[dict]
         A = anchors[sp["scene"]]
         req = list(dict.fromkeys(u["word"] for u in A.used if u["word"] and not u["word"].startswith("<")))
         nums = {float(vals[k]) for k in t.binds if isinstance(vals.get(k), (int, float))} | {float(x) for x in t.numbers}
-        nums |= copywriter.numbers_in(copies[sp["scene"]]["narration"])
-        alts = [v for v in st.variants(t.id) if v["id"] != sp["variant"] and t.words[0] <= word_count(v["narration"]) <= t.words[1]]
-        slots.append({"scene": sp["scene"], "role": sp["role"], "template": t.id, "describe": t.describe, "words": t.words,
+        nums |= copywriter.numbers_in(copies[sp["scene"]]["narration"], st.lang)
+        lo, hi = st.words(t)
+        alts = [v for v in st.variants(t.id) if v["id"] != sp["variant"] and lo <= word_count(v["narration"]) <= hi]
+        slots.append({"scene": sp["scene"], "role": sp["role"], "template": t.id, "describe": t.describe, "words": (lo, hi),
                       "headline": t.headline, "bank": copies[sp["scene"]], "alternatives": alts, "required_words": req,
                       "allowed_numbers": sorted(nums)})
     return slots
@@ -187,7 +188,7 @@ def _scene_ok(concept, st: Studio, scene_id: str, cand: dict, bank_anchors: dict
     lost = sorted(bank_hits - new_hits)
     if lost:
         probs.append(f"beats lose their spoken word: {lost}")
-    one = {"scenes": [s for s in sb["scenes"] if s["id"] == scene_id]}
+    one = {"scenes": [s for s in sb["scenes"] if s["id"] == scene_id], **({"language": sb["language"]} if sb.get("language") else {})}
     sy = sync_report(one)
     probs += sy["gap_violations"] + sy["number_violations"]
     cl = verify(one, st.fb, st.tb)
@@ -216,7 +217,7 @@ def build_storyboard(brief: dict, concept: dict, *, request: str | None = None, 
     if prov is not None:
         slots = _slots(concept, st, copies, bank_anchors)
         examples = [v["narration"] for sp in concept["scene_plan"] for v in st.variants(sp["template"])[:1]]
-        props = copywriter.rewrite(prov, tb, concept, slots, examples, log, voice=st.brand.voice, style=st.pack.style)
+        props = copywriter.rewrite(prov, tb, concept, slots, examples, log, voice=st.brand.voice, style=st.pack.style, lang=st.lang)
         accepted = {}
         for s in slots:
             sid = s["scene"]
@@ -233,7 +234,7 @@ def build_storyboard(brief: dict, concept: dict, *, request: str | None = None, 
             if narr == s["bank"]["narration"] and (head or None) == (s["bank"].get("headline") if s.get("headline") else None):
                 sources[sid]["reasons"].append("model returned the copy-bank line unchanged")
                 continue
-            probs = copywriter.validate_line(s, narr, head, fb=fb, brief=tb, domain=pf.domain, banned=st.banned)
+            probs = copywriter.validate_line(s, narr, head, fb=fb, brief=tb, domain=pf.domain, banned=st.banned, lang=st.lang)
             probs += [f"names {t!r}, which this brand's facts do not back" for t in st.pack.unbacked_terms(narr, pf.allow)]
             if not probs:
                 cand = {"id": "llm", "narration": narr}

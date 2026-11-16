@@ -189,9 +189,12 @@ source. Guesses (spelling rules or English pronunciation) come first and are mar
 * Brand respellings written for English voices ("Shro-tee") are read as English, which gives retroflex ट (श्रोटी).
   Give Hinglish productions a Devanagari override for the brand name.
 * Only Kokoro's four Hindi voices are suitable. Piper has no commercially usable Hindi voice.
-* The copy engines (copy bank, planner, local LLM prompts) still write English narration. The language setting only
-  changes how the narration is spoken. Write the Hinglish narration in the storyboard (Studio storyboard editor or
-  `pipeline.api.save_storyboard`).
+* A brief's `"language": "hinglish"` also makes the hybrid creative engine write the narration in Hinglish: a
+  Hinglish copy bank, Hinglish prompts for the local LLM, Hindi number words in the sync and claim checks, and a
+  slower speaking-rate estimate (2.0 words/s, measured on `hi-IN-MadhurNeural`). See
+  [CREATIVE_SYSTEM.md](CREATIVE_SYSTEM.md#language-english-or-hinglish-brieflanguage). Numbers from facts are written
+  as digits, which this voice side speaks as Hindi numbers. The legacy LLM planner's template scenes stay English.
+  A `voice.lang: "hinglish"` set only in a project (no brief language) still just changes how the narration is spoken.
 
 ## Delivery per scene
 

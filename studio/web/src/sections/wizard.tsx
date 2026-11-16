@@ -279,7 +279,7 @@ const Review: React.FC<{nav: Nav; p: Any; reload: () => void; onNext: () => void
   const [last, setLast] = useState<'preview' | 'approve'>('preview');
   const sb = p.storyboard;
   const scenes: Any[] = sb?.scenes ?? [];
-  const est = estSeconds(scenes.map((s) => s.narration ?? '').join(' '));
+  const est = estSeconds(scenes.map((s) => s.narration ?? '').join(' '), sb?.language ?? p.brief?.language);
   const g = p.gate;
   const sheet = p.files?.['preview/contact-sheet.jpg'];
   const t = latestTask(p, ['preview']);

@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Any, api, fileUrl, waitTask} from '../api';
-import {Alert, Badge, Button, Card, Dialog, Empty, ErrorBox, Field, WPS, estSeconds, isTyping, toast, useApi, words} from '../ui';
+import {Alert, Badge, Button, Card, Dialog, Empty, ErrorBox, Field, estSeconds, isTyping, toast, useApi, words, wpsFor} from '../ui';
 import type {Nav} from '../app';
 import {PreviewPlayer} from './player';
 
@@ -81,7 +81,8 @@ export const StoryboardEditor: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
   const editable = p ? EDITABLE.includes(p.state) : false;
   const scenes: Any[] = sb?.scenes ?? [];
   const scene = scenes[sel];
-  const total = scenes.reduce((a, s) => a + estSeconds(s.narration ?? ''), 0);
+  const lang: string | undefined = sb?.language ?? p?.brief?.language;   // Hinglish speaks slower
+  const total = scenes.reduce((a, s) => a + estSeconds(s.narration ?? '', lang), 0);
   const target = p?.brief?.duration_seconds;
   const errScenes = useMemo(() => new Set(errors.map(sceneOfError).filter((x) => x !== null)), [errors]);
 
@@ -197,7 +198,7 @@ export const StoryboardEditor: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
       <div className="toolbar">
         <input className="title-in" value={sb.title ?? ''} placeholder="Storyboard title" disabled={!editable}
           onChange={(e) => update((d) => { d.title = e.target.value; })} aria-label="Storyboard title" />
-        <span className={`dur ${target && Math.abs(total - target) > target * 0.2 ? 'warn-t' : ''}`} title={`~${WPS} words/s`}>
+        <span className={`dur ${target && Math.abs(total - target) > target * 0.2 ? 'warn-t' : ''}`} title={`~${wpsFor(lang)} words/s`}>
           ≈ {total.toFixed(1)} s{target ? ` / target ${target} s` : ''}</span>
         {dirty && <Badge tone="warning">unsaved</Badge>}
         <div className="spacer" />
@@ -229,7 +230,7 @@ export const StoryboardEditor: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
               <div key={`${s.id}-${i}`} role="option" aria-selected={i === sel} tabIndex={0}
                 className={`scene-i ${i === sel ? 'sel' : ''} ${errScenes.has(i) ? 'has-err' : ''}`}
                 onClick={() => setSel(i)} onKeyDown={(e) => { if (e.key === 'Enter') setSel(i); }}>
-                <div className="scene-i-h"><span className="scene-n">{i + 1}</span><span className="scene-id">{s.id}</span><span className="muted sm">{estSeconds(s.narration ?? '').toFixed(1)}s</span></div>
+                <div className="scene-i-h"><span className="scene-n">{i + 1}</span><span className="scene-id">{s.id}</span><span className="muted sm">{estSeconds(s.narration ?? '', lang).toFixed(1)}s</span></div>
                 <div className="scene-i-m"><Badge tone={s.purpose === 'cta' ? 'brand' : s.purpose === 'problem' ? 'danger' : 'neutral'}>{s.purpose}</Badge>
                   <span className="muted sm">{(s.blocks ?? []).length} block{(s.blocks ?? []).length === 1 ? '' : 's'}{s.cues ? ` · ${Object.keys(s.cues).length} cues` : ''}{s.sfx?.length ? ` · ${s.sfx.length} sfx` : ''}</span></div>
                 <div className="scene-i-t">{s.narration}</div>
@@ -246,7 +247,7 @@ export const StoryboardEditor: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
             )}
           </div>
           {scene ? (
-            <SceneEditor key={`${sel}-${rev}`} scene={scene} index={sel} schema={schema} disabled={!editable} still={stills[scene.id]}
+            <SceneEditor key={`${sel}-${rev}`} scene={scene} index={sel} schema={schema} disabled={!editable} still={stills[scene.id]} lang={lang}
               stillBust={p.updated_at} errors={errors.filter((e) => sceneOfError(e) === sel)}
               onChange={(fn, structural) => update((d) => fn(d.scenes[sel]), structural)} />
           ) : <Empty>Select a scene.</Empty>}
@@ -289,7 +290,7 @@ export const StoryboardEditor: React.FC<{nav: Nav; pid: string}> = ({nav, pid}) 
 
 // ---- scene editor ------------------------------------------------------------------------------
 const SceneEditor: React.FC<{scene: Any; index: number; schema: Any; disabled: boolean; still?: string; stillBust?: number; errors: string[];
-  onChange: (fn: (s: Any) => void, structural?: boolean) => void}> = ({scene, index, schema, disabled, still, stillBust, errors, onChange}) => {
+  lang?: string; onChange: (fn: (s: Any) => void, structural?: boolean) => void}> = ({scene, index, schema, disabled, still, stillBust, errors, lang, onChange}) => {
   const [newType, setNewType] = useState('text');
   const set = (k: string, v: Any) => onChange((s) => { if (v === '' || v === undefined || v === null) delete s[k]; else s[k] = v; });
   const purposes: string[] = schema?.purposes ?? ['hook', 'problem', 'turn', 'journey', 'resolution', 'cta'];
@@ -297,7 +298,7 @@ const SceneEditor: React.FC<{scene: Any; index: number; schema: Any; disabled: b
   return (
     <div className="scene-ed">
       <Card title={<span>Scene {index + 1} <span className="mono muted">{scene.id}</span></span>}
-        actions={<span className="muted sm">{n} words · ≈ {(n / WPS).toFixed(1)} s</span>}>
+        actions={<span className="muted sm">{n} words · ≈ {(n / wpsFor(lang)).toFixed(1)} s</span>}>
         {errors.length > 0 && <ul className="errlist err-inline">{errors.map((e, i) => <li key={i}><code>{e}</code></li>)}</ul>}
         <div className="scene-top">
           <div className="form-grid g3 grow">

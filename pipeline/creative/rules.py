@@ -51,7 +51,8 @@ def estimate_seconds(sb: dict) -> float:
     """Estimated VIDEO length: the preview's timing model (calibrated on the local voice: punctuation pauses,
     scene gaps, holdAfter) plus the 0.7 s end tail the renderer adds."""
     from ..timeline import estimated_timing
-    return round(estimated_timing(sb, wps=WPS, gap=SCENE_GAP)["duration"] + 0.7, 1)
+    from .language import wps_of
+    return round(estimated_timing(sb, wps=wps_of(sb), gap=SCENE_GAP)["duration"] + 0.7, 1)
 
 
 def hero_of(scene: dict) -> str | None:
@@ -223,11 +224,15 @@ def _shown_numbers(o, t_at, out: list, path=""):
                 _shown_numbers(v, t_at, out, f"{path}[{i}]")
 
 
-def _spoken_time(words: list[Word], n: float) -> float | None:
+def _spoken_time(words: list[Word], n: float, lang: str | None = None) -> float | None:
     s = str(int(n)) if float(n).is_integer() else str(n)
     for w in words:
         if word_matches(w.text, s) or norm(w.text.replace(",", "")) == norm(s):
             return w.start
+    if lang == "hinglish":                 # Hindi number words and runs ("teen", "paanch sau"): pipeline/spoken_numbers.py
+        from ..spoken_numbers import spoken_index
+        i = spoken_index([w.text for w in words], n, lang)
+        return words[i].start if i is not None else None
     return None
 
 
@@ -273,7 +278,7 @@ def sync_report(sb: dict, fps: int = 30) -> dict:
         for n, t, path in nums:
             if n < 2:
                 continue
-            ts = _spoken_time(st.words, n)
+            ts = _spoken_time(st.words, n, sb.get("language"))
             if ts is not None and t < ts - MAX_NUMBER_LEAD:
                 bad_nums.append({"number": n, "shown_at": round(t, 2), "spoken_at": round(ts, 2), "lead_s": round(ts - t, 2), "where": path})
         ats = [t for t in (_first_visible(b) for b in blocks) if t is not None]
@@ -336,7 +341,8 @@ def check_rules(sb: dict, *, pf=None, claims: dict | None = None, labels: dict |
     R.append(_rule("valid", "passes validate_storyboard + v2b field mirror", not errs and not ferrs, "; ".join((errs + ferrs)[:6])))
     R.append(_rule("scenes", f"{s_lo}–{s_hi} scenes", s_lo <= len(sc) <= s_hi, f"{len(sc)} scenes"))
     est = estimate_seconds(sb)
-    R.append(_rule("duration", f"estimated {d_lo:g}–{d_hi:g} s at {WPS} words/s", d_lo <= est <= d_hi, f"{est} s"))
+    from .language import wps_of
+    R.append(_rule("duration", f"estimated {d_lo:g}–{d_hi:g} s at {wps_of(sb)} words/s", d_lo <= est <= d_hi, f"{est} s"))
     nohero = [s["id"] for s in sc if not any(b["type"] in HERO for b in s["blocks"])]
     R.append(_rule("hero-every-scene", "every scene has a hero visual (never only headline/text/pill)", not nohero,
                    f"no hero: {nohero}" if nohero else ""))

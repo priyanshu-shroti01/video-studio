@@ -174,7 +174,7 @@ def evaluate(prod_dir: Path, cfg: dict) -> dict:
     from .timeline import build_timeline, estimated_timing
     tm = estimated_timing(sb)
     tl = build_timeline({**cfg, "formats": [prev["format"]]}, tm)
-    sync = sync_check.evaluate(tl.resolved, tm["words"], tl.duration, hud=tl.hud)
+    sync = sync_check.evaluate(tl.resolved, tm["words"], tl.duration, hud=tl.hud, lang=sb.get("language"))
     metrics["sync"] = {k: sync[k] for k in ("longest_static_s", "static_share_pct", "static", "early_numbers")}
     add("storyboard.narration_sync", sync["status"], sync_check.summary(sync))
     late = scene_open_report(tl.resolved)
