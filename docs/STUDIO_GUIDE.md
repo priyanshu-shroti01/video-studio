@@ -48,7 +48,9 @@ productions it shows a first-video prompt (or **Add your website first** when th
 
 **Create a video** (`#/create`, `#/create/<production>`) walks the same workflow in six steps with a progress header:
 1 Website → 2 What to promote (product, price, audience, what viewers should do, closing line; length "Let the story
-decide" by default; vertical, wide or both) → 3 Pick an idea (the concepts task; three cards with hook, summary,
+decide" by default; language English or Hinglish, and for Hinglish the Hindi voice: "On this Mac" (local, free) or
+"Natural, male/female (online)", Microsoft's Hindi voices, where choosing it is the consent to send the script to
+Microsoft; vertical, wide or both) → 3 Pick an idea (the concepts task; three cards with hook, summary,
 scene count, estimated length and claims to check) → 4 Review (build the preview, look at every scene, approve it
 with your name; **Edit words and scenes** opens the Storyboard page with the frame-by-frame player) → 5 Make the
 video (render progress in plain stage names; stop; try again) → 6 Approve & share (watch, check the open review items

@@ -93,9 +93,17 @@ const PickWebsite: React.FC<{nav: Nav; brand: string; onPick: (b: string) => voi
   </Panel>
 );
 
+const LANGUAGES: [string, string][] = [['english', 'English'], ['hinglish', 'Hinglish']];
+// [key, label, hint, Microsoft voice id (online) or '' for the local Hindi voice]
+const HINDI_VOICES: [string, string, string, string][] = [
+  ['local', 'On this Mac', 'Free and private: nothing leaves your Mac. Sounds less natural.', ''],
+  ['madhur', 'Natural, male (online)', 'Microsoft\'s Hindi voice: free and very natural, but your script is sent to Microsoft to be spoken.', 'hi-IN-MadhurNeural'],
+  ['swara', 'Natural, female (online)', 'Microsoft\'s Hindi voice: free and very natural, but your script is sent to Microsoft to be spoken.', 'hi-IN-SwaraNeural'],
+];
+
 const Promote: React.FC<{nav: Nav; brand: string; onBack: () => void}> = ({nav, brand, onBack}) => {
   const b = nav.brands.find((x) => x.id === brand);
-  const [f, setF] = useState<Record<string, string>>({goal: 'conversions', length: 'flex', format: 'short'});
+  const [f, setF] = useState<Record<string, string>>({goal: 'conversions', length: 'flex', format: 'short', language: 'english', hvoice: 'local'});
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<unknown>(null);
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF({...f, [k]: e.target.value});
@@ -107,6 +115,11 @@ const Promote: React.FC<{nav: Nav; brand: string; onBack: () => void}> = ({nav, 
       const brief: Record<string, unknown> = {product: f.product, format: f.format === 'landscape' ? 'landscape' : 'short', duration_seconds: len[2],
         ...(len[0] === 'flex' ? {duration_flexible: true} : {}), ...(f.format === 'both' ? {formats: ['short', 'landscape']} : {})};
       for (const k of ['price', 'audience', 'goal', 'cta', 'tone', 'request']) if (f[k]?.trim()) brief[k] = f[k].trim();
+      if (f.language === 'hinglish') {
+        brief.language = 'hinglish';
+        const v = HINDI_VOICES.find((x) => x[0] === f.hvoice);
+        if (v && v[3]) Object.assign(brief, {voice: v[3], allow_online_voice: true});   // choosing it is the consent
+      }
       const p = await api.post('/api/productions', {brand, name: f.name?.trim() || undefined, brief});
       try { await api.post(`/api/productions/${p.id}/concepts`); } catch { /* step 3 offers the button again */ }
       nav.setPid(p.id);
@@ -130,6 +143,11 @@ const Promote: React.FC<{nav: Nav; brand: string; onBack: () => void}> = ({nav, 
           <Field label="Closing line (call to action)"><input maxLength={60} value={f.cta ?? ''} onChange={set('cta')} placeholder={`e.g. Start at ${b.domain ?? 'yourwebsite.com'}`} /></Field>
           <Field label="Length" wide>
             <div className="seg seg-wrap">{LENGTHS.map(([k, l]) => <button type="button" key={k} className={f.length === k ? 'on' : ''} onClick={() => setF({...f, length: k})}>{l}</button>)}</div></Field>
+          <Field label="Language" wide hint={f.language === 'hinglish' ? 'Captions in Hinglish as creators write it ("Brief do, aur video lo."), spoken by a Hindi voice.' : undefined}>
+            <div className="seg seg-wrap">{LANGUAGES.map(([k, l]) => <button type="button" key={k} className={f.language === k ? 'on' : ''} onClick={() => setF({...f, language: k})}>{l}</button>)}</div></Field>
+          {f.language === 'hinglish' && (
+            <Field label="Hindi voice" wide hint={HINDI_VOICES.find((x) => x[0] === f.hvoice)?.[2]}>
+              <div className="seg seg-wrap">{HINDI_VOICES.map(([k, l]) => <button type="button" key={k} className={f.hvoice === k ? 'on' : ''} onClick={() => setF({...f, hvoice: k})}>{l}</button>)}</div></Field>)}
           <Field label="Shape" wide>
             <div className="wformats">{FORMATS.map(([k, l, s]) => (
               <button type="button" key={k} className={`wformat ${f.format === k ? 'on' : ''}`} onClick={() => setF({...f, format: k})}>

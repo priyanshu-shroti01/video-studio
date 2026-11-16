@@ -3,6 +3,10 @@
 ## Unreleased
 
 ### Added
+- **Language and Hindi voice in the Studio:** the "Create a video" wizard's step 2 has a Language choice (English /
+  Hinglish) and, for Hinglish, a Hindi voice: on this Mac (local) or natural male/female (Microsoft, online; choosing
+  it is the consent). The Studio API accepts `voice` from a fixed list and `allow_online_voice`, and refuses an
+  online voice without that consent.
 - **Hinglish copy from a brief:** `"language": "hinglish"` now also makes the creative engine write the narration in
   Latin-script Hinglish ("Brief do, aur video lo."), not only speak it. See
   docs/CREATIVE_SYSTEM.md#language-english-or-hinglish-brieflanguage.
@@ -104,6 +108,8 @@
   quote is kept word for word.
 
 ### Fixed
+- **The price card's side pill ("Same price on renewal") was still fading in at the cut** when its word ended the line.
+  It starts 0.3 s earlier and the price-card scene holds 0.5 s after its last word.
 - **A render waited minutes for memory a busy Mac never freed** ("waiting for memory: 3300 MB available, want 3600"),
   then started with every tab anyway and swapped. It now renders with as many Chromium tabs as fit (down to 2) and
   only waits when even 2 don't.

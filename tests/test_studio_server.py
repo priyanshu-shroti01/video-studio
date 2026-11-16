@@ -801,6 +801,22 @@ def test_brief_keeps_the_hinglish_narration_language(studio):
     assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "language": "tamil"}})[0] == 400
 
 
+def test_brief_voice_choice_and_online_consent(studio):
+    srv, _ = studio
+    from pipeline import api
+    st, _, p, _ = req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {
+        "product": "NVMe hosting", "language": "hinglish", "voice": "hi-IN-MadhurNeural", "allow_online_voice": True}})
+    assert st == 200, p
+    br = api.Productions().get(p["id"])["brief"]
+    assert br["voice"] == "hi-IN-MadhurNeural" and br["allow_online_voice"] is True
+    # an online voice without the person's consent, an unknown voice, or a non-boolean consent: refused
+    assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {
+        "product": "x", "language": "hinglish", "voice": "hi-IN-SwaraNeural"}})[0] == 400
+    assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {"product": "x", "voice": "../../etc"}})[0] == 400
+    assert req(srv, "POST", "/api/productions", {"brand": "shrotihost", "brief": {
+        "product": "x", "voice": "hi-IN-MadhurNeural", "allow_online_voice": "yes"}})[0] == 400
+
+
 def test_header_values_with_line_breaks_are_refused_and_static_names_are_bounded(studio):
     srv, _ = studio
     import pytest

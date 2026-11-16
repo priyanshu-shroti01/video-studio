@@ -45,6 +45,12 @@ from pipeline.errors import ConfigError, NotFound, PathError, PipelineError, Sta
 from pipeline.paths import ROOT, rel
 
 
+
+# narrators the Studio's brief form offers: local Kokoro voices (English, Hindi) and Microsoft's Hindi neural voices
+# (online; only with the person's consent, allow_online_voice)
+STUDIO_VOICES = {"am_fenrir", "am_michael", "af_heart", "hm_omega", "hm_psi", "hf_alpha", "hf_beta",
+                 "hi-IN-MadhurNeural", "hi-IN-SwaraNeural"}
+
 def _player_props(pid: str, fmt: str | None):
     from pipeline.preview_player import player_props
     return player_props(pid, fmt)
@@ -352,6 +358,17 @@ def create_production(body: dict) -> dict:
             raise BadRequest("'language' must be english or hinglish")
         if raw["language"] == "hinglish":
             brief["language"] = "hinglish"
+    if raw.get("voice") is not None:                      # a narrator from the Studio's list (local Kokoro or Microsoft Hindi)
+        if raw["voice"] not in STUDIO_VOICES:
+            raise BadRequest("'voice' must be one of " + ", ".join(sorted(STUDIO_VOICES)))
+        brief["voice"] = raw["voice"]
+    if raw.get("allow_online_voice") is not None:         # the person's consent to send the script to an online voice
+        if not isinstance(raw["allow_online_voice"], bool):
+            raise BadRequest("'allow_online_voice' must be true or false")
+        if raw["allow_online_voice"]:
+            brief["allow_online_voice"] = True
+    if str(brief.get("voice", "")).startswith("hi-IN-") and not brief.get("allow_online_voice"):
+        raise BadRequest("a Microsoft Hindi voice is online: it needs 'allow_online_voice': true")
     brief["brand"] = load_theme(brand).get("name", brand)
     brief["brand_id"] = brand
     name = _str(body, "name", required=False, limit=100) or None

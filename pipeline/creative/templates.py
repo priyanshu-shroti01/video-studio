@@ -232,7 +232,8 @@ def b_plan_card(ctx, A, copy):
     out = [card]
     side = side_feature(ctx, ["renewal", "activation"])
     if side:
-        card["highlightAt"] = A.at(ctx.cues(side[0]) + ["same"], 0.0, name="highlight")
+        # the side pill is often on the line's last words: start it a beat early so it has landed before the cut
+        card["highlightAt"] = A.at(ctx.cues(side[0]) + ["same"], -0.3, name="highlight")
         out.append(pill(ctx, side[1], f"fact:{ctx.feature_fact(side[0])}", card["highlightAt"], side[2], "success"))
     return out
 
@@ -376,7 +377,8 @@ GENERIC: list[SceneTemplate] = [
     T("price-plan-card", "Plan price card", "pricing", None, None, "plan-card", "pill", ("spotlight", "glow"), "push-in", "energetic",
       "slide-up", None, (11, 18), None, {"price": "the price digits", "features": "one per spoken feature", "highlight": ["renewal"]},
       ("price", "storage", "websites"), (), _always, b_plan_card,
-      "One premium card for the brief's plan: verified price counts up on its spoken digits, features tick in."),
+      "One premium card for the brief's plan: verified price counts up on its spoken digits, features tick in.",
+      hold=0.5),
     T("price-compare-cycles", "Pricing table", "pricing", None, None, "price-compare", "pill", ("split",), "none", "standard", "mask-wipe",
       None, (11, 18), None, {"rows": "each row on its spoken price"}, ("price", "monthly", "semi", "annual"), (6,), _always,
       b_price_compare, "Billing cycles (when the plan has them) or a plan matrix: each row lands on the price that is spoken."),

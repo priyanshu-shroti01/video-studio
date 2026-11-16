@@ -255,7 +255,8 @@ a terminal.
 - **Home:** your videos as cards with a still and a plain status ("Needs your review", "Ready to post", "Posted on
   LinkedIn").
 - **Create a video:** a six-step wizard (website → what to promote → pick one of three ideas → review → make the
-  video → approve and share).
+  video → approve and share). Step 2 also picks the language (English or Hinglish) and, for Hinglish, a local or a
+  natural online Hindi voice.
 - **Websites & facts:** add a website; the Studio suggests prices, plans and features with the exact text it found
   them in, and a named person confirms each one.
 - **Library:** archive and restore productions, and record "I posted it on…" for posts you made yourself.
