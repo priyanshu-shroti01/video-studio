@@ -104,6 +104,9 @@
   quote is kept word for word.
 
 ### Fixed
+- **A render waited minutes for memory a busy Mac never freed** ("waiting for memory: 3300 MB available, want 3600"),
+  then started with every tab anyway and swapped. It now renders with as many Chromium tabs as fit (down to 2) and
+  only waits when even 2 don't.
 - **No pause between some Hinglish sentences** ("Milo Video Studio se. Brief do" ran together): a sentence ending on a
   Hindi word now gets a danda (।) in the spoken form, which Hindi voices pause on. New QA check
   `audio.sentence_pauses` flags any sentence end that still runs straight into the next one.

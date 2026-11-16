@@ -83,3 +83,12 @@ def test_qa_flags_a_sentence_that_runs_straight_into_the_next():
            {"text": "do,", "start": 0.7, "end": 0.9}, {"text": "aur", "start": 0.9, "end": 1.0}]
     c = sentence_pause_check(bad)
     assert c.status == "WARN" and "se. → Brief" in c.detail and "do," not in c.detail
+
+
+def test_a_busy_mac_renders_with_fewer_tabs_instead_of_waiting():
+    from pipeline.render import RenderSettings, fit_tabs
+    s = RenderSettings(concurrency=6)                       # 1500 MB floor + 350 MB a tab
+    assert fit_tabs(6, s, 4000) == 6                        # enough memory: all six
+    assert fit_tabs(6, s, 3300) == 5                        # 3.3 GB free: five fit
+    assert fit_tabs(6, s, 1000) == 2                        # very little: never below two (then it waits)
+    assert fit_tabs(1, s, 1000) == 1                        # a one-tab render stays one tab

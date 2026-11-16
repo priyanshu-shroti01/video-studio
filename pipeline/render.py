@@ -202,6 +202,16 @@ def count_frames(path: Path) -> int:
         return -1
 
 
+MIN_TABS = 2     # fewest Chromium tabs a render shrinks to when memory is short (below that it waits)
+
+
+def fit_tabs(want: int, s: "RenderSettings", available_mb: float) -> int:
+    """The most tabs (<= want, >= MIN_TABS) that fit in the memory available now: a busy Mac renders a little slower
+    instead of waiting for apps to close."""
+    fits = int((available_mb - s.min_available_mb) // max(1.0, s.per_tab_mb))
+    return max(min(want, MIN_TABS), min(want, fits))
+
+
 def wait_for_memory(need_mb: float, should_cancel: Callable[[], bool], log, max_wait: float = 300) -> float:
     t0 = time.time()
     while True:
@@ -256,13 +266,16 @@ def render_format(*, props_file: Path, props_hash: str, fmt: str, total_frames: 
         attempts = 0
         while True:
             attempts += 1
-            wait_for_memory(s.min_available_mb + s.per_tab_mb * conc, should_cancel, log)
+            use = fit_tabs(conc, s, mem_snapshot().available_mb)
+            if use < conc:
+                log(f"[{fmt}] memory is short: rendering chunk {a}-{b} with {use} tabs instead of {conc}")
+            wait_for_memory(s.min_available_mb + s.per_tab_mb * use, should_cancel, log)
             m0 = mem_snapshot()
             tmp = chunks_dir / f".{f.stem}.part.mp4"
             tmp.unlink(missing_ok=True)
             args = [*remotion_bin(), "render", str(bundle), COMPOSITION_ID, str(tmp), f"--props={props_file}",
                     f"--frames={a}-{b}", "--muted", "--codec=h264", f"--video-bitrate={s.bitrate}",
-                    f"--image-format={s.image_format}", "--color-space=bt709", f"--concurrency={conc}",
+                    f"--image-format={s.image_format}", "--color-space=bt709", f"--concurrency={use}",
                     f"--timeout={int(s.timeout_per_chunk * 1000)}", "--log=info", "--overwrite",
                     "--hardware-acceleration=" + ("required" if encoder == "videotoolbox" else "disable")]
             if s.image_format == "jpeg":
@@ -270,7 +283,7 @@ def render_format(*, props_file: Path, props_hash: str, fmt: str, total_frames: 
             if s.scale != 1:
                 args.append(f"--scale={s.scale}")
             env = {**os.environ, "REMOTION_HW": "required" if encoder == "videotoolbox" else "disable",
-                   "REMOTION_BITRATE": s.bitrate, "REMOTION_CONCURRENCY": str(conc)}
+                   "REMOTION_BITRATE": s.bitrate, "REMOTION_CONCURRENCY": str(use)}
 
             def prog(line, a=a, n=n):
                 mm = PROGRESS.search(line)
@@ -284,14 +297,14 @@ def render_format(*, props_file: Path, props_hash: str, fmt: str, total_frames: 
                     raise RenderError(f"chunk {a}-{b}: expected {n} frames, file has {got}", transient=True)
                 m1 = mem_snapshot()
                 os.replace(tmp, f)
-                cr = ChunkReport((a, b), round(r.seconds, 2), encoder, conc, round(r.peak_rss_mb),
+                cr = ChunkReport((a, b), round(r.seconds, 2), encoder, use, round(r.peak_rss_mb),
                                  round(m1.swap_used_mb - m0.swap_used_mb, 1), m1.pageouts - m0.pageouts, False, attempts)
                 atomic_write_json(meta_f, {"props_hash": props_hash, "frames": n, "encoder": encoder,
-                                           "concurrency": conc, "seconds": cr.seconds, "w": w, "h": h,
+                                           "concurrency": use, "seconds": cr.seconds, "w": w, "h": h,
                                            "scale": s.scale, "bitrate": s.bitrate})
                 rep.chunks.append(cr); files.append(f); done_frames += n
                 log(f"[{fmt}] chunk {a}-{b}: {n} frames in {cr.seconds:.1f}s ({n / max(cr.seconds, 0.01):.1f} fps) "
-                    f"enc={encoder} tabs={conc} rss={cr.peak_rss_mb:.0f}MB swapΔ={cr.swap_delta_mb:+.0f}MB "
+                    f"enc={encoder} tabs={use} rss={cr.peak_rss_mb:.0f}MB swapΔ={cr.swap_delta_mb:+.0f}MB "
                     f"pageoutsΔ={cr.pageouts_delta}")
                 if (cr.swap_delta_mb > 64 or cr.pageouts_delta > 2000) and conc > 1:
                     conc = max(1, conc // 2)

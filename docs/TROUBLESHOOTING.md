@@ -51,7 +51,8 @@ review flags.
 | `TTS_FAILED ... rejected the request` | Edge TTS: invalid voice / rate / pitch | `python3 scripts/legacy/voiceover.py --list-voices en-IN` |
 | `TIMING_INVALID ... no provider timestamp` | The provider returned too few word boundaries (more than 20% missing) | Retry. If it persists, simplify the narration (unusual symbols) |
 | `RESOURCES_INSUFFICIENT` | Under 2 GB disk free (`render.minFreeGb`) or under 800 MB memory | `video-pipeline clean --dry-run` then `--yes`; close apps |
-| `waiting for memory: ...` in the log | Memory gate: fewer than `1500 + 350×tabs` MB reclaimable | Close apps (a pipeline-started LLM runtime is stopped automatically before rendering; one you started yourself is left running, so quit it); the job continues by itself (it waits up to 5 minutes, then runs with what's available) |
+| `memory is short: rendering chunk … with N tabs` in the log | Fewer than `1500 + 350×tabs` MB reclaimable | Nothing to do: the render uses as many Chromium tabs as fit (down to 2) and runs a little slower instead of waiting. Close apps for full speed |
+| `waiting for memory: ...` in the log | Not even 2 tabs fit (under about 2.2 GB reclaimable) | Close apps (a pipeline-started LLM runtime is stopped automatically before rendering; one you started yourself is left running, so quit it); the job continues by itself (it waits up to 5 minutes, then runs with what's available) |
 | `memory pressure detected -> lowering Chromium tabs` | Swap grew or page-outs spiked during a chunk | Expected protective behaviour. Lower `render.concurrency` if it happens every time |
 | `chunk ... failed (Target closed / Page crashed)` | Chromium crash | Retried with half the tabs (2 retries per chunk) |
 | `PROCESS_STALLED` | No render output for `render.stallTimeout` s (default 120 s) | Retried automatically. If it repeats, a composition is blocked in `delayRender` (font or asset missing) |
